@@ -1,0 +1,171 @@
+{% extends 'dashboard_base.html' %}
+
+{% block content %}
+<style>
+    .collapsible {
+        background-color: #28282b;
+        border-radius: 15px;
+        color: white;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+        transition: background-color 0.5s ease-in-out; /* Add transition for background color */
+    }
+    
+    .active, .collapsible:hover {
+        background-color: #555;
+    }
+    
+    .content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-in-out; /* Add transition for max-height */
+    }
+    
+    .collapsible.active + .content {
+        max-height: 1000px; /* Set a value larger than the expected maximum height of the content */
+    }
+    
+    .row {
+        margin-bottom: 20px;
+    }
+    
+</style><div class="container">
+    <h1>Table</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">Category</button>
+            <div class="content">
+                {% include 'dashboard/table/category.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Brand</button>
+            <div class="content">
+                {% include 'dashboard/table/brand.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Color</button>
+            <div class="content">
+                {% include 'dashboard/table/color.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">CPU Brand</button>
+            <div class="content">
+                {% include 'dashboard/table/cpu/cpu_brand.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">CPU</button>
+            <div class="content">
+                {% include 'dashboard/table/cpu/cpu.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">GPU Brand</button>
+            <div class="content">
+                {% include 'dashboard/table/gpu/gpu_brand.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">GPU</button>
+            <div class="content">
+                {% include 'dashboard/table/gpu/gpu.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Memory Brand</button>
+            <div class="content">
+                {% include 'dashboard/table/memory/memory_brand.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Memory</button>
+            <div class="content">
+                {% include 'dashboard/table/memory/memory.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">Storage Brand</button>
+            <div class="content">
+                {% include 'dashboard/table/storage/storage_brand.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Storage</button>
+            <div class="content">
+                {% include 'dashboard/table/storage/storage.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Display</button>
+            <div class="content">
+                {% include 'dashboard/table/display.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">Port</button>
+            <div class="content">
+                {% include 'dashboard/table/port.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Wireless Connectivity</button>
+            <div class="content">
+                {% include 'dashboard/table/wireless_connectivity.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Webcam</button>
+            <div class="content">
+                {% include 'dashboard/table/webcam.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">Battery</button>
+            <div class="content">
+                {% include 'dashboard/table/battery.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Operating System</button>
+            <div class="content">
+                {% include 'dashboard/table/operating_system.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "block";
+            }
+        });
+    }
+</script>
+
+{% endblock content %}

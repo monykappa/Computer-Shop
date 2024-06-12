@@ -1,0 +1,15 @@
+<h2>Storage Brand</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for storage_brand in storage_brands %}
+    <tr>
+        <td>{{ storage_brand.name }}</td>
+        <td><a href="{% url 'dashboard:edit_model' model='storage_brand' pk=storage_brand.pk %}">Edit</a> | <a href="">Delete</a></td>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>

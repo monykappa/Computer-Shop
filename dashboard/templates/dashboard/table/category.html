@@ -1,0 +1,14 @@
+<h2>Category</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Edit/Delete</th>
+    </tr>
+    {% for category in categories %}
+    <tr>
+        <td>{{ category.name }}</td>
+        <td><a href=""">Edit</a> | <a
+                href="">Delete</a></td>
+    </tr>
+    {% endfor %}
+</table>

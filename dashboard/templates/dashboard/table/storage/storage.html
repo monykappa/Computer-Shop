@@ -1,0 +1,15 @@
+<h2>Storage</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for storage_spec in storage_specs %}
+    <tr>
+        <td>{{ storage_spec.capacity }} {{ storage_spec.capacity_type }}{{ storage_spec.type }}</td>
+        <td><a href="{% url 'dashboard:edit_model' model='storage_spec' pk=storage_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>

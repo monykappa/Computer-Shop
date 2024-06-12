@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .StyledReceipt {
+        background: linear-gradient(45deg, #aaa, #fff);
+        width: 800px;
+        padding: 1rem 1rem 2rem;
+        --mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50%/30px 100%;
+        -webkit-mask: var(--mask);
+        mask: var(--mask);
+    }
+
+    ul {
+        list-style-type: none;
+    }
+</style>
+
+<div class="success-ctn StyledReceipt container text-center">
+    <div class="sub-ctn mt-2">
+        <h1>Payment Successful!
+            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="60" height="60" viewBox="0 0 48 48"
+                class="rotate-animation">
+                <path fill="#c8e6c9" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z">
+                </path>
+                <path fill="#4caf50"
+                    d="M34.586,14.586l-13.57,13.586l-5.602-5.586l-2.828,2.828l8.434,8.414l16.395-16.414L34.586,14.586z">
+                </path>
+            </svg>
+        </h1>
+        <p>Your payment has been completed successfully.</p>
+
+        <p class="order-num">Order number: # {{ order_history.id }}</p>
+        <p>Order Date: {{ order_history.ordered_date }}</p>
+        <p>We have received your total payment of ${{ order_history.total_price }}.</p>
+
+        <p>Products Purchased:</p>
+        <ul>
+            {% for item in order_history_items %}
+            <li>-{{ item.product.name }} {{ item.product.model }} {{ item.product.year }} - Quantity: {{ item.quantity }}
+                - ${{ item.subtotal }}USD</li>
+            {% endfor %}
+        </ul>
+
+        <p>Thank you for shopping with us!</p>
+
+        <div class="container">
+            <div class="row justify-content-center"> <!-- Center the content horizontally -->
+                <div class="col-md-6 text-center">
+                    {% if order_history.qr_code %}
+                    <img src="{{ order_history.qr_code.url }}" alt="QR Code" width="200" class="img-fluid">
+                    <!-- Center the image -->
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row justify-content-center"> <!-- Center the content horizontally -->
+                <div class="col-md-6 text-center"> <!-- Center the button -->
+                    <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-ctn mt-4 mb-4">Continue
+                        Shopping</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock content %}

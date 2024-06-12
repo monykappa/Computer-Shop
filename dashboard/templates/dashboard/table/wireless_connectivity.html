@@ -1,0 +1,15 @@
+<h2>Wireless Connectivity</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for wireless_connectivity in wireless_connectivities %}
+    <tr>
+        <td>{{ wireless_connectivity.wireless_connectivity }}</td>
+        <td><a href="{% url 'dashboard:edit_model' model='wireless_connectivity' pk=wireless_connectivity.pk %}">Edit</a> | <a href="">Delete</a></td>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>

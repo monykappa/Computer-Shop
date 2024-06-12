@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block meta %}
+
+    {% endblock meta %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sweetalert/all.min.css' %}">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static 'css/home/base.css' %}">
+    {% block css %}{% endblock %}
+    <title>{% block title %}Home{% endblock %}</title>
+
+    <script src="{% static 'js/bootstrap/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/sweetalert/sweetalert2@11.js' %}"></script>
+    <script src="{% static 'js/carts/cartAuth.js' %}"></script>
+
+
+
+
+</head>
+
+<body>
+    <!-- navbar start -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <!-- Logo on the left -->
+            <a class="navbar-brand logo-name" href="#">
+                <img src="{% static 'img/logo/logo.png' %}" alt="Logo" height="50"
+                    class="nav-logo">
+                <h5 class="logo-name-logo">Khmer Empire Shop</h5>
+            </a>
+            <!-- Menu items on the right -->
+            <button class="navbar-toggler btn-toggle" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="40" viewBox="0,0,256,256"
+                    style="fill:#000000;">
+                    <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
+                        stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0"
+                        font-family="none" font-weight="none" font-size="none" text-anchor="none"
+                        style="mix-blend-mode: normal">
+                        <g transform="scale(5.12,5.12)">
+                            <path
+                                d="M5,8c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175zM5,23c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175zM5,38c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175z">
+                            </path>
+                        </g>
+                    </g>
+                </svg>
+                <span class="navbar-toggler-icon"> </span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active menu">
+                        <a class="nav-link"
+                            href="{% if user.is_authenticated %}{% url 'home:home_auth' %}{% else %}{% url 'home:home' %}{% endif %}">Home
+                        </a>
+                    </li>
+                    <li class="nav-item menu">
+                        <a class="nav-link" href="{% url 'products:product_list' %}">Product</a>
+                    </li>
+
+                    <li class="nav-item menu">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                    <li class="nav-item menu">
+                        <a class="nav-link about-us" href="">About us</a>
+                    </li>
+                    <li class="nav cart">
+                        <a class="nav-link" href="{% url 'orders:cart_detail' %}"><i
+                                class="fa-solid fa-cart-shopping"></i></a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item menu">
+                        <a class="nav-link user" href="{% url 'userprofile:profile' %}">{{ user.username }}</a>
+                    </li>
+                    <li class="nav-item menu">
+                        <a class="nav-link" href="{% url 'userprofile:logout' %}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item menu">
+                        <a class="nav-link nav-sign-in" href="{% url 'userprofile:sign_in' %}">Sign In</a>
+                    </li>
+                    <li class="nav-item menu">
+                        <a class="nav-link  nav-sign-up" href="{% url 'userprofile:signup' %}">Sign Up</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- navbar end -->
+    <div class="nav-top"></div>
+    {% block content %}
+
+
+    {% endblock content %}
+
+    <!-- Footer  start-->
+    <footer>
+        <div class="footer">
+            <img src="https://cdn-icons-png.flaticon.com/512/1354/1354444.png" alt="Logo" height="120"
+                class="footer-logo">
+            <h2>Khmer Empire Shop</h2>
+            <div class="social-icons">
+                <a href="https://facebook.com" class="logo-social-media"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://twitter.com" class="logo-social-media"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="https://youtube.com" class="logo-social-media" <i class="fa-brands fa-youtube"></i></a>
+                <a href="https://telegram.com" class="logo-social-media"><i class="fa-brands fa-telegram"></i></a>
+            </div>
+            <p>Contact: +855 888026678</p>
+            <p class="copy-rigth">&copy; 2023 Khmer Empire Computer Shop. All rights reserved.</p>
+        </div>
+    </footer>
+    <!-- Footer end -->
+    {% block js %}
+
+    {% endblock js %}
+
+
+</body>
+
+</html>

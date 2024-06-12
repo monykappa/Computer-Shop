@@ -1,0 +1,99 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% block title %}
+Order
+{% endblock title %}
+
+{% block content %}
+
+
+
+<div class="container">
+    <h2>Order History</h2>
+    <div class="status-buttons">
+        <a href="{% url 'dashboard:order' %}?status=Pending"
+            class="btn {% if status_filter == 'Pending' %}btn-warning{% else %}btn-secondary{% endif %}">Pending</a>
+        <a href="{% url 'dashboard:order' %}?status=Completed"
+            class="btn {% if status_filter == 'Completed' %}btn-success{% else %}btn-secondary{% endif %}">Completed</a>
+        <a href="{% url 'dashboard:order' %}?status=Cancelled"
+            class="btn {% if status_filter == 'Cancelled' %}btn-danger{% else %}btn-secondary{% endif %}">Cancelled</a>
+    </div>
+
+</div>
+<!-- Order history table -->
+<!-- Order history table -->
+<table class="container">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Ordered Date</th>
+            <th>Total Price</th>
+            <th>From</th>
+            <th>Status</th>
+            <th>QR Code</th>
+            {% if order_histories and order_histories.0.status == "Pending" %}
+                <th>Action</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in order_histories %}
+        <tr class="clickable-row" data-href="{% url 'dashboard:order_detail' order.id %}">
+            <td>#{{ order.id }}</td>
+            <td>{{ order.ordered_date }}</td>
+            <td>${{ order.total_price }}</td>
+            <td>{{ order.province }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>
+                {% if order.qr_code %}
+                <img src="{{ order.qr_code.url }}" alt="QR Code" width="60" class="img-fluid">
+                {% endif %}
+            </td>
+            {% if order.status == "Pending" %}
+                <td>
+                    <form method="post" action="{% url 'dashboard:order_status_update' order.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="Completed">
+                        <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
+                    </form>
+                    <form method="post" action="{% url 'dashboard:order_status_update' order.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="Cancelled">
+                        <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-x"></i></button>
+                    </form>
+                </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<!-- Pagination controls -->
+<div class="container mt-3">
+    {% if is_paginated %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+            <a href="?page=1" class="btn btn-primary">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-primary">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-primary">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+{% endif %}
+
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'js/dashboard/Order.js' %}"></script>
+{% endblock js %}

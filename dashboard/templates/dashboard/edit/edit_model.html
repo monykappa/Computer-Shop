@@ -1,0 +1,25 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}
+    Edit Item
+{% endblock title %}
+
+{% block content %}
+<style>
+    input{
+        width: 100%;
+    
+        
+    }
+</style>
+<div class="container">
+    <h1>Edit Item</h1>
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+{% endblock content %}

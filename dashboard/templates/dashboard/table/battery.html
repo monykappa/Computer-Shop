@@ -1,0 +1,15 @@
+<h2>Battery</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for battery_spec in battery_specs %}
+    <tr>
+        <td>{{ battery_spec.battery }} Kwh</td>
+        <td><a href="{% url 'dashboard:edit_model' model='battery_spec' pk=battery_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>

@@ -1,0 +1,29 @@
+table.container {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.container th, table.container td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table.container th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #f2f2f2;
+    color: black;
+}
+.clickable-row {
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+.clickable-row:hover {
+    background-color: #f1f1f1; /* Change background color on hover */
+}
+
+
+i{
+    font-size: 14px !important;
+}

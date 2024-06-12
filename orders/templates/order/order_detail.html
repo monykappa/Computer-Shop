@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Order Detail - {{ order.id }}
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h1>Order N.O #{{ order.id }}</h1>
+            <p><strong>Ordered Date:</strong> {{ order.ordered_date }}</p>
+            {% if order.status == 'Pending' %}
+            <p><strong>Status:</strong> <span style="color: orange;">{{ order.status }}</span></p>
+            {% elif order.status == 'Completed' %}
+            <p><strong>Status:</strong> <span style="color: green;">{{ order.status }}</span></p>
+            {% elif order.status == 'Cancelled' %}
+            <p><strong>Status:</strong> <span style="color: red;">{{ order.status }}</span></p>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            {% if qr_code_url %}
+            <img src="{{ qr_code_url }}" alt="QR Code" width="200" class="img-fluid">
+            {% endif %}
+        </div>
+    </div>
+   
+
+
+    <h2>Products Ordered:</h2>
+  
+
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Model</th>
+                <th>Year</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.orderhistoryitem_set.all %}
+            <tr>
+                <td>  {% if item.product.images.all %}
+                    {% with first_image=item.product.images.first %}
+                    <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
+                    {% endwith %}
+                    {% else %}
+                   <p>no image</p>
+                    {% endif %}</td>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.product.model }}</td>
+                <td>{{ item.product.year }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.product.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3 class="text-right text-danger"><strong class="text-dark">Total Price:</strong> ${{ order.total_price }}</h3>
+
+</div>
+{% endblock content %}

@@ -1,0 +1,15 @@
+<h2>Memory</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for memory_spec in memory_specs %}
+    <tr>
+        <td>{{ memory_spec.capacity }}GB {{ memory_spec.type }}</td>
+        <td><a href="{% url 'dashboard:edit_model' model='memory_spec' pk=memory_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>

@@ -1,0 +1,15 @@
+<h2>Display</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for display_spec in display_specs %}
+    <tr>
+        <td>{{ display_spec.display }} Inches</td>
+        <td><a href="{% url 'dashboard:edit_model' model='display_spec' pk=display_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>

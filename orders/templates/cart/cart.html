@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 text-center">
+            <p>{{ message }}</p>
+            <a href="{% url 'userprofile:sign_in' %}" class="btn btn-primary">Sign in</a> to purchase items.
+        </div>
+    </div>
+</div>
+{% endblock content %}

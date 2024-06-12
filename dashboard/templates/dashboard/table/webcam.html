@@ -1,0 +1,15 @@
+<h2>Webcam</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for webcam_spec in webcam_specs %}
+    <tr>
+        <td>{{ webcam_spec.webcam }}</td>
+        <td><a href="{% url 'dashboard:edit_model' model='webcam_spec' pk=webcam_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>

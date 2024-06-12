@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}
+    Profile
+{% endblock title %}
+
+{% block content %}
+<div class="container text-center"> <!-- align content center -->
+    <h1>Profile</h1>
+    {% if user.socialaccount_set.all %}
+        {% for social_account in user.socialaccount_set.all %}
+            {% if 'google' in social_account.provider %}
+            <img src="{{ social_account.get_avatar_url }}" alt="Google Profile Picture" class="rounded-circle img-fluid"> <!-- Display Google profile picture -->
+
+                <h3 class="mt-2">{{ social_account.extra_data.given_name }} {{ social_account.extra_data.family_name }}</h3> <!-- Display first name from Google -->
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {% if user.profile.picture %}
+            <img src="{{ user.profile.picture.url }}" alt="Profile Picture" class="rounded-circle img-fluid"> <!-- Display default profile picture if not logged in via Google -->
+        {% else %}
+            <img src="https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg" alt="Default Profile Picture" class="rounded-circle img-fluid"> <!-- Add rounded-circle class -->
+        {% endif %}
+        <p class="mt-5">Username: {{ user.username }}</p> <!-- Display username if not logged in via Google -->
+    {% endif %}
+    <!-- Add more profile information here if needed -->
+
+    <a href="{% url 'orders:order_history' %}" class="btn btn-primary">My orders</a>
+
+</div>
+{% endblock content %}

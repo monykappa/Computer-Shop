@@ -1,0 +1,15 @@
+<h2>CPU</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for cpu_spec in cpu_specs %}
+    <tr>
+        <td>{{ cpu_spec.model }}</td>
+        <td><a href="{% url 'dashboard:edit_model' model='cpu_spec' pk=cpu_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>

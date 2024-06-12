@@ -1,0 +1,15 @@
+<h2>Port</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for port_spec in port_specs %}
+    <tr>
+        <td>{{ port_spec.port }}</td>
+        <td><a href="{% url 'dashboard:edit_model' model='port_spec' pk=port_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>

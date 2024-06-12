@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Order History
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <h1>My Order History</h1>
+    <div class="btn-group" role="group" aria-label="Order Status">
+        <button type="button" class="btn btn-warning" onclick="showTable('pending')">Pending Orders</button>
+        <button type="button" class="btn btn-success" onclick="showTable('completed')">Received Orders</button>
+        <button type="button" class="btn btn-danger" onclick="showTable('cancelled')">Cancelled Orders</button>
+    </div>
+    
+    <div id="pending" class="order-table">
+        {% if pending_orders %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Order Number</th>
+                    <th>Order Date</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in pending_orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.ordered_date }}</td>
+                    <td>${{ order.total_price }}</td>
+                    <td><span style="color: orange;">{{ order.status }}</span></td>
+                    <td><a href="{% url 'orders:order_detail' order_id=order.id %}">View Details</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No pending orders found.</p>
+        {% endif %}
+    </div>
+    
+    <div id="completed" class="order-table" style="display:none;">
+        <h2>Completed Orders</h2>
+        {% if completed_orders %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Order Number</th>
+                    <th>Order Date</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in completed_orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.ordered_date }}</td>
+                    <td>${{ order.total_price }}</td>
+                    <td><span style="color: green;">{{ order.status }}</span></td>
+                    <td><a href="{% url 'orders:order_detail' order_id=order.id %}">View Details</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No completed orders found.</p>
+        {% endif %}
+    </div>
+    
+    <div id="cancelled" class="order-table" style="display:none;">
+        <h2>Cancelled Orders</h2>
+        {% if cancelled_orders %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Order Number</th>
+                    <th>Order Date</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in cancelled_orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.ordered_date }}</td>
+                    <td>${{ order.total_price }}</td>
+                    <td><span style="color: red;">{{ order.status }}</span></td>
+                    <td><a href="{% url 'orders:order_detail' order_id=order.id %}">View Details</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No cancelled orders found.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+    <script src="{% static 'js/orders/orderHistory.js' %}"></script>
+{% endblock js %}

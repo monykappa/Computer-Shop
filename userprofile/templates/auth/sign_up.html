@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+{% load static %}
+
+
+{% block content %}
+<div class="ctn-sign-up">
+    <div class="col-md-6 offset-md-3">
+        <h2 class="text-center sign-up-text">Sign Up</h2>
+        <form id="signup-form" method="post" action="{% url 'userprofile:signup' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="full_name">Full Name:</label>
+                <input type="text" class="form-control" id="full_name" name="full_name"
+                    placeholder="Enter your full name">
+                {% if form.full_name.errors %}
+                <div class="alert alert-danger">
+                    {{ form.full_name.errors }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username"
+                    required>
+                <div id="username-error" class="alert alert-danger" style="display: none;"></div>
+                <!-- Error message for username -->
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email"
+                    required>
+                <div id="email-error" class="alert alert-danger" style="display: none;"></div>
+                <!-- Error message for email -->
+            </div>
+            <div class="form-group pfp-form">
+                <label for="pfp">Profile Picture:</label>
+                <input type="file" class="form-control pfp" id="pfp" name="pfp" style="display: none;">
+                <label for="pfp" class="custom-file-upload">Browse</label>
+                <img id="image-preview" src="" alt="Preview Image" style="display: none;">
+            </div>
+
+            <div class="form-group">
+                <label for="password1">Password:</label>
+                <input type="password" class="form-control" id="password1" name="password1"
+                    placeholder="Enter your password" required>
+            </div>
+            <div class="form-group">
+                <label for="password2">Confirm Password:</label>
+                <input type="password" class="form-control" id="password2" name="password2"
+                    placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sign-up">Sign Up</button>
+            <hr style="background-color: var(--main-color);">
+            <p class="create-text">Have an account? just sign in!</p>
+            <a href="{% url 'userprofile:sign_in' %}" class="btn btn-primary btn-sign-in">Sign in</a>
+        </form>
+
+        <div class="container d-flex align-items-center justify-content-center mt-2">
+            <div class="text-center">
+                <a href="{% provider_login_url 'google' %}" class="btn btn-outline-secondary d-flex align-items-center px-4 py-2 login-with-google-btn">
+                    <img class="mr-2" src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20" alt="Google logo">
+                    <span>Login with Google</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'js/auth/signUp.js' %}"></script>
+{% endblock js %}

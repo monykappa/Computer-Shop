@@ -1,0 +1,13 @@
+<h2>Operating System</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for operating_system in operating_systems %}
+    <tr>
+        <td>{{ operating_system.operating_system }}</td>
+        <td><a href="{% url 'dashboard:edit_model' model='operating_system' pk=operating_system.pk %}">Edit</a> | <a href="">Delete</a></td>
+    </tr>
+    {% endfor %}
+</table>
