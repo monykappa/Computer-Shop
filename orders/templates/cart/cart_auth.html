@@ -22,6 +22,8 @@ Cart
     .quantity-control {
         display: flex;
         align-items: center;
+        justify-content: center;
+        margin-top: 10px;
     }
 
     .quantity-input {
@@ -29,69 +31,101 @@ Cart
         text-align: center;
         margin: 0 5px;
     }
+
+    .card {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .card img {
+        max-height: 100px;
+        /* Ensures image doesn't overflow */
+        max-width: 200px;
+        /* Ensures image doesn't overflow */
+        object-fit: contain;
+        margin-top: 10px;
+    }
+
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        text-align: center;
+    }
+
+    @media (min-width: 768px) {
+        .card {
+            width: 18rem;
+            /* Fixed width for medium and larger screens */
+            height: 25rem;
+            /* Fixed height for medium and larger screens */
+        }
+    }
+
+    @media (max-width: 767px) {
+        .card {
+            width: 100%;
+            /* Full width for small screens */
+            height: auto;
+            /* Auto height for small screens */
+        }
+
+        .card img {
+            max-width: 100%;
+            /* Full width for small screens */
+        }
+    }
 </style>
 
 <div class="container mt-5">
-    <h1>Your Shopping Cart <span class="text-danger">({{ item_count }})</span></h1>
+    <h1>My Shopping Cart <span class="text-danger">({{ item_count }})</span></h1>
     <div id="cart-message"></div>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Image</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if cart_items %}
-            {% for item in cart_items %}
-            <tr id="cart-item-{{ item.id }}">
-                <td>{{ item.product.name }} {{ item.product.model }} {{ item.product.year }}</td>
-                <td>
-                    {% if item.product.images.all %}
-                    {% with first_image=item.product.images.first %}
-                    <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
-                    {% endwith %}
-                    {% else %}
-                   <p>no image</p>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="quantity-control">
-                        <input type="number" class="quantity-input" data-item-id="{{ item.id }}"
-                            value="{{ item.quantity }}" min="1">
-                        <button class="btn btn-secondary decrease-btn mr-1" data-item-id="{{ item.id }}"
+    <div class="row">
+        {% if cart_items %}
+        {% for item in cart_items %}
+        <div class="col-md-4 col-sm-6">
+            <div class="card">
+                <img src="{% if item.product.images.all %}{% with first_image=item.product.images.first %}{{ first_image.image.url }}{% endwith %}{% else %}path/to/default/image.jpg{% endif %}"
+                    alt="{{ item.product.name }}" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.product.name }} {{ item.product.model }} {{ item.product.year }}</h5>
+                    <div class="quantity-control mt-3">
+                        <button class="btn border decrease-btn mr-1" data-item-id="{{ item.id }}"
                             data-url="{% url 'orders:update_cart_quantity' item.id %}">-</button>
-                        <button class="btn btn-secondary increase-btn" data-item-id="{{ item.id }}"
+                        <input type="number" class="quantity-input form-control" data-item-id="{{ item.id }}"
+                            value="{{ item.quantity }}" min="1">
+                        <button class="btn border increase-btn ml-1" data-item-id="{{ item.id }}"
                             data-url="{% url 'orders:update_cart_quantity' item.id %}">+</button>
                     </div>
-                </td>
-                <td id="subtotal-{{ item.id }}">${{ item.subtotal }}</td>
-                <td>
-                    <button type="button" class="btn btn-danger remove-btn" data-item-id="{{ item.id }}">Remove from
-                        cart</button>
+                    <p class="card-text mt-3">Price: $<span id="subtotal-{{ item.id }}">{{ item.subtotal }}</span></p>
+                    <button type="button" class="btn btn-danger remove-btn" data-item-id="{{ item.id }}"><i
+                            class="fa-solid fa-trash"></i></button>
                     <form id="remove-form-{{ item.id }}" method="post"
                         action="{% url 'orders:remove_from_cart' item.id %}" style="display: none;">
                         {% csrf_token %}
                     </form>
-                </td>
-            </tr>
-            {% endfor %}
-            {% else %}
-            <tr>
-                <td colspan="4">Your cart is empty.</td>
-            </tr>
-            {% endif %}
-        </tbody>
-        
-    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-12">
+            <p>Your cart is empty.</p>
+        </div>
+        {% endif %}
+    </div>
     {% if cart_items %}
-    <h3 class="text-danger">Total: $<span id="total-price">{{ total_price }}</span></h3>
-    <a href="{% url 'orders:confirm_address' %}" class="btn btn-primary">Checkout</a>
+    <div class="row text-right ">
+        <div class="col-12">
+            <h3 class="text-danger">Total: $<span id="total-price">{{ total_price }}</span></h3>
+            <a href="{% url 'orders:confirm_address' %}" class="btn btn-primary">Checkout</a>
+        </div>
+    </div>
     {% endif %}
 </div>
-
 
 {% endblock content %}

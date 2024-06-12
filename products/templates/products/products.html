@@ -12,7 +12,7 @@
         margin-bottom: 20px;
         padding: 20px;
         height: 480px;
-        
+        overflow: hidden;
     }
     .product-card img {
         margin:0 auto;
@@ -24,27 +24,50 @@
         margin-bottom: 10px;
     }
 </style>
-<div class="container">
+<div class="m-5">
+    <!-- List of laptop brands -->
     <div class="row">
-        {% for laptop_spec in laptop_specs %}
-        <div class="col-md-4">
-            <div class="product-card">
-                {% if laptop_spec.product.images.all %}
-                    {% with laptop_spec.product.images.first as first_image %}
-                        <img src="{{ first_image.image.url }}" alt="{{ laptop_spec.product.name }}" >
-                    {% endwith %}
-                {% else %}
-                    <img src="{% static 'placeholder_image.jpg' %}" alt="No image">
-                {% endif %}
-                <h4>{{ laptop_spec.product.name }} {{ laptop_spec.product.model }} {{ laptop_spec.product.year }}</h4>
-                <p><strong></strong> {{ laptop_spec.cpu.cpu_brand }} {{ laptop_spec.cpu.model }} | {{ laptop_spec.gpu.first.gpu_brand }} {{ laptop_spec.gpu.first.model }} | {{ laptop_spec.storage.capacity }} | {{ laptop_spec.storage.capacity_type }} {{ laptop_spec.memory.capacity }}GB</p>
-                <h3 class="text-danger">${{ laptop_spec.product.price }}</h3>
-                <a href="{% url 'products:product_detail' laptop_spec.slug %}" class="btn btn-primary">See More</a>
+        <div class="col-md-12">
+            <h2>Laptop Brands</h2>
+            <div class="border rounded">
+            <ul class="list-inline text-center mt-2">
+                {% for brand in laptop_brands %}
+                    <li class="list-inline-item border p-2 rounded"><a href="#{{ brand.slug }}">{{ brand.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        </div>
+    </div>
+
+    <!-- Products grouped by brand -->
+    {% for brand in laptop_brands %}
+        <div id="{{ brand.slug }}">
+            <h3>{{ brand.name }}</h3>
+            <div class="row">
+                {% for laptop_spec in laptop_specs %}
+                    {% if laptop_spec.product.brand == brand %}
+                        <div class="col-md-4">
+                            <div class="product-card">
+                                {% if laptop_spec.product.images.all %}
+                                    {% with laptop_spec.product.images.first as first_image %}
+                                        <img src="{{ first_image.image.url }}" alt="{{ laptop_spec.product.name }}">
+                                    {% endwith %}
+                                {% else %}
+                                    <img src="{% static 'placeholder_image.jpg' %}" alt="No image">
+                                {% endif %}
+                                <h4>{{ laptop_spec.product.name }} {{ laptop_spec.product.model }} {{ laptop_spec.product.year }}</h4>
+                                <p><strong></strong> {{ laptop_spec.cpu.cpu_brand }} {{ laptop_spec.cpu.model }} | {{ laptop_spec.gpu.first.gpu_brand }} {{ laptop_spec.gpu.first.model }} | {{ laptop_spec.storage.capacity }} | {{ laptop_spec.storage.capacity_type }} {{ laptop_spec.memory.capacity }}GB</p>
+                                <h3 class="text-danger">${{ laptop_spec.product.price }}</h3>
+                                <a href="{% url 'products:product_detail' laptop_spec.slug %}" class="btn btn-primary">See More</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
-    </div>
+    {% endfor %}
 </div>
+
 
 
 

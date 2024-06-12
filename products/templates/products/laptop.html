@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
 
         <!-- Main image of the product -->
         {% with first_image=laptop_spec.product.images.first %}
@@ -9,47 +9,12 @@
 
         <!-- The rest images of the products
         {% if not forloop.first %} <!-- Render only if it's not the first image -->
-        <img src="{{ image.image.url }}" alt="{{ laptop_spec.product.name }}" class="img-fluid small-image"​​ width="100">
+        <img src="{{ image.image.url }}" alt="{{ laptop_spec.product.name }}" class="img-fluid small-image" ​​
+            width="100">
         {% endif %}
         {% endfor %}
-        <div>
-            <h3>Specification</h3>
-
-            <p><strong>CPU:</strong> {{ laptop_spec.cpu.cpu_brand }} {{ laptop_spec.cpu.model }} - {{ laptop_spec.cpu.cores }}
-                cores - {{ laptop_spec.cpu.threads }} threads - {{ laptop_spec.cpu.cpu_detail }}</p>
-            <p><strong>Memory:</strong> {{ laptop_spec.memory.capacity }}GB {{ laptop_spec.memory.type }} - {{ laptop_spec.memory.speed }}MHz - {{ laptop_spec.memory.memory_brand.name }}</p>
-            <p><strong>Storage:</strong> {{ laptop_spec.storage.capacity }} {{ laptop_spec.storage.capacity_type }} - 
-                {{ laptop_spec.storage.interface }} - Read Speed: {{ laptop_spec.storage.read_speed }} MB/s - Write Speed:
-                {{ laptop_spec.storage.write_speed }} MB/s - {{ laptop_spec.storage.form_factor }} - {{ laptop_spec.storage.storage_brand.name }}</p>
-            <p><strong>GPU:</strong>
-                {% for gpu in laptop_spec.gpu.all %}
-                {{ gpu.gpu_brand.name }} {{ gpu.model }} - {{ gpu.vram }} GB VRAM - {{ gpu.vram_type }}<br>
-                {% empty %}
-                No GPU details available<br>
-                {% endfor %}
-            </p>
-            <p><strong>Display:</strong> {{ laptop_spec.display.display }} inches - {{ laptop_spec.display.display_detail }}</p>
-            <p><strong>Ports:</strong>
-                {% for port in laptop_spec.port.all %}
-                {{ port.port }}<br>
-                {% empty %}
-                No port details available<br>
-                {% endfor %}
-            </p>
-            <p><strong>Wireless Connectivity:</strong>
-                {% for wireless in laptop_spec.wireless_connectivity.all %}
-                {{ wireless.wireless_connectivity }} <br>
-                {% empty %}
-                No wireless connectivity details available<br>
-                {% endfor %}
-            </p>
-            <p><strong>Webcam:</strong> {{ laptop_spec.webcam.webcam }} </p>
-            <p><strong>Battery:</strong> {{ laptop_spec.battery.battery }} Kw</p>
-            <p><strong>Operating System:</strong> {{ laptop_spec.operating_system.operating_system }} </p>
-            <p><strong>Weight:</strong> {{ laptop_spec.weight }} kg</p>
-        </div>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-6">
 
         {% for gpu in laptop_spec.gpu.all %}
         <h3>{{ laptop_spec.product.name }} {{ laptop_spec.product.model }} ({{ laptop_spec.cpu.cpu_brand }} /
@@ -73,3 +38,50 @@
         <p id="cart-message"></p>
     </div>
 </div>
+<div class="row">
+    <div class="col-md-6">
+        <h3>Specification</h3>
+
+        <p><strong>CPU:</strong> {{ laptop_spec.cpu.cpu_brand }} {{ laptop_spec.cpu.model }} - {{ laptop_spec.cpu.cores }}
+            cores - {{ laptop_spec.cpu.threads }} threads - {{ laptop_spec.cpu.cpu_detail }}</p>
+        <p><strong>Memory:</strong> {{ laptop_spec.memory.capacity }}GB {{ laptop_spec.memory.type }} - {{ laptop_spec.memory.speed }}MHz - {{ laptop_spec.memory.memory_brand.name }}</p>
+        <p><strong>Storage:</strong> {{ laptop_spec.storage.capacity }} {{ laptop_spec.storage.capacity_type }} -
+            {{ laptop_spec.storage.interface }} - Read Speed: {{ laptop_spec.storage.read_speed }} MB/s - Write Speed:
+            {{ laptop_spec.storage.write_speed }} MB/s - {{ laptop_spec.storage.form_factor }} - {{ laptop_spec.storage.storage_brand.name }}</p>
+        <p><strong>GPU:</strong>
+            {% for gpu in laptop_spec.gpu.all %}
+            {{ gpu.gpu_brand.name }} {{ gpu.model }} - {{ gpu.vram }} GB VRAM - {{ gpu.vram_type }}<br>
+            {% empty %}
+            No GPU details available<br>
+            {% endfor %}
+        </p>
+        <p><strong>Display:</strong> {{ laptop_spec.display.display }} inches - {{ laptop_spec.display.display_detail }}
+        </p>
+        <p><strong>Ports:</strong>
+            {% for port in laptop_spec.port.all %}
+            {{ port.port }}<br>
+            {% empty %}
+            No port details available<br>
+            {% endfor %}
+        </p>
+        <p><strong>Wireless Connectivity:</strong>
+            {% for wireless in laptop_spec.wireless_connectivity.all %}
+            {{ wireless.wireless_connectivity }} <br>
+            {% empty %}
+            No wireless connectivity details available<br>
+            {% endfor %}
+        </p>
+        <p><strong>Webcam:</strong> {{ laptop_spec.webcam.webcam }} </p>
+        <p><strong>Battery:</strong> {{ laptop_spec.battery.battery }} Kw</p>
+        <p><strong>Operating System:</strong> {{ laptop_spec.operating_system.operating_system }} </p>
+        <p><strong>Weight:</strong> {{ laptop_spec.weight }} kg</p>
+    </div>
+    <div class="col-md-6">
+        <div class="recommend-product">
+            <h4>Recommended Products</h4>
+
+        </div>
+    </div>
+</div>
+
+    </div>

@@ -12,6 +12,12 @@ class ProductListView(ListView):
     template_name = 'products/products.html'
     context_object_name = 'laptop_specs'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get all laptop brands
+        context['laptop_brands'] = Brand.objects.all()
+        return context
+
 class ProductDetailView(DetailView):
     model = LaptopSpec
     template_name = 'products/products_detail.html'
