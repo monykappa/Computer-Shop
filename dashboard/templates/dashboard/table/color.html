@@ -7,7 +7,7 @@
     {% for color in colors %}
     <tr>
         <td>{{ color.name }}</td>
-        <td><a href="">Edit</a> | <a href="">Delete</a>
+        <td><a href="{% url 'dashboard:edit_model' model='color' pk=color.pk %}">Edit</a>  | <a href="">Delete</a>
         </td>
     </tr>
     {% endfor %}

@@ -1,0 +1,33 @@
+{% load static %}
+
+<!-- related_products.html -->
+<div class="container">
+    <h2 class="my-4">Related Products</h2>
+    <div class="row">
+        {% for laptop_spec in related_products %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <a href="{% url 'products:product_detail' laptop_spec.slug %}">
+                    {% if laptop_spec.images.all %}
+                    {% with laptop_spec.images.first as first_image %}
+                    <img class="card-img-top" src="{{ first_image.image.url }}" alt="{{ laptop_spec.product.name }}">
+                    {% endwith %}
+                    {% else %}
+                    <img class="card-img-top" src="{% static 'placeholder_image.jpg' %}" alt="No image">
+                    {% endif %}
+                </a>
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <a href="{% url 'products:product_detail' laptop_spec.slug %}">{{ laptop_spec.product.name }}</a>
+                    </h4>
+                    <p class="card-text">{{ laptop_spec.description }}</p>
+                    <h5>Price: ${{ laptop_spec.product.price }}</h5>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Brand: {{ laptop_spec.brand_name }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

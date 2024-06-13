@@ -7,7 +7,7 @@
     {% for category in categories %}
     <tr>
         <td>{{ category.name }}</td>
-        <td><a href=""">Edit</a> | <a
+        <td><a href="{% url 'dashboard:edit_model' model='category' pk=category.pk %}">Edit</a>  | <a
                 href="">Delete</a></td>
     </tr>
     {% endfor %}

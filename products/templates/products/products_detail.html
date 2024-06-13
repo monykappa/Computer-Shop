@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block title %}
 {{ laptop_spec.product.name }} - Khmer Empire Shop
 {% endblock title %}
@@ -7,10 +8,11 @@
 {% block content %}
 <div class="container">
     {% include 'products/laptop.html' %}
-
+    {% include 'products/related_products.html' %}
     
 </div>
 {% endblock content %}
+
 {% block js %}
 <script src="{% static 'js/carts/addToCart.js' %}"></script>
 {% endblock js %}

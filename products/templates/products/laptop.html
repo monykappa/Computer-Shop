@@ -1,3 +1,4 @@
+{% load static %}
 <div class="row">
     <div class="col-md-6">
 
@@ -26,6 +27,7 @@
         <h3>{{ laptop_spec.product.year }}</h3>
         <p>Brand: {{ laptop_spec.product.brand }}</p>
         <h1 class="text-danger">${{ laptop_spec.product.price }}</h1>
+        
         <form id="add-to-cart-form" action="{% url 'orders:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
             {% csrf_token %}
             <div class="form-group">
@@ -77,11 +79,40 @@
         <p><strong>Weight:</strong> {{ laptop_spec.weight }} kg</p>
     </div>
     <div class="col-md-6">
-        <div class="recommend-product">
-            <h4>Recommended Products</h4>
-
-        </div>
+        <h4 class="card-title">Recommended Products</h4>
+    
+        {% if recommended_products %}
+            {% for recommended_product in recommended_products %}
+                <div class="card mb-3 recommend-product">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                {% if recommended_product.product.images.all %}
+                                    {% with recommended_product.product.images.first as first_image %}
+                                        <img class="card-img-top" src="{{ first_image.image.url }}" alt="{{ recommended_product.product.name }}">
+                                    {% endwith %}
+                                {% else %}
+                                    <img class="card-img-top" src="{% static 'placeholder_image.jpg' %}" alt="No image">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <h5 class="card-title">{{ recommended_product.product.name }} {{ laptop_spec.cpu.cpu_brand }} {{ laptop_spec.cpu.model }} | {{ laptop_spec.gpu.first.gpu_brand }} {{ laptop_spec.gpu.first.model }} | {{ laptop_spec.storage.capacity }} | {{ laptop_spec.storage.capacity_type }} {{ laptop_spec.memory.capacity }}GB</h5>
+                                <p class="card-text">{{ recommended_product.description }}</p>
+                                <p class="card-text">
+                                    <strong>Price:</strong> ${{ recommended_product.product.price }}
+                                </p>
+                                <a href="{% url 'products:product_detail' recommended_product.slug %}" class="btn btn-primary">See More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="card-text">No recommended products available.</p>
+        {% endif %}
     </div>
+    
+    
 </div>
 
     </div>
