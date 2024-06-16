@@ -138,10 +138,16 @@ class ProductCreateView(CreateView, SuperuserRequiredMixin):
     def form_valid(self, form):
         context = self.get_context_data()
         laptopspec_formset = context['laptopspec_formset']
-        if laptopspec_formset.is_valid():
+        if form.is_valid() and laptopspec_formset.is_valid():
             product_instance = form.save()
             laptopspec_formset.instance = product_instance
             laptopspec_formset.save()
+
+            # Handle multiple file uploads
+            images = self.request.FILES.getlist('images[]')
+            for image in images:
+                ProductImage.objects.create(product=product_instance, image=image)
+
             return super().form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form))

@@ -23,7 +23,7 @@
         <div class="form-group">
             <label for="images">Product Images</label>
             <div id="file-input-container">
-                <input type="file" name="images" class="form-control" multiple>
+                <input type="file" name="images[]" class="form-control" multiple>
             </div>
             <button id="add-more-images" class="btn btn-secondary mt-2">Add More Images</button>
         </div>
@@ -61,12 +61,11 @@
             e.preventDefault();
             const newFileInput = document.createElement('input');
             newFileInput.setAttribute('type', 'file');
-            newFileInput.setAttribute('name', 'images');
+            newFileInput.setAttribute('name', 'images[]');
             newFileInput.classList.add('form-control');
             fileInputContainer.appendChild(newFileInput);
         });
     });
 </script>
-
 
 {% endblock %}

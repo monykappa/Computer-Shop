@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&family=Varela+Round&display=swap');   
 
+html{
+    scroll-behavior: smooth;
+}
 * {
     padding: 0;
     margin: 0;
@@ -68,21 +71,28 @@ ul.navbar-nav {
 
     font-family: var(--secondary-font);
 }
-
 ul li.cart a {
     border: 1px solid white;
     border-radius: 50%;
-    padding: 10px;
-    margin: 0 10px;
-    box-shadow: inset 0 0 0 0 var(--third-color);
-    transition: color .4s ease-in-out, box-shadow .4s ease-in-out;
+    width: 50px;
+    height: 50px;
+    display: flex; /* Ensure the anchor tag uses flexbox */
+    align-items: center; /* Vertically center the icon */
+    justify-content: center; /* Horizontally center the icon */
+    /* box-shadow: inset 0 0 0 0 var(--third-color); */
+    /* transition: color .4s ease-in-out; */
 }
 
-ul li.cart a:hover {
+.cart i {
+    color: var(--third-color);
+}
+
+
+/* ul li.cart a:hover {
     color: var(--fourth-color);
     border-radius: 50%;
     box-shadow: inset 200px 0 0 0 var(--second-color);
-}
+} */
 
 ul li.menu {
     font-size: 18px;
@@ -92,7 +102,7 @@ ul li.menu {
 ul li.menu a {
     color: var(--main-color);
     box-shadow: inset 0 0 0 0 var(--third-color);
-    transition: color .3s ease-in-out, box-shadow .3s ease-in-out;
+    transition: color 0.4s ease-in-out;
     border-radius: 5px;
 }
 
