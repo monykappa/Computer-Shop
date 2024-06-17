@@ -79,21 +79,6 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name}"
 
 
-# class HeadphoneSpec(models.Model):
-#     product = models.OneToOneField(Product, on_delete=models.CASCADE, null=True, blank=True, related_name='headphone_spec')
-#     driver_size = models.CharField(max_length=100, null=True, blank=True)
-#     frequency_response = models.CharField(max_length=100, null=True, blank=True)
-#     impedance = models.CharField(max_length=100, null=True, blank=True)
-#     noise_cancellation = models.CharField(max_length=100, null=True, blank=True)
-#     connector_type = models.CharField(max_length=100, null=True, blank=True)
-#     weight = models.CharField(max_length=100, null=True, blank=True)
-#     battery_life = models.CharField(max_length=100, null=True, blank=True)
-#     additional_features = models.CharField(max_length=100, null=True, blank=True)
-
-#     def __str__(self):
-#         return f"{self.product.name} - {self.product.model} - Headphone Specifications" if self.product else "Headphone Specifications"
-
-
 class CpuBrand(SlugMixin):
     name = models.CharField(max_length=100, null=True, blank=True)
     @property
