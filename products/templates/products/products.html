@@ -27,28 +27,11 @@ Products
 </style>
 <div class="m-5">
     <!-- List of laptop brands -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="border rounded">
-                <ul class="list-inline text-center mt-2">
-                    {% for brand in laptop_brands %}
-                    <li class="list-inline-item  p-2 rounded">
-                        <a href="#{{ brand.slug }}">
-                            <img src="{{ brand.logo.url }}" width="120" class="img-fluid" />
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
+    {% include 'products/brands.html' %}
 
-{% include 'products/list_laptop.html' %}
+    {% include 'products/list_laptop.html' %}
 
 </div>
-
-
-
 
 
 {% endblock content %}

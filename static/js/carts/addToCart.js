@@ -26,6 +26,7 @@ $(document).ready(function () {
                         url: url,
                         data: data,
                         success: function (response) {
+                            // Show success message with SweetAlert
                             Swal.fire({
                                 title: 'Success',
                                 text: 'Product added to cart successfully!',
@@ -34,6 +35,7 @@ $(document).ready(function () {
                             });
                         },
                         error: function (response) {
+                            // Show error message with SweetAlert
                             Swal.fire({
                                 title: 'Error',
                                 text: 'There was a problem adding the product to the cart.',
@@ -43,7 +45,7 @@ $(document).ready(function () {
                         }
                     });
                 } else {
-                    // User is not logged in, show error message
+                    // User is not logged in, show error message with SweetAlert
                     Swal.fire({
                         title: 'Error',
                         text: 'You need to log in to add items to the cart.',
@@ -53,6 +55,7 @@ $(document).ready(function () {
                 }
             },
             error: function () {
+                // Show error message if unable to check login status with SweetAlert
                 Swal.fire({
                     title: 'Error',
                     text: 'Unable to check login status. Please try again later.',

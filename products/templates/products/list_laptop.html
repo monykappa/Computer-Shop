@@ -1,35 +1,56 @@
-{% load static %}
-<!-- Products grouped by brand -->
-{% for brand in laptop_brands %}
-<div id="{{ brand.slug }}">
-    <div id="{{ brand.slug }}" class="text-center">
-        <img src="{{ brand.logo.url }}" width="120" class="img-fluid" />
-    </div>
-    <div class="row">
-        {% for laptop_spec in laptop_specs %}
-        {% if laptop_spec.product.brand == brand %}
-        <div class="col-md-4">
-            <div class="product-card">
-                {% if laptop_spec.product.images.all %}
-                {% with laptop_spec.product.images.first as first_image %}
-                <img src="{{ first_image.image.url }}" alt="{{ laptop_spec.product.name }}">
-                {% endwith %}
-                {% else %}
-                <img src="{% static 'placeholder_image.jpg' %}" alt="No image">
-                {% endif %}
-                <h4>{{ laptop_spec.product.name }} {{ laptop_spec.product.model }} {{ laptop_spec.product.year }}
-                </h4>
-                <p><strong></strong> {{ laptop_spec.cpu.cpu_brand }} {{ laptop_spec.cpu.model }} | 
-                    {{ laptop_spec.gpu.first.gpu_brand }} {{ laptop_spec.gpu.first.model }} | 
-                    {{ laptop_spec.storage.capacity }}{{ laptop_spec.storage.capacity_type }} 
-                    {{ laptop_spec.memory.capacity }}GB</p>
-                <h3 class="text-danger">${{ laptop_spec.product.price }}</h3>
-                <a href="{% url 'products:product_detail' laptop_spec.slug %}" class="btn btn-primary">See More</a>
-            </div>
-        </div>
-        {% endif %}
-        {% endfor %}
-    </div>
-</div>
-{% endfor %}
-    
+<div id="products-container"></div>
+<script>
+    async function fetchData() {
+        try {
+            let brandsResponse = await fetch('/api/brands/');
+            let laptopSpecsResponse = await fetch('/api/laptop-specs/');
+            let brands = await brandsResponse.json();
+            let laptopSpecs = await laptopSpecsResponse.json();
+
+            let container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            brands.forEach(brand => {
+                let brandSection = document.createElement('div');
+                brandSection.id = brand.slug;
+                brandSection.innerHTML = `
+                    <div class="text-center">
+                        <img src="${brand.logo}" width="120" class="img-fluid" />
+                    </div>
+                    <div class="row" id="${brand.slug}-products">
+                    </div>
+                `;
+                container.appendChild(brandSection);
+
+                let brandProducts = laptopSpecs.filter(spec => spec.product.brand.id === brand.id);
+
+                let productsContainer = document.getElementById(`${brand.slug}-products`);
+                if (brandProducts.length === 0) {
+                    console.warn(`No products found for brand ${brand.name}`);
+                }
+
+                brandProducts.forEach(spec => {
+                    let productImage = spec.product.images.length > 0 ? spec.product.images[0].image : '/static/placeholder_image.jpg';
+                    let gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
+
+                    let productCard = document.createElement('div');
+                    productCard.className = 'col-md-4';
+                    productCard.innerHTML = `
+                        <div class="product-card">
+                            <img src="${productImage}" alt="${spec.product.name}">
+                            <h4>${spec.product.name} ${spec.product.model} ${spec.product.year}</h4>
+                            <p><strong></strong> ${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB</p>
+                            <h3 class="text-danger">$${spec.product.price}</h3>
+                            <a href="/products/${spec.slug}/" class="btn btn-primary">See More</a>
+                        </div>
+                    `;
+                    productsContainer.appendChild(productCard);
+                });
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchData);
+</script>

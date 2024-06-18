@@ -1,0 +1,45 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="border rounded">
+            <ul class="list-inline text-center mt-2" id="brand-list">
+                <!-- Brands will be loaded here by JavaScript -->
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    async function fetchData() {
+        try {
+            let brandsResponse = await fetch('/api/brands/');
+            let brands = await brandsResponse.json();
+
+
+            let brandList = document.getElementById('brand-list');
+            let productsContainer = document.getElementById('products-container');
+
+            // Clear existing content
+            brandList.innerHTML = '';
+            productsContainer.innerHTML = '';
+
+            // Render brands
+            brands.forEach(brand => {
+                let brandItem = document.createElement('li');
+                brandItem.className = 'list-inline-item p-2 rounded';
+                brandItem.innerHTML = `
+                    <a href="#${brand.slug}">
+                        <img src="${brand.logo}" width="120" class="img-fluid" />
+                    </a>
+                `;
+                brandList.appendChild(brandItem);
+
+        
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchData);
+</script>

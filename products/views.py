@@ -4,21 +4,29 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 import random
+from .serializers import *
+from rest_framework import generics
+from django.views.generic import TemplateView
 
 
 
 
-class ProductListView(ListView):
-    model = LaptopSpec
+class BrandListAPIView(generics.ListAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+
+class LaptopSpecListAPIView(generics.ListAPIView):
+    queryset = LaptopSpec.objects.all()
+    serializer_class = LaptopSpecSerializer
+
+class ProductListView(TemplateView):
     template_name = 'products/products.html'
-    context_object_name = 'laptop_specs'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Get all laptop brands
-        context['laptop_brands'] = Brand.objects.all()
-        return context
-
+class LaptopSpecDetailAPIView(generics.RetrieveAPIView):
+    queryset = LaptopSpec.objects.all()
+    serializer_class = LaptopSpecSerializer
+    lookup_field = 'slug'
+    
 class ProductDetailView(DetailView):
     model = LaptopSpec
     template_name = 'products/products_detail.html'
@@ -28,10 +36,9 @@ class ProductDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        recommended_products = self.get_random_recommendations()
-        context['recommended_products'] = recommended_products
+        context['laptop_slug'] = self.kwargs['slug']
         return context
-
+    
     def get_random_recommendations(self):
         all_laptops = list(LaptopSpec.objects.exclude(slug=self.kwargs['slug']))
         if len(all_laptops) > 5:
@@ -39,7 +46,6 @@ class ProductDetailView(DetailView):
         else:
             recommended_products = random.sample(all_laptops, len(all_laptops))
         return recommended_products
-
 
 class RelatedProductsView(ListView):
     model = LaptopSpec
