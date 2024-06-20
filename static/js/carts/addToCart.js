@@ -1,6 +1,7 @@
 $(document).ready(function () {
     $('#add-to-cart-form').on('submit', function (event) {
         event.preventDefault();
+        console.log('Form submitted');
 
         var $form = $(this);
         var url = $form.attr('action');
@@ -19,6 +20,7 @@ $(document).ready(function () {
             type: 'GET',
             url: '/check-login-status/',
             success: function (response) {
+                console.log('Login status checked', response);
                 if (response.logged_in) {
                     // User is logged in, proceed to add to cart
                     $.ajax({
@@ -26,6 +28,7 @@ $(document).ready(function () {
                         url: url,
                         data: data,
                         success: function (response) {
+                            console.log('Add to cart success', response);
                             // Show success message with SweetAlert
                             Swal.fire({
                                 title: 'Success',
@@ -35,6 +38,7 @@ $(document).ready(function () {
                             });
                         },
                         error: function (response) {
+                            console.log('Add to cart error', response);
                             // Show error message with SweetAlert
                             Swal.fire({
                                 title: 'Error',
@@ -45,6 +49,7 @@ $(document).ready(function () {
                         }
                     });
                 } else {
+                    console.log('User not logged in');
                     // User is not logged in, show error message with SweetAlert
                     Swal.fire({
                         title: 'Error',
@@ -55,6 +60,7 @@ $(document).ready(function () {
                 }
             },
             error: function () {
+                console.log('Login status check failed');
                 // Show error message if unable to check login status with SweetAlert
                 Swal.fire({
                     title: 'Error',
