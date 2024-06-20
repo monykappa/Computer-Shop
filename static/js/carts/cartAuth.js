@@ -37,7 +37,7 @@ $(document).ready(function () {
                 $('#subtotal-' + response.item_id).text('$' + response.subtotal.toFixed(2));
                 $('#total-price').text(response.total_price.toFixed(2));
                 $('input[data-item-id="' + response.item_id + '"]').val(response.quantity);
-                $('#item-count').text(response.item_count);  // Update item count
+                $('#item-count').text('(' + response.item_count + ')');  // Update item count
             },
             error: function (response) {
                 console.error('Error updating cart:', response);

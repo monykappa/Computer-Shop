@@ -1,4 +1,7 @@
-<div id="products-container"></div>
+<style>
+
+</style>
+<div id="products-container" class="container product-container"></div>
 <script>
     async function fetchData() {
         try {
@@ -34,16 +37,19 @@
                     let gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
 
                     let productCard = document.createElement('div');
-                    productCard.className = 'col-md-4';
+                    productCard.className = 'product-card-wrapper col-6 col-md-4';
                     productCard.innerHTML = `
                         <div class="product-card">
                             <img src="${productImage}" alt="${spec.product.name}">
                             <h4>${spec.product.name} ${spec.product.model} ${spec.product.year}</h4>
                             <p><strong></strong> ${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB</p>
                             <h3 class="text-danger">$${spec.product.price}</h3>
-                            <a href="/products/${spec.slug}/" class="btn btn-primary">See More</a>
+                            <a href="/products/${spec.slug}/" class="btn btn-primary see-more-btn"><i class="fa-solid fa-eye"></i></a>
                         </div>
                     `;
+                    
+                    
+                    
                     productsContainer.appendChild(productCard);
                 });
             });

@@ -7,28 +7,108 @@ Products
 {% block content %}
 
 <style>
+    a.see-more-btn .add-to-cart{
+        background-color: var(--fourth-color) !important;
+        border:none;
+    }
+    
+
+    .product-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .product-card-wrapper {
+        flex: 0 0 100%;
+        /* Default to one card per row */
+    }
+
     .product-card {
-        border: 1px solid #ddd;
         border-radius: 5px;
-        margin-bottom: 20px;
         padding: 20px;
         height: 480px;
         overflow: hidden;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
     }
 
     .product-card img {
-        margin: 0 auto;
-        display: flex;
-        width: 250px;
+        display: block;
+        max-width: 200px;
         height: 200px;
         object-fit: contain;
         border-radius: 5px;
-        margin-bottom: 10px;
+        margin: 0 auto 10px;
+    }
+
+    .product-card h4 {
+        margin-top: 10px;
+        font-size: 1.2em;
+    }
+
+    .product-card p {
+        font-size: 0.9em;
+        color: #666;
+    }
+
+    .product-card h3 {
+        margin-top: 10px;
+        font-size: 1.5em;
+    }
+
+    @media (max-width: 555px) {
+        .product-card-wrapper {
+            flex: 0 0 calc(50% - 20px);
+            /* Two cards per row */
+
+        }
+
+        #products-container {
+            max-width: 100% !important;
+        }
+
+        .container {
+            max-width: 100% !important;
+        }
+
+        .product-card img {
+            width: 100%;
+        }
+
+
+    }
+
+    /* Media query for under 768px: two cards in a row */
+    @media(min-width:556px) and (max-width: 767px) {
+        .product-card-wrapper {
+            flex: 0 0 calc(50% - 20px);
+            /* Two cards per row */
+        }
+    }
+
+    /* Media query for tablets: three cards in a row */
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .product-card-wrapper {
+            flex: 0 0 calc(33.33% - 20px);
+            /* Three cards per row */
+        }
+
+        .product-card img {
+            width: 100%;
+        }
+    }
+
+    /* For larger screens: maintain three cards in a row */
+    @media (min-width: 1024px) {
+        .product-card-wrapper {
+            flex: 0 0 calc(33.33% - 20px);
+            /* Three cards per row */
+        }
     }
 </style>
 {% include 'products/ads.html' %}
 
-<div class="m-5">
+<div class="mt-5">
     <!-- List of laptop brands -->
     {% include 'products/brands.html' %}
 
