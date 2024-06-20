@@ -11,6 +11,7 @@ urlpatterns = [
     path('', include('userprofile.urls')),
     path('', include('orders.urls')),
     path('', include('dashboard.urls')),
+    path('', include('advertisements.urls')),
     
     
     

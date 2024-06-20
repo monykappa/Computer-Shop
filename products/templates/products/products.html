@@ -5,6 +5,7 @@ Products
 {% endblock title %}
 
 {% block content %}
+
 <style>
     .product-card {
         border: 1px solid #ddd;
@@ -25,6 +26,8 @@ Products
         margin-bottom: 10px;
     }
 </style>
+{% include 'products/ads.html' %}
+
 <div class="m-5">
     <!-- List of laptop brands -->
     {% include 'products/brands.html' %}

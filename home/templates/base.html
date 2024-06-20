@@ -1,15 +1,22 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo/logo.png' %}">
+
     {% block meta %}
 
     {% endblock meta %}
     <link rel="stylesheet" href="{% static 'css/bootstrap/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/sweetalert/all.min.css' %}">
+
+
+
+
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
@@ -36,9 +43,8 @@
         <div class="container">
             <!-- Logo on the left -->
             <a class="navbar-brand logo-name" href="#">
-                <img src="{% static 'img/logo/logo.png' %}" alt="Logo" height="50"
-                    class="nav-logo">
-                <h5 class="logo-name-logo">Khmer Empire Shop</h5>
+                <img src="{% static 'img/logo/logo.png' %}" alt="Logo" height="50" class="nav-logo">
+                <h5 class="logo-name-logo">Angkor Empire Shop</h5>
             </a>
             <!-- Menu items on the right -->
             <button class="navbar-toggler btn-toggle" type="button" data-toggle="collapse" data-target="#navbarNav"
@@ -110,7 +116,7 @@
         <div class="footer">
             <img src="https://cdn-icons-png.flaticon.com/512/1354/1354444.png" alt="Logo" height="120"
                 class="footer-logo">
-            <h2>Khmer Empire Shop</h2>
+            <h2>Angkor Empire Shop</h2>
             <div class="social-icons">
                 <a href="https://facebook.com" class="logo-social-media"><i class="fa-brands fa-facebook"></i></a>
                 <a href="https://twitter.com" class="logo-social-media"><i class="fa-brands fa-x-twitter"></i></a>
@@ -118,7 +124,7 @@
                 <a href="https://telegram.com" class="logo-social-media"><i class="fa-brands fa-telegram"></i></a>
             </div>
             <p>Contact: +855 888026678</p>
-            <p class="copy-rigth">&copy; 2023 Khmer Empire Computer Shop. All rights reserved.</p>
+            <p class="copy-rigth">&copy; 2023 Angkor Empire Computer Shop. All rights reserved.</p>
         </div>
     </footer>
     <!-- Footer end -->

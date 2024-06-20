@@ -48,8 +48,11 @@ INSTALLED_APPS = [
     'orders',
     'userprofile',
     'dashboard',
+    'advertisements',
+    
     'rest_framework',
     'corsheaders',
+    
     
     
     "django.contrib.sites",

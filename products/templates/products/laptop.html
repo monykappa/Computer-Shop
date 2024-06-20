@@ -4,15 +4,34 @@
     async function fetchProductDetails() {
         const slug = "{{ laptop_spec.slug }}";
         try {
-            const response = await fetch(`/api/laptop-specs/${slug}/`);
-            const productDetails = await response.json();
+            const [productResponse, recommendedResponse] = await Promise.all([
+                fetch(`/api/laptop-specs/${slug}/`),
+                fetch(`/api/recommended-products/${slug}/`)
+            ]);
+
+            const productDetails = await productResponse.json();
+            const recommendedProducts = await recommendedResponse.json();
+
+            // Shuffle the recommended products
+            shuffleArray(recommendedProducts);
+
             console.log('Product Details:', productDetails); // Debugging line
+            console.log('Recommended Products:', recommendedProducts); // Debugging line
+
+            productDetails.recommended_products = recommendedProducts;
             renderProductDetails(productDetails);
         } catch (error) {
             console.error('Error fetching product details:', error);
         }
     }
-    
+
+    // Function to shuffle an array
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
 
     function renderProductDetails(details) {
         const container = document.getElementById('product-details-container');
@@ -32,7 +51,7 @@
                 </div>
                 <div class="col-md-6">
                     ${details.gpu.length > 0 ? `
-                        <h3>${details.product.name} ${details.product.model} (${details.cpu.cpu_brand.name} / ${details.cpu.model} / ${details.gpu.map(g => g.model).join(', ')} / ${details.memory.capacity}GB / ${details.storage.capacity} ${details.storage.capacity_type} / ${details.display.display} inches)</h3>
+                        <h3>${details.product.name} ${details.product.model} (${details.cpu.cpu_brand.name} ${details.cpu.model} / ${details.gpu.map(g => g.model).join(', ')} / ${details.memory.capacity}GB / ${details.storage.capacity} ${details.storage.capacity_type} / ${details.display.display} inches)</h3>
                     ` : `
                         <h3>${details.product.name} ${details.product.model} (${details.cpu.cpu_brand.name} / ${details.cpu.model} / ${details.memory.capacity}GB / ${details.storage.capacity} ${details.storage.capacity_type} / ${details.display.display} inches)</h3>
                     `}
@@ -82,7 +101,7 @@
                                     </div>
                                     <div class="col-md-8">
                                         <h5 class="card-title">${rp.product.name} ${rp.cpu.cpu_brand.name} ${rp.cpu.model} / ${rp.gpu.length > 0 ? rp.gpu[0].gpu_brand.name + ' ' + rp.gpu[0].model : 'No GPU'} / ${rp.storage.capacity} ${rp.storage.capacity_type} / ${rp.memory.capacity}GB</h5>
-                                        <p class="card-text">${rp.description}</p>
+                                        <p class="card-text">${rp.product.description}</p>
                                         <p class="card-text"><strong>Price:</strong> $${rp.product.price}</p>
                                         <a href="/products/${rp.slug}/" class="btn btn-primary">See More</a>
                                     </div>
@@ -93,6 +112,7 @@
                 </div>
             </div>
         `;
+    
 
         // Add form submission event listener
         document.getElementById('add-to-cart-form').addEventListener('submit', function(event) {

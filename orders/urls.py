@@ -20,6 +20,8 @@ urlpatterns = [
     path('payment_complete/', views.PaymentCompleteView.as_view(), name='payment_complete'),
     
     
+    
+    
     path('order-history-image/<int:order_history_id>/', views.OrderHistoryImageView.as_view(), name='order_history_image'),
 
     

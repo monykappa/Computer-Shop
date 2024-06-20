@@ -7,7 +7,8 @@ import random
 from .serializers import *
 from rest_framework import generics
 from django.views.generic import TemplateView
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 
 
@@ -39,13 +40,16 @@ class ProductDetailView(DetailView):
         context['laptop_slug'] = self.kwargs['slug']
         return context
     
-    def get_random_recommendations(self):
-        all_laptops = list(LaptopSpec.objects.exclude(slug=self.kwargs['slug']))
+class RecommendedProductsAPIView(APIView):
+    def get(self, request, slug):
+        all_laptops = list(LaptopSpec.objects.exclude(slug=slug))
         if len(all_laptops) > 5:
             recommended_products = random.sample(all_laptops, 5)
         else:
-            recommended_products = random.sample(all_laptops, len(all_laptops))
-        return recommended_products
+            recommended_products = all_laptops
+
+        serializer = LaptopSpecSerializer(recommended_products, many=True)
+        return Response(serializer.data)
 
 class RelatedProductsView(ListView):
     model = LaptopSpec

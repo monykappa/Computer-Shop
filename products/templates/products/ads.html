@@ -1,0 +1,50 @@
+<!-- Advertisement slideshow -->
+<div id="slideshow" class="carousel slide text-center" data-ride="carousel">
+    <div class="carousel-inner">
+        <!-- Advertisement items will be populated here -->
+    </div>
+    <ol class="carousel-indicators">
+        <!-- Indicators will be populated here -->
+    </ol>
+</div>
+
+<style>
+    .advertisement-item img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cycle2/2.2.1/jquery.cycle2.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/api/advertisements/', // Replace with your API endpoint URL
+            method: 'GET',
+            success: function (data) {
+                // Create the slideshow container
+                var slideshow = $('#slideshow');
+                var carouselInner = slideshow.find('.carousel-inner');
+                var carouselIndicator = slideshow.find('.carousel-indicators');
+
+                // Iterate through each advertisement item and append to the slideshow
+                data.forEach(function (advertisement, index) {
+                    var item = $('<div class="carousel-item ' + (index === 0 ? 'active' : '') + '"><img src="' + advertisement.image + '" alt="Advertisement Image"></div>');
+                    carouselInner.append(item);
+                    var indicator = $('<li data-target="#slideshow" data-slide-to="' + index + '" ' + (index === 0 ? 'class="active"' : '') + '></li>');
+                    carouselIndicator.append(indicator);
+                });
+
+                // Initialize the slideshow with a 3-second interval
+                var slideshowCarousel = slideshow.carousel({
+                    interval: 1000 // Set the interval to 3 seconds
+                });
+            },
+            error: function (error) {
+                console.log('Error fetching advertisements:', error);
+            }
+        });
+    });
+</script>
