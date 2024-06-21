@@ -40,75 +40,93 @@
 <body>
     <!-- navbar start -->
     <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <!-- Logo on the left -->
-            <a class="navbar-brand logo-name" href="#">
-                <img src="{% static 'img/logo/logo.png' %}" alt="Logo" height="50" class="nav-logo">
-                <h5 class="logo-name-logo">Angkor Empire Shop</h5>
-            </a>
-            <!-- Menu items on the right -->
-            <button class="navbar-toggler btn-toggle" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="40" viewBox="0,0,256,256"
-                    style="fill:#000000;">
-                    <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
-                        stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0"
-                        font-family="none" font-weight="none" font-size="none" text-anchor="none"
-                        style="mix-blend-mode: normal">
-                        <g transform="scale(5.12,5.12)">
-                            <path
-                                d="M5,8c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175zM5,23c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175zM5,38c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175z">
-                            </path>
-                        </g>
-                    </svg>
-                    <span class="navbar-toggler-icon"> </span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item active menu">
-                            <a class="nav-link"
-                                href="{% if user.is_authenticated %}{% url 'home:home_auth' %}{% else %}{% url 'home:home' %}{% endif %}">Home
-                            </a>
-                        </li>
-                        <li class="nav-item menu">
-                            <a class="nav-link" href="{% url 'products:product_list' %}">Product</a>
-                        </li>
+        <!-- Logo and Brand -->
+        <a class="navbar-brand logo-name" href="#">
+            <img src="{% static 'img/logo/logo.png' %}" alt="Logo" height="50" class="nav-logo">
+            <h5 class="logo-name-logo">Angkor Empire Shop</h5>
+        </a>
     
-                        <li class="nav-item menu">
-                            <a class="nav-link" href="#">Contact</a>
-                        </li>
-                        <li class="nav-item menu">
-                            <a class="nav-link about-us" href="">About us</a>
-                        </li>
-                        <li class="nav cart">
-                            <a class="nav-link" href="{% url 'orders:cart_detail' %}"><i
-                                    class="fa-solid fa-cart-shopping"></i></a>
-                        </li>
-                        {% if user.is_authenticated %}
-                        <li class="nav-item menu">
-                            <a class="nav-link user" href="{% url 'userprofile:profile' %}">{{ user.username }}</a>
-                        </li>
-                        <li class="nav-item menu">
-                            <a class="nav-link" href="{% url 'userprofile:logout' %}">Logout</a>
-                        </li>
-                        {% else %}
-                        <li class="nav-item menu">
-                            <a class="nav-link nav-sign-in" href="{% url 'userprofile:sign_in' %}">Sign In</a>
-                        </li>
-                        <li class="nav-item menu">
-                            <a class="nav-link  nav-sign-up" href="{% url 'userprofile:signup' %}">Sign Up</a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                    <!-- Search form -->
-                    <form class="form-inline my-2 my-lg-0" id="search-form">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search products" aria-label="Search" id="search-input">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                    </form>
-                </div>
+        <!-- Toggle Button for Mobile -->
+        <button class="navbar-toggler btn-toggle" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="40" viewBox="0,0,256,256"
+                style="fill:#000000;">
+                <g fill="#ffffff" fill-rule="nonzero">
+                    <path d="M5,8c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175zM5,23c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175zM5,38c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175z"></path>
+                </g>
+            </svg>
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <!-- Navbar Items -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active menu">
+                    <a class="nav-link" href="{% if user.is_authenticated %}{% url 'home:home_auth' %}{% else %}{% url 'home:home' %}{% endif %}">Home</a>
+                </li>
+                <li class="nav-item menu">
+                    <a class="nav-link" href="{% url 'products:product_list' %}">Product</a>
+                </li>
+                <li class="nav-item menu">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+                <li class="nav-item menu">
+                    <a class="nav-link about-us" href="#">About us</a>
+                </li>
+                <li class="nav-item cart">
+                    <a class="nav-link" href="{% url 'orders:cart_detail' %}">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item menu">
+                    <a class="nav-link user" href="{% url 'userprofile:profile' %}">{{ user.username }}</a>
+                </li>
+                <li class="nav-item menu">
+                    <a class="nav-link" href="{% url 'userprofile:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item menu">
+                    <a class="nav-link nav-sign-in" href="{% url 'userprofile:sign_in' %}">Sign In</a>
+                </li>
+                <li class="nav-item menu">
+                    <a class="nav-link nav-sign-up" href="{% url 'userprofile:signup' %}">Sign Up</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    
+        <!-- Search Button -->
+        <button type="button" id="search-button" class="btn text-light my-2 my-sm-0"><i class="fa-solid fa-x"></i></button>
+    
+        <!-- Search Input (Initially Hidden) -->
+        <form id="search-form" class="form-inline my-2 my-lg-0" style="display: none;">
+            <input type="text" id="search-input" class="form-control mr-sm-2" placeholder="Search products...">
+            <button type="submit" class="btn btn-outline-success my-2 my-sm-0"><i class="fa-solid fa-magifying-glass"></i></button>
+        </form>
+    
+        <!-- Modal Structure -->
+        <div id="product-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="modal-content"></div>
             </div>
-        </nav>
+        </div>
     
+        <!-- JavaScript to Toggle Search Input Visibility -->
+       
+    </nav>
+    <script>
+        document.getElementById('search-button').addEventListener('click', function() {
+            var searchForm = document.getElementById('search-form');
+            if (searchForm.style.display === 'none' || searchForm.style.display === '') {
+                searchForm.style.display = 'block';
+            } else {
+                searchForm.style.display = 'none';
+            }
+        });
+    </script>
+
     <!-- navbar end -->
     <div class="nav-top"></div>
     {% block content %}
@@ -133,8 +151,64 @@
         </div>
     </footer>
 
-
+    <script>
+        // Function to handle form submission and fetch products
+        document.getElementById('search-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const searchQuery = document.getElementById('search-input').value;
+            const response = await fetch(`/api/products/?q=${searchQuery}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const products = await response.json();
+            
+            // Display search results in modal
+            displaySearchResults(products);
+        });
+        
+        // Function to display search results in modal
+        function displaySearchResults(products) {
+            const modal = document.getElementById('product-modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            // Clear previous content
+            modalContent.innerHTML = '';
     
+            // Create and append product elements to modal
+            products.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.innerHTML = `
+                    <h3>${product.name}</h3>
+            
+                    <p>${product.description}</p>
+                    <p>Price: $${product.price}</p>
+                    <a href="/products/${product.id}">View Product</a>
+                `;
+                modalContent.appendChild(productElement);
+            });
+    
+            // Display the modal
+            modal.style.display = 'block';
+    
+            // Close the modal when clicking on the close button
+            const closeButton = document.querySelector('.modal-content .close');
+            closeButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+    
+            // Close the modal when clicking outside of it
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+    
+
+
     <!-- Footer end -->
     {% block js %}
 

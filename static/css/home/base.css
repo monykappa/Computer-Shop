@@ -36,6 +36,7 @@ a.logo-name {
     
 }
 
+
 h5.logo-name-logo {
     color: var(--main-color);
     font-size: 22px;
@@ -62,7 +63,9 @@ button.btn-toggle svg {
     margin: 0 auto;
 }
 
-
+nav{
+    display:flex;
+}
 
 
 .navbar {

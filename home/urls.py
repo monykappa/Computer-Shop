@@ -13,6 +13,7 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     # path('base/', BaseView.as_view(), name='base'),
     path('', HomeAuth.as_view(), name='home_auth'),
+    path('api/products/', views.ProductSearchView.as_view(), name='product-search'),
 
     # authentication
 
