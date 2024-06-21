@@ -17,7 +17,7 @@
                 let brandSection = document.createElement('div');
                 brandSection.id = brand.slug;
                 brandSection.innerHTML = `
-                    <div class="text-center">
+                    <div class="text-center mt-5 mb-3 bg-light p-3 border rounded">
                         <img src="${brand.logo}" width="120" class="img-fluid" />
                     </div>
                     <div class="row" id="${brand.slug}-products">
@@ -37,7 +37,7 @@
                     let gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
 
                     let productCard = document.createElement('div');
-                    productCard.className = 'product-card-wrapper col-6 col-md-4';
+                    productCard.className = 'product-card-wrapper col-6 col-md-3';
                     productCard.innerHTML = `
                         <div class="product-card">
                             <img src="${productImage}" alt="${spec.product.name}">

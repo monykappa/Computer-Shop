@@ -3,5 +3,18 @@
         "corsheaders",
         "socialaccount",
         "Swal"
+    ],
+    "a-file-icon-vscode.folderColor": "#ffd0aa",
+    "a-file-icon-vscode.folderTheme": "specific",
+    "a-file-icon-vscode.opacity": 1,
+    "a-file-icon-vscode.activeIconPacks": [
+        "angular",
+        "ngrx",
+        "nest",
+        "react",
+        "redux",
+        "recoil",
+        "vue",
+        "rails"
     ]
 }

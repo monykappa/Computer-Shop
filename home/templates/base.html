@@ -60,50 +60,55 @@
                                 d="M5,8c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175zM5,23c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175zM5,38c-0.72127,-0.0102 -1.39216,0.36875 -1.75578,0.99175c-0.36361,0.623 -0.36361,1.39351 0,2.01651c0.36361,0.623 1.0345,1.00195 1.75578,0.99175h40c0.72127,0.0102 1.39216,-0.36875 1.75578,-0.99175c0.36361,-0.623 0.36361,-1.39351 0,-2.01651c-0.36361,-0.623 -1.0345,-1.00195 -1.75578,-0.99175z">
                             </path>
                         </g>
-                    </g>
-                </svg>
-                <span class="navbar-toggler-icon"> </span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active menu">
-                        <a class="nav-link"
-                            href="{% if user.is_authenticated %}{% url 'home:home_auth' %}{% else %}{% url 'home:home' %}{% endif %}">Home
-                        </a>
-                    </li>
-                    <li class="nav-item menu">
-                        <a class="nav-link" href="{% url 'products:product_list' %}">Product</a>
-                    </li>
-
-                    <li class="nav-item menu">
-                        <a class="nav-link" href="#">Contact</a>
-                    </li>
-                    <li class="nav-item menu">
-                        <a class="nav-link about-us" href="">About us</a>
-                    </li>
-                    <li class="nav cart">
-                        <a class="nav-link" href="{% url 'orders:cart_detail' %}"><i
-                                class="fa-solid fa-cart-shopping"></i></a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item menu">
-                        <a class="nav-link user" href="{% url 'userprofile:profile' %}">{{ user.username }}</a>
-                    </li>
-                    <li class="nav-item menu">
-                        <a class="nav-link" href="{% url 'userprofile:logout' %}">Logout</a>
-                    </li>
-                    {% else %}
-                    <li class="nav-item menu">
-                        <a class="nav-link nav-sign-in" href="{% url 'userprofile:sign_in' %}">Sign In</a>
-                    </li>
-                    <li class="nav-item menu">
-                        <a class="nav-link  nav-sign-up" href="{% url 'userprofile:signup' %}">Sign Up</a>
-                    </li>
-                    {% endif %}
-                </ul>
+                    </svg>
+                    <span class="navbar-toggler-icon"> </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item active menu">
+                            <a class="nav-link"
+                                href="{% if user.is_authenticated %}{% url 'home:home_auth' %}{% else %}{% url 'home:home' %}{% endif %}">Home
+                            </a>
+                        </li>
+                        <li class="nav-item menu">
+                            <a class="nav-link" href="{% url 'products:product_list' %}">Product</a>
+                        </li>
+    
+                        <li class="nav-item menu">
+                            <a class="nav-link" href="#">Contact</a>
+                        </li>
+                        <li class="nav-item menu">
+                            <a class="nav-link about-us" href="">About us</a>
+                        </li>
+                        <li class="nav cart">
+                            <a class="nav-link" href="{% url 'orders:cart_detail' %}"><i
+                                    class="fa-solid fa-cart-shopping"></i></a>
+                        </li>
+                        {% if user.is_authenticated %}
+                        <li class="nav-item menu">
+                            <a class="nav-link user" href="{% url 'userprofile:profile' %}">{{ user.username }}</a>
+                        </li>
+                        <li class="nav-item menu">
+                            <a class="nav-link" href="{% url 'userprofile:logout' %}">Logout</a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item menu">
+                            <a class="nav-link nav-sign-in" href="{% url 'userprofile:sign_in' %}">Sign In</a>
+                        </li>
+                        <li class="nav-item menu">
+                            <a class="nav-link  nav-sign-up" href="{% url 'userprofile:signup' %}">Sign Up</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    <!-- Search form -->
+                    <form class="form-inline my-2 my-lg-0" id="search-form">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Search products" aria-label="Search" id="search-input">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                    </form>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    
     <!-- navbar end -->
     <div class="nav-top"></div>
     {% block content %}
@@ -127,6 +132,9 @@
             <p class="copy-rigth">&copy; 2023 Angkor Empire Computer Shop. All rights reserved.</p>
         </div>
     </footer>
+
+
+    
     <!-- Footer end -->
     {% block js %}
 

@@ -15,6 +15,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
 
 
+
+
 # If user is not logged in, show home.html
 class HomeView(TemplateView):
     template_name = 'home/home.html'
