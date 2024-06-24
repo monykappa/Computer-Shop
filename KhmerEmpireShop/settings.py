@@ -86,7 +86,7 @@ EMAIL_BECKEND = 'django.core.mail.beckend.console.EmailBeckend'
 SOCIALACCOUNT_EMAIL_VERIFICATION=True
 SOCIALACCOUNT_EMAIL_REQUIRED=True
 
-SITE_ID = 1
+SITE_ID = 2
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -132,7 +132,7 @@ WSGI_APPLICATION = 'KhmerEmpireShop.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "khmerempireshop_db",
+        "NAME": "computer_shop_db",
         "USER": "root",
         "PASSWORD": "",
         "HOST": "localhost",
