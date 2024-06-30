@@ -20,6 +20,7 @@ from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.filters import SearchFilter
 from products.serializers import *
+from .models import *
 
 
 
@@ -50,17 +51,12 @@ class ProductSearchView(APIView):
 class HomeView(TemplateView):
     template_name = 'home/home.html'
 
-# class BaseView(LoginRequiredMixin, TemplateView):
-#     template_name = 'base.html'
-
 # If user is logged in, show home_auth.html
 class HomeAuth(LoginRequiredMixin, TemplateView):
     def get(self, request):
         template = 'home/home_auth.html'
         return render(request, template)
     
-
-
 
 
 

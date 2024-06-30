@@ -11,7 +11,7 @@ html{
     font-family: "Varela Round", sans-serif;
 }
 button{
-    background-color: var(--fourth-color) !important;
+    /* background-color: var(--fourth-color) !important; */
     border:none !important;
 }
 
