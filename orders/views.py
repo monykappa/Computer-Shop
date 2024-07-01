@@ -22,6 +22,11 @@ from django.utils import timezone
 import pytz
 from django.urls import reverse_lazy
 from decimal import Decimal
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import *
+
 
 # Create your views here.
 
@@ -83,37 +88,44 @@ class CartDetailView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
+        context['user_authenticated'] = self.request.user.is_authenticated
+        return context
+
+class CartAPIView(APIView):
+    def get(self, request):
+        if request.user.is_authenticated:
             try:
-                order = Order.objects.get(user=self.request.user, created_at__isnull=False)
-                cart_items = order.cartitem_set.all().prefetch_related(
+                order = Order.objects.get(user=request.user, created_at__isnull=False)
+                cart_items = order.cartitem_set.all().select_related('product').prefetch_related(
                     Prefetch('product__images', queryset=ProductImage.objects.all())
                 )
+                serializer = CartItemSerializer(cart_items, many=True)
                 total_price = order.total_price
                 user_has_address = (
-                    hasattr(self.request.user, "userprofile")
-                    and self.request.user.userprofile.address1 is not None
+                    hasattr(request.user, "userprofile")
+                    and request.user.userprofile.address1 is not None
                 )
+                
+                return Response({
+                    "cart_items": serializer.data,
+                    "total_price": total_price,
+                    "user_authenticated": True,
+                    "user_has_address": user_has_address,
+                })
             except Order.DoesNotExist:
-                cart_items = []
-                total_price = 0
-                user_has_address = False
-
-            context.update({
-                "cart_items": cart_items,
-                "total_price": total_price,
-                "user_authenticated": True,
-                "user_has_address": user_has_address,
-            })
+                return Response({
+                    "cart_items": [],
+                    "total_price": 0,
+                    "user_authenticated": True,
+                    "user_has_address": False,
+                })
         else:
-            context.update({
+            return Response({
                 "cart_items": [],
                 "total_price": 0,
                 "user_authenticated": False,
                 "message": "You need to sign in to purchase items.",
-            })
-        return context
-
+            }, status=status.HTTP_401_UNAUTHORIZED)
 
 class RemoveFromCartView(DeleteView):
     model = CartItem
@@ -133,8 +145,10 @@ class RemoveFromCartView(DeleteView):
 
 class UpdateCartQuantityView(View):
     def post(self, request, item_id):
+        print(f"Received request to update item_id: {item_id}")
         cart_item = get_object_or_404(CartItem, id=item_id)
         quantity = int(request.POST.get('quantity', 1))
+        print(f"Updating quantity to: {quantity}")
         if quantity > 0:
             cart_item.quantity = quantity
             cart_item.save()

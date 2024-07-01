@@ -85,48 +85,17 @@ Cart
     <h1>My Shopping Cart</h1>
 
     <div id="cart-message"></div>
-    <div class="row">
-        {% if cart_items %}
-        {% for item in cart_items %}
-        <div class="col-md-4 col-sm-6">
-            <div class="card">
-                <img src="{% if item.product.images.all %}{% with first_image=item.product.images.first %}{{ first_image.image.url }}{% endwith %}{% else %}path/to/default/image.jpg{% endif %}"
-                    alt="{{ item.product.name }}" class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">{{ item.product.name }} {{ item.product.model }} {{ item.product.year }}</h5>
-                    <div class="quantity-control mt-3">
-                        <button class="btn border decrease-btn mr-1" data-item-id="{{ item.id }}"
-                            data-url="{% url 'orders:update_cart_quantity' item.id %}">-</button>
-                        <input type="number" class="quantity-input form-control" data-item-id="{{ item.id }}"
-                            value="{{ item.quantity }}" min="1">
-                        <button class="btn border increase-btn ml-1" data-item-id="{{ item.id }}"
-                            data-url="{% url 'orders:update_cart_quantity' item.id %}">+</button>
-                    </div>
-                    <p class="card-text mt-3">Price: $<span id="subtotal-{{ item.id }}">{{ item.subtotal }}</span></p>
-                    <button type="button" class="btn btn-danger remove-btn" data-item-id="{{ item.id }}"><i
-                            class="fa-solid fa-trash"></i></button>
-                    <form id="remove-form-{{ item.id }}" method="post"
-                        action="{% url 'orders:remove_from_cart' item.id %}" style="display: none;">
-                        {% csrf_token %}
-                    </form>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div class="col-12">
-            <p>Your cart is empty.</p>
-        </div>
-        {% endif %}
+    <div id="cart-items" class="row">
+        <!-- Cart items will be dynamically inserted here -->
     </div>
-    {% if cart_items %}
-    <div class="row text-right ">
+    <div id="cart-total" class="row text-right" style="display: none;">
         <div class="col-12">
-            <h3 class="text-danger">Total: $<span id="total-price">{{ total_price }}</span></h3>
+            <h3 class="text-danger">Total: $<span id="total-price"></span></h3>
             <a href="{% url 'orders:confirm_address' %}" class="btn btn-primary">Checkout</a>
         </div>
     </div>
-    {% endif %}
 </div>
+
+<script src="{% static 'js/carts/cartAuth.js' %}"></script>
 
 {% endblock content %}

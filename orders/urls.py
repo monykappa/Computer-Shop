@@ -35,6 +35,9 @@ urlpatterns = [
     
     path('paypal/', include('paypal.standard.ipn.urls')),
     
+    
+    # api
+    path('api/cart/', views.CartAPIView.as_view(), name='cart_api'),
 ]
 
 if settings.DEBUG:
