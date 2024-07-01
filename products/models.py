@@ -59,7 +59,7 @@ class Product(SlugMixin):
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True)  # Foreign key to the Color model
+    color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True) 
     year = models.CharField(max_length=4, choices=[(str(year), str(year)) for year in range(2015, 2056)], null=True, blank=True)
     warranty_months = models.IntegerField(null=True, blank=True)
     warranty_years = models.IntegerField(null=True, blank=True)
@@ -69,7 +69,8 @@ class Product(SlugMixin):
         return f"{self.name} {self.model}"
 
     def __str__(self):
-        return f"{self.name} - ${self.price:.2f} - {self.year}"
+        price_str = f"{self.price:.2f}".rstrip('0').rstrip('.')
+        return f"{self.name} - ${price_str} - {self.year}"
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')

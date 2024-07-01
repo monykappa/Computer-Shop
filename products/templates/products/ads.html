@@ -1,5 +1,6 @@
 <!-- Advertisement slideshow -->
-<div id="slideshow" class="carousel slide text-center" data-ride="carousel">
+
+<div id="slideshow" class="carousel slide" data-ride="carousel">
     <div class="carousel-inner">
         <!-- Advertisement items will be populated here -->
     </div>
@@ -9,9 +10,16 @@
 </div>
 
 <style>
-    .advertisement-item img {
-        max-width: 100%;
+    img.img-ads {
+        width: 100% !important;
         height: auto;
+    }
+    @media (max-width: 768px) {
+        img.img-ads {
+            max-width: 100%;
+            max-height: 100%;
+            
+        }
     }
 </style>
 
@@ -28,18 +36,23 @@
                 var slideshow = $('#slideshow');
                 var carouselInner = slideshow.find('.carousel-inner');
                 var carouselIndicator = slideshow.find('.carousel-indicators');
-
+    
+                // Clear existing items (if any)
+                carouselInner.empty();
+                carouselIndicator.empty();
+    
                 // Iterate through each advertisement item and append to the slideshow
                 data.forEach(function (advertisement, index) {
-                    var item = $('<div class="carousel-item ' + (index === 0 ? 'active' : '') + '"><img src="' + advertisement.image + '" alt="Advertisement Image"></div>');
+                    var item = $('<div class="carousel-item ' + (index === 0 ? 'active' : '') + '"><img src="' + advertisement.image + '" alt="Advertisement Image" class="img-ads"></div>');
                     carouselInner.append(item);
                     var indicator = $('<li data-target="#slideshow" data-slide-to="' + index + '" ' + (index === 0 ? 'class="active"' : '') + '></li>');
                     carouselIndicator.append(indicator);
                 });
-
-                // Initialize the slideshow with a 3-second interval
-                var slideshowCarousel = slideshow.carousel({
-                    interval: 1000 // Set the interval to 3 seconds
+    
+                // Initialize the slideshow with Cycle2 plugin
+                slideshow.cycle({
+                    fx: 'fade', // Example effect, adjust as needed
+                    timeout: 3000 // Set the interval between slides
                 });
             },
             error: function (error) {
@@ -47,4 +60,6 @@
             }
         });
     });
+    
+    
 </script>

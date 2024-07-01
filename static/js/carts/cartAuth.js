@@ -23,11 +23,10 @@ function debounce(func, delay) {
     };
 }
 
-function updateQuantity(itemId, quantityChange) {
-    const newQuantity = parseInt($('input[data-item-id="' + itemId + '"]').val()) + quantityChange;
+function updateQuantity(itemId, newQuantity) {
     const updateUrl = `/cart/update_cart_quantity/${itemId}/`;
     const csrftoken = getCookie('csrftoken');
-    
+
     $.ajax({
         url: updateUrl,
         type: 'POST',
@@ -36,9 +35,13 @@ function updateQuantity(itemId, quantityChange) {
             'csrfmiddlewaretoken': csrftoken,
         },
         success: function (response) {
-            $('#subtotal-' + response.item_id).text('$' + response.subtotal.toFixed(2));
+            // Update the subtotal with the correct format
+            $('#subtotal-' + response.item_id).text(response.subtotal.toFixed(2));
+            // Update the total price
             $('#total-price').text(response.total_price.toFixed(2));
+            // Update the quantity input value
             $('input[data-item-id="' + response.item_id + '"]').val(response.quantity);
+            // Update the item count
             $('#item-count').text('(' + response.item_count + ')');
         },
         error: function (response) {
@@ -60,8 +63,7 @@ function removeCartItem(itemId) {
         },
         success: function (response) {
             $('#cart-item-' + response.item_id).remove();
-            
-            // Ensure response properties exist before accessing them
+
             if (response.total_price !== undefined) {
                 $('#total-price').text(response.total_price.toFixed(2));
             }
@@ -69,7 +71,6 @@ function removeCartItem(itemId) {
                 $('#item-count').text('(' + response.item_count + ')');
             }
 
-            // If the cart is empty after removal, display a message
             if (response.item_count === 0) {
                 $('#cart-items').html('<div class="col-12"><p>Your cart is empty.</p></div>');
                 $('#cart-total').hide();
@@ -84,22 +85,26 @@ function removeCartItem(itemId) {
 function attachEventListeners() {
     $('#cart-items').on('click', '.increase-btn', function () {
         const itemId = $(this).data('item-id');
-        updateQuantity(itemId, 1);
+        const currentQuantity = parseInt($('input[data-item-id="' + itemId + '"]').val());
+        updateQuantity(itemId, currentQuantity + 1);
     });
 
     $('#cart-items').on('click', '.decrease-btn', function () {
         const itemId = $(this).data('item-id');
-        updateQuantity(itemId, -1);
+        const currentQuantity = parseInt($('input[data-item-id="' + itemId + '"]').val());
+        if (currentQuantity > 1) {
+            updateQuantity(itemId, currentQuantity - 1);
+        }
     });
 
     $('#cart-items').on('input', '.quantity-input', debounce(function () {
         const itemId = $(this).data('item-id');
         const newQuantity = parseInt($(this).val());
         if (newQuantity > 0) {
-            updateQuantity(itemId, newQuantity - parseInt($(this).attr('value')));
+            updateQuantity(itemId, newQuantity);
         } else {
             $(this).val(1);
-            updateQuantity(itemId, 1 - parseInt($(this).attr('value')));
+            updateQuantity(itemId, 1);
         }
     }, 500));
 
@@ -121,13 +126,10 @@ function attachEventListeners() {
     });
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     fetchCart();
     attachEventListeners();
 });
-
-
-
 
 async function fetchCart() {
     try {
@@ -149,15 +151,15 @@ async function fetchCart() {
 function displayCart(cartData, laptopSpecs) {
     let cartItemsHtml = '';
     if (cartData.cart_items.length > 0) {
-        cartData.cart_items.forEach(function(item) {
+        cartData.cart_items.forEach(function (item) {
             const spec = laptopSpecs.find(spec => spec.product.id === item.product);
             if (!spec) {
                 console.warn(`No spec found for product ${item.product}`);
                 return;
             }
 
-            const imageUrl = spec.product.images.length > 0 
-                ? spec.product.images[0].image 
+            const imageUrl = spec.product.images.length > 0
+                ? spec.product.images[0].image
                 : '/static/images/placeholder.jpg';
 
             const gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
@@ -170,10 +172,10 @@ function displayCart(cartData, laptopSpecs) {
                             <h5 class="card-title">${spec.product.name} ${spec.product.model} ${spec.product.year}</h5>
                             <p><strong>Specs:</strong> ${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB</p>
                             <div class="quantity-control mt-3">
-                                <button class="btn border decrease-btn mr-1" data-item-id="${item.id}" data-url="/orders/update_cart_quantity/${item.id}/">-</button>
-                                <input type="number" class="quantity-input form-control" data-item-id="${item.id}" value="${item.quantity}" min="1">
-                                <button class="btn border increase-btn mr-1" data-item-id="${item.id}" data-url="/orders/update_cart_quantity/${item.id}/">+</button>
-                            </div>
+                            <button class="btn border decrease-btn mr-1" data-item-id="${item.id}" data-url="/orders/update_cart_quantity/${item.id}/">-</button>
+                            <input type="number" class="quantity-input form-control" data-item-id="${item.id}" value="${item.quantity}" min="1">
+                            <button class="btn border increase-btn mr-1" data-item-id="${item.id}" data-url="/orders/update_cart_quantity/${item.id}/">+</button>
+                        </div>
                             <p class="card-text mt-3">Price: $<span id="subtotal-${item.id}">${item.subtotal}</span></p>
                             <button type="button" class="btn btn-danger remove-btn" data-item-id="${item.id}"><i class="fa-solid fa-trash"></i></button>
                         </div>
@@ -192,9 +194,7 @@ function displayCart(cartData, laptopSpecs) {
     attachEventListeners();
 }
 
-
-
-$(document).ready(function() {
+$(document).ready(function () {
     fetchCart();
     attachEventListeners();
 });

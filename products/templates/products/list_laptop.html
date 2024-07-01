@@ -1,7 +1,6 @@
-<style>
-
-</style>
+{% load static %}
 <div id="products-container" class="container product-container"></div>
+<script src="{% static 'js/price/formatPrice.js' %}"></script>
 <script>
     async function fetchData() {
         try {
@@ -43,7 +42,7 @@
                             <img src="${productImage}" alt="${spec.product.name}">
                             <h4>${spec.product.name} ${spec.product.model} ${spec.product.year}</h4>
                             <p><strong></strong> ${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB</p>
-                            <h3 class="text-danger">$${spec.product.price}</h3>
+                            <h3 class="text-danger">$${formatPrice(spec.product.price)}</h3>
                             <a href="/products/${spec.slug}/" class="btn btn-primary see-more-btn"><i class="fa-solid fa-eye"></i></a>
                         </div>
                     `;
