@@ -1,4 +1,26 @@
 {% load static %}
+<style>
+    .zoom-wrapper {
+        overflow: hidden;
+        position: relative;
+        display: inline-block;
+    }
+
+    .zoom-wrapper img {
+        transition: transform 0.3s ease-in-out;
+        display: block;
+        width: 100%;
+    }
+
+    .zoom-wrapper:hover img {
+        transform: scale(1.2);
+    }
+
+    .small-image {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
 <div id="product-details-container"></div>
 <script>
     async function fetchProductDetails() {
@@ -38,12 +60,12 @@
         container.innerHTML = `
             <div class="row">
                 <div class="col-md-6">
-                    <div class="text-center">
-                        <img src="${details.product.images && details.product.images.length > 0 ? details.product.images[0].image : '{% static "placeholder_image.jpg" %}'}" alt="${details.product.name}" class="img-fluid big-image mb-3">
-                    </div>
+                    <div class="text-center zoom-wrapper">
+                            <img src="${details.product.images && details.product.images.length > 0 ? details.product.images[0].image : '{% static "placeholder_image.jpg" %}'}" alt="${details.product.name}" class="img-fluid big-image mb-3">
+                        </div>
                     <div class="row">
                         ${details.product.images && details.product.images.length > 1 ? details.product.images.slice(1).map(image => `
-                            <div class="col-md-3">
+                            <div class="col-3">
                                 <img src="${image.image}" alt="${details.product.name}" class="img-fluid small-image mb-2">
                             </div>
                         `).join('') : ''}
@@ -96,10 +118,10 @@
                         <div class="card mb-3 recommend-product">
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        ${rp.product.images.length > 0 ? `<img class="card-img-top" src="${rp.product.images[0].image}" alt="${rp.product.name}">` : `<img class="card-img-top" src="{% static 'placeholder_image.jpg' %}" alt="No image">`}
+                                    <div class="col-4">
+                                        ${rp.product.images.length > 0 ? `<img class="card-img-top img-fluid" src="${rp.product.images[0].image}" alt="${rp.product.name}">` : `<img class="card-img-top img-fluid" src="{% static 'placeholder_image.jpg' %}" alt="No image">`}
                                     </div>
-                                    <div class="col-md-8">
+                                    <div class="col-8">
                                         <h5 class="card-title">${rp.product.name} ${rp.cpu.cpu_brand.name} ${rp.cpu.model} / ${rp.gpu.length > 0 ? rp.gpu[0].gpu_brand.name + ' ' + rp.gpu[0].model : 'No GPU'} / ${rp.storage.capacity} ${rp.storage.capacity_type} / ${rp.memory.capacity}GB</h5>
                                         <p class="card-text">${rp.product.description}</p>
                                         <p class="card-text"><strong>Price:</strong> $${rp.product.price}</p>
@@ -112,6 +134,7 @@
                 </div>
             </div>
         `;
+    
     
 
         // Add form submission event listener

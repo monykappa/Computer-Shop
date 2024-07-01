@@ -22,6 +22,9 @@ urlpatterns = [
     # Profile
     path('profile/', views.ProfileView.as_view(), name='profile'),
     
+    # api
+    # path('api/profile/', views.ProfileAPIView.as_view(), name='profile-api'),
+    
     
 ]
 
