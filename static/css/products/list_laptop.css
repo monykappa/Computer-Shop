@@ -71,9 +71,22 @@
     .product-image {
         height: 250px;
     }
-   
 }
 
+@media (max-width: 430px){
+    .product-card img{
+        width:100px;
+        object-fit: contain;
+    } 
+    .product-card{
+        width:100%;
+        padding:0;
+        margin:0;
+    }
+    .col-6, .col-md-4, .col-lg-3{
+        padding:0;
+    }
+}
 @media (max-width: 767px) {
     .product-image {
         height: 150px;
