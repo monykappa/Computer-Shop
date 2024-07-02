@@ -12,7 +12,7 @@ Order History
         <button type="button" class="btn btn-success" onclick="showTable('completed')">Received Orders</button>
         <button type="button" class="btn btn-danger" onclick="showTable('cancelled')">Cancelled Orders</button>
     </div>
-    
+
     <div id="pending" class="order-table">
         {% if pending_orders %}
         <table class="table table-striped">
@@ -20,7 +20,7 @@ Order History
                 <tr>
                     <th>Order Number</th>
                     <th>Order Date</th>
-                    <th>Total Price</th>
+                    <th>Total</th>
                     <th>Status</th>
                     <th>Details</th>
                 </tr>
@@ -41,7 +41,7 @@ Order History
         <p>No pending orders found.</p>
         {% endif %}
     </div>
-    
+
     <div id="completed" class="order-table" style="display:none;">
         <h2>Completed Orders</h2>
         {% if completed_orders %}
@@ -71,7 +71,7 @@ Order History
         <p>No completed orders found.</p>
         {% endif %}
     </div>
-    
+
     <div id="cancelled" class="order-table" style="display:none;">
         <h2>Cancelled Orders</h2>
         {% if cancelled_orders %}
@@ -103,8 +103,9 @@ Order History
     </div>
 </div>
 
+
 {% endblock content %}
 
 {% block js %}
-    <script src="{% static 'js/orders/orderHistory.js' %}"></script>
+<script src="{% static 'js/orders/orderHistory.js' %}"></script>
 {% endblock js %}

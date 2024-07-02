@@ -54,8 +54,8 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .card img {
-    max-height: 90px;
-    max-width: 200px;
+    height: 250px; /* Set a fixed height */
+    width: 100%; /* Ensure images take full width */
     object-fit: contain;
     margin-top: 10px;
 }
@@ -68,6 +68,14 @@ input[type="number"]::-webkit-inner-spin-button {
     text-align: center;
     flex-grow: 1; /* Take up remaining space */
     align-self: stretch; /* Ensure consistent height */
+}
+
+.card-title {
+    flex-grow: 1; /* Allow the title to grow and take up available space */
+    display: flex;
+    align-items: center; /* Center the text vertically */
+    justify-content: center; /* Center the text horizontally */
+    text-align: center;
 }
 
 /* Responsive design */

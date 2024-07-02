@@ -1,68 +1,157 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <style>
-    .StyledReceipt {
-        background: linear-gradient(45deg, #aaa, #fff);
-        width: 800px;
-        padding: 1rem 1rem 2rem;
-        --mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50%/30px 100%;
-        -webkit-mask: var(--mask);
-        mask: var(--mask);
+    .pos-receipt ul {
+        list-style-type: disc !important;
+        padding-left: 20px;
+        margin: 0;
     }
 
-    ul {
+    .pos-receipt {
+        font-family: 'Courier New', monospace;
+        width: 400px;
+        /* Increased from 300px to 400px */
+        margin: 0 auto;
+        padding: 30px;
+        /* Increased padding for more space */
+        background-color: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .receipt-header {
+        text-align: center;
+        border-bottom: 1px dashed #000;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+
+    .receipt-header h1 {
+        font-size: 22px;
+        /* Increased font size */
+        margin: 0;
+    }
+
+    .receipt-body p {
+        margin: 8px 0;
+        /* Increased margin */
+        font-size: 16px;
+        /* Increased font size */
+    }
+
+    .receipt-items {
+        border-top: 1px dashed #000;
+        border-bottom: 1px dashed #000;
+        padding: 15px 0;
+        margin: 15px 0;
+    }
+
+    .receipt-items ul {
         list-style-type: none;
+        padding: 0;
+    }
+
+    .receipt-items li {
+        margin-bottom: 8px;
+        /* Increased margin */
+        font-size: 14px;
+        /* Increased font size */
+    }
+
+    .receipt-footer {
+        text-align: center;
+        margin-top: 25px;
+    }
+
+    .qr-code {
+        text-align: center;
+        margin: 25px 0;
+    }
+
+    .qr-code img {
+        max-width: 180px;
+        /* Increased QR code size */
+    }
+
+    .btn-continue {
+        display: inline-block;
+        padding: 12px 24px;
+        /* Increased padding */
+        background-color: #4caf50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 16px;
+        /* Increased font size */
+    }
+    i.fa-bag-shopping{
+        font-size: 120px;
+        color: var(--fourth-color);
     }
 </style>
 
-<div class="success-ctn StyledReceipt container text-center">
-    <div class="sub-ctn mt-2">
-        <h1>Payment Successful!
-            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="60" height="60" viewBox="0 0 48 48"
-                class="rotate-animation">
-                <path fill="#c8e6c9" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z">
-                </path>
-                <path fill="#4caf50"
-                    d="M34.586,14.586l-13.57,13.586l-5.602-5.586l-2.828,2.828l8.434,8.414l16.395-16.414L34.586,14.586z">
-                </path>
-            </svg>
-        </h1>
-        <p>Your payment has been completed successfully.</p>
+<div class="payment-success-ctn container">
+    <div class="row">
+        <div class="col-md-6 text-center">
+            <i class="fa-sharp fa-solid fa-bag-shopping m-3"></i>
+            <h3 class="m-3">Payment Completed</h3>
+            <p class="m-3">Thank you for your purchase. Your payment has been successfully processed.</p>
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary m-3" style="background-color: var(--fourth-color); border:none;">Continue Shopping <i class="fa-solid fa-right-long"></i></a>
 
-        <p class="order-num">Order number: # {{ order_history.id }}</p>
-        <p>Order Date: {{ order_history.ordered_date }}</p>
-        <p>We have received your total payment of ${{ order_history.total_price }}.</p>
+            <button id="saveReceiptBtn" class="btn btn-primary bg-success"><i class="fa-solid fa-download"></i> Download receipt</button>
+        
+        </div>
+        <div class="col-md-6">
+            <div class="pos-receipt">
+                <div class="receipt-header text-center">
+                    <img src="{% static 'img/logo/logo.png' %}" alt="Logo" height="50" class="nav-logo mb-3">
+                    <h1>Angkor Empire Shop</h1>
+                </div>
 
-        <p>Products Purchased:</p>
-        <ul>
-            {% for item in order_history_items %}
-            <li>-{{ item.product.name }} {{ item.product.model }} {{ item.product.year }} - Quantity: {{ item.quantity }}
-                - ${{ item.subtotal }}</li>
-            {% endfor %}
-        </ul>
+                <div class="receipt-body text-center">
+                    <p class="text-center">#{{ order_history.id }}</p>
+                    <p>Order Date: {{ order_history.ordered_date }}</p>
 
-        <p>Thank you for shopping with us!</p>
+                    <div class="receipt-items">
+                        <p>Products Purchased:</p>
+                        <ul>
+                            {% for item in order_history_items %}
+                            <li>{{ item.product.name }} {{ item.product.model }} {{ item.product.year }} - Qty: {{item.quantity }}
+                                - <span class="text-danger">${{ item.subtotal }}</span></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <h5 class="mb-3 text-danger">Total: ${{ order_history.total_price }}</h5>
 
-        <div class="container">
-            <div class="row justify-content-center"> <!-- Center the content horizontally -->
-                <div class="col-md-6 text-center">
+
+                </div>
+
+                <div class="qr-code">
                     {% if order_history.qr_code %}
-                    <img src="{{ order_history.qr_code.url }}" alt="QR Code" width="200" class="img-fluid">
-                    <!-- Center the image -->
+                    <img src="{{ order_history.qr_code.url }}" alt="QR Code">
                     {% endif %}
                 </div>
-            </div>
-            <div class="row justify-content-center"> <!-- Center the content horizontally -->
-                <div class="col-md-6 text-center"> <!-- Center the button -->
-                    <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-ctn mt-4 mb-4">Continue
-                        Shopping</a>
-                </div>
+                <p class="text-center">Thank you for shopping with us!</p>
             </div>
         </div>
-
     </div>
 </div>
 
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var saveButton = document.getElementById('saveReceiptBtn');
+    saveButton.addEventListener('click', function() {
+        html2canvas(document.querySelector(".pos-receipt")).then(canvas => {
+            var link = document.createElement('a');
+            link.download = 'receipt.png';
+            link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            link.click();
+        });
+    });
+});
+</script>
 
 {% endblock content %}

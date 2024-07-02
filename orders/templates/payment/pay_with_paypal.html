@@ -26,6 +26,7 @@
                                     <h3 class="card-title" style="min-height: 60px;">{{ item.product.name }}</h3>
                                     <p>Model: {{ item.product.model }}</p>
                                     <p>Year: {{ item.product.year }}</p>
+                                    <p>Price per unit: <span class="text-danger">${{ item.product.price }}</span></p>
                                     <p>Quantity: {{ item.quantity }}</p>
                                     <p>Subtotal: ${{ item.subtotal }}</p>
                                 </div>

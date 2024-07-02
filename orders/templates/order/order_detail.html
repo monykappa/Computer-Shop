@@ -5,6 +5,50 @@ Order Detail - {{ order.id }}
 {% endblock title %}
 
 {% block content %}
+
+
+<style>
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 20px;
+    }
+    
+    .table {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 1rem;
+        background-color: transparent;
+    }
+    
+    .table thead th {
+        background-color: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table td, .table th {
+        padding: 8px;
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    .table img {
+        max-width: 100px;
+        height: auto;
+    }
+    
+    @media (max-width: 767px) {
+        .table-responsive {
+            -webkit-overflow-scrolling: touch;
+            overflow-x: auto;
+        }
+    }
+    
+</style>
 <div class="container">
     <div class="row">
         <div class="col-md-6">
@@ -28,39 +72,45 @@ Order Detail - {{ order.id }}
 
 
     <h2>Products Ordered:</h2>
-  
 
-
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Image</th>
-                <th>Product</th>
-                <th>Model</th>
-                <th>Year</th>
-                <th>Quantity</th>
-                <th>Price</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in order.orderhistoryitem_set.all %}
-            <tr>
-                <td>  {% if item.product.images.all %}
-                    {% with first_image=item.product.images.first %}
-                    <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
-                    {% endwith %}
-                    {% else %}
-                   <p>no image</p>
-                    {% endif %}</td>
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.product.model }}</td>
-                <td>{{ item.product.year }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>${{ item.product.price }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>Price per Unit</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.orderhistoryitem_set.all %}
+                <tr>
+                    <td>
+                        {% if item.product.images.all %}
+                            {% with first_image=item.product.images.first %}
+                                <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
+                            {% endwith %}
+                        {% else %}
+                            <p>No image</p>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.model }}</td>
+                    <td>{{ item.product.year }}</td>
+                    <td>${{ item.product.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    
     <h3 class="text-right text-danger"><strong class="text-dark">Total Price:</strong> ${{ order.total_price }}</h3>
 
 </div>

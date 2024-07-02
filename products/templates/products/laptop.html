@@ -1,5 +1,9 @@
 {% load static %}
 <style>
+    ul li {
+        margin-top: 1rem;
+    }
+
     .zoom-wrapper {
         overflow: hidden;
         position: relative;
@@ -7,18 +11,70 @@
     }
 
     .zoom-wrapper img {
-        transition: transform 0.3s ease-in-out;
+        transition: transform 0.3s ease-out;
         display: block;
         width: 100%;
     }
 
     .zoom-wrapper:hover img {
-        transform: scale(1.2);
+        transform: scale(2);
     }
 
-    .small-image {
-        max-width: 100%;
-        height: auto;
+    .product-image {
+        cursor: pointer;
+    }
+
+    /* Styles for the full-screen modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-content {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 700px;
+        position: relative;
+        /* Add this */
+        top: 50%;
+        /* Add this */
+        transform: translateY(-50%);
+        /* Add this */
+    }
+
+    .close {
+        position: absolute;
+        top: 6rem;
+        right: 20px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+        z-index: 1001;
+        /* Ensure it's above other elements */
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Add a semi-transparent background */
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #bbb;
+        text-decoration: none;
     }
 </style>
 <div id="product-details-container"></div>
@@ -34,11 +90,10 @@
             const productDetails = await productResponse.json();
             const recommendedProducts = await recommendedResponse.json();
 
-            // Shuffle the recommended products
             shuffleArray(recommendedProducts);
 
-            console.log('Product Details:', productDetails); // Debugging line
-            console.log('Recommended Products:', recommendedProducts); // Debugging line
+            console.log('Product Details:', productDetails);
+            console.log('Recommended Products:', recommendedProducts);
 
             productDetails.recommended_products = recommendedProducts;
             renderProductDetails(productDetails);
@@ -47,7 +102,6 @@
         }
     }
 
-    // Function to shuffle an array
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -61,12 +115,12 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="text-center zoom-wrapper">
-                            <img src="${details.product.images && details.product.images.length > 0 ? details.product.images[0].image : '{% static "placeholder_image.jpg" %}'}" alt="${details.product.name}" class="img-fluid big-image mb-3">
-                        </div>
+                        <img src="${details.product.images && details.product.images.length > 0 ? details.product.images[0].image : '{% static "placeholder_image.jpg" %}'}" alt="${details.product.name}" class="img-fluid big-image mb-3">
+                    </div>
                     <div class="row">
                         ${details.product.images && details.product.images.length > 1 ? details.product.images.slice(1).map(image => `
                             <div class="col-3">
-                                <img src="${image.image}" alt="${details.product.name}" class="img-fluid small-image mb-2">
+                                <img src="${image.image}" alt="${details.product.name}" class="img-fluid small-image mb-2 product-image">
                             </div>
                         `).join('') : ''}
                     </div>
@@ -77,8 +131,16 @@
                     ` : `
                         <h3>${details.product.name} ${details.product.model} (${details.cpu.cpu_brand.name} / ${details.cpu.model} / ${details.memory.capacity}GB / ${details.storage.capacity} ${details.storage.capacity_type} / ${details.display.display} inches)</h3>
                     `}
-                    <h3>${details.product.year}</h3>
+                    
+                <h3>${details.product.year}</h3>
                     <p>Brand: ${details.product.brand.name}</p>
+                    <p>Warranty: ${details.product.warranty_years > 0
+                ? `${details.product.warranty_years} ${details.product.warranty_years === 1 ? 'year' : 'years'}`
+                : details.product.warranty_months > 0
+                    ? `${details.product.warranty_months} ${details.product.warranty_months === 1 ? 'month' : 'months'}`
+                    : 'No warranty information available'
+            }</p>
+
                     <h1 class="text-danger">$${details.product.price}</h1>
                     <form id="add-to-cart-form" action="{% url 'orders:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
                         {% csrf_token %}
@@ -94,23 +156,25 @@
             <div class="row">
                 <div class="col-md-6">
                     <h3>Specification</h3>
-                    <p><strong>CPU:</strong> ${details.cpu.cpu_brand.name} ${details.cpu.model} - ${details.cpu.cores} cores - ${details.cpu.threads} threads - ${details.cpu.cpu_detail}</p>
-                    <p><strong>Memory:</strong> ${details.memory.capacity}GB ${details.memory.type} - ${details.memory.speed}MHz - ${details.memory.memory_brand.name}</p>
-                    <p><strong>Storage:</strong> ${details.storage.capacity} ${details.storage.capacity_type} - ${details.storage.interface} - Read Speed: ${details.storage.read_speed} MB/s - Write Speed: ${details.storage.write_speed} MB/s - ${details.storage.form_factor} - ${details.storage.storage_brand.name}</p>
-                    <p><strong>GPU:</strong>
-                        ${details.gpu.length > 0 ? details.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model} - ${gpu.vram} GB VRAM - ${gpu.vram_type}`).join('<br>') : 'No GPU details available'}
-                    </p>
-                    <p><strong>Display:</strong> ${details.display.display} inches - ${details.display.display_detail}</p>
-                    <p><strong>Ports:</strong>
-                        ${details.port.length > 0 ? details.port.map(port => port.port).join('<br>') : 'No port details available'}
-                    </p>
-                    <p><strong>Wireless Connectivity:</strong>
-                        ${details.wireless_connectivity.length > 0 ? details.wireless_connectivity.map(wireless => wireless.wireless_connectivity).join('<br>') : 'No wireless connectivity details available'}
-                    </p>
-                    <p><strong>Webcam:</strong> ${details.webcam.webcam}</p>
-                    <p><strong>Battery:</strong> ${details.battery.battery} Kw</p>
-                    <p><strong>Operating System:</strong> ${details.operating_system.operating_system}</p>
-                    <p><strong>Weight:</strong> ${details.weight} kg</p>
+                    <ul>
+                        <li><strong>CPU:</strong> ${details.cpu.cpu_brand.name} ${details.cpu.model} - ${details.cpu.cores} cores - ${details.cpu.threads} threads - ${details.cpu.cpu_detail}</li>
+                        <li><strong>Memory:</strong> ${details.memory.capacity}GB ${details.memory.type} - ${details.memory.speed}MHz - ${details.memory.memory_brand.name}</li>
+                        <li><strong>Storage:</strong> ${details.storage.capacity} ${details.storage.capacity_type} - ${details.storage.interface} - Read Speed: ${details.storage.read_speed} MB/s - Write Speed: ${details.storage.write_speed} MB/s - ${details.storage.form_factor} - ${details.storage.storage_brand.name}</li>
+                        <li><strong>GPU:</strong>
+                            ${details.gpu.length > 0 ? details.gpu.map(gpu => `<br>${gpu.gpu_brand.name} ${gpu.model} - ${gpu.vram} GB VRAM - ${gpu.vram_type}`).join('') : 'No GPU details available'}
+                        </li>
+                        <li><strong>Display:</strong> ${details.display.display} inches</li>
+                        <li><strong>Ports:</strong>
+                            ${details.port.length > 0 ? details.port.map(port => `<br>${port.port}`).join('') : 'No port details available'}
+                        </li>
+                        <li><strong>Wireless Connectivity:</strong>
+                            ${details.wireless_connectivity.length > 0 ? details.wireless_connectivity.map(wireless => `<br>${wireless.wireless_connectivity}`).join('') : 'No wireless connectivity details available'}
+                        </li>
+                        <li><strong>Webcam:</strong> ${details.webcam.webcam}</li>
+                        <li><strong>Battery:</strong> ${details.battery.battery} Kw</li>
+                        <li><strong>Operating System:</strong> ${details.operating_system.operating_system}</li>
+                        <li><strong>Weight:</strong> ${details.weight} kg</li>
+                    </ul>
                 </div>
                 <div class="col-md-6">
                     <h4 class="card-title">Recommended Products</h4>
@@ -133,12 +197,71 @@
                     `).join('') : '<p class="card-text">No recommended products available.</p>'}
                 </div>
             </div>
+    
+            <!-- Full-screen modal for image preview -->
+            <div id="imageModal" class="modal">
+                <span class="close">&times;</span>
+                <img class="modal-content" id="modalImage">
+            </div>
         `;
-    
-    
+
+        // Zoom functionality
+        const zoomWrapper = container.querySelector('.zoom-wrapper');
+        const img = zoomWrapper.querySelector('img');
+
+        zoomWrapper.addEventListener('mousemove', (e) => {
+            const rect = zoomWrapper.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const xPercent = (x / rect.width) * 100;
+            const yPercent = (y / rect.height) * 100;
+
+            img.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+        });
+
+        zoomWrapper.addEventListener('mouseleave', () => {
+            img.style.transformOrigin = 'center center';
+        });
+
+        // Full-screen preview functionality
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const closeBtn = document.getElementsByClassName('close')[0];
+
+        // Function to open the modal
+        function openModal(imgSrc) {
+            modal.style.display = "block";
+            modalImg.src = imgSrc;
+        }
+
+        // Add click event to main product image
+        img.onclick = function () {
+            openModal(this.src);
+        }
+
+        // Add click events to small product images
+        const smallImages = container.querySelectorAll('.small-image');
+        smallImages.forEach(smallImg => {
+            smallImg.onclick = function () {
+                openModal(this.src);
+            }
+        });
+
+        // Close the modal when the x is clicked
+        closeBtn.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // Close the modal when clicking outside the image
+        modal.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
 
         // Add form submission event listener
-        document.getElementById('add-to-cart-form').addEventListener('submit', function(event) {
+        document.getElementById('add-to-cart-form').addEventListener('submit', function (event) {
             event.preventDefault();
 
             const form = this;
@@ -146,7 +269,7 @@
             const data = new FormData(form);
 
             $.ajaxSetup({
-                beforeSend: function(xhr, settings) {
+                beforeSend: function (xhr, settings) {
                     if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
                     }
@@ -169,7 +292,6 @@
                             contentType: false,
                             success: function (response) {
                                 console.log('Add to cart success', response);
-                                // Show success message with SweetAlert
                                 Swal.fire({
                                     title: 'Success',
                                     text: 'Product added to cart successfully!',
@@ -179,7 +301,6 @@
                             },
                             error: function (response) {
                                 console.log('Add to cart error', response);
-                                // Show error message with SweetAlert
                                 Swal.fire({
                                     title: 'Error',
                                     text: 'There was a problem adding the product to the cart.',
@@ -190,7 +311,6 @@
                         });
                     } else {
                         console.log('User not logged in');
-                        // User is not logged in, show error message with SweetAlert
                         Swal.fire({
                             title: 'Error',
                             text: 'You need to log in to add items to the cart.',
@@ -201,7 +321,6 @@
                 },
                 error: function () {
                     console.log('Login status check failed');
-                    // Show error message if unable to check login status
                     Swal.fire({
                         title: 'Error',
                         text: 'Unable to check login status. Please try again later.',
