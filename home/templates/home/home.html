@@ -1,33 +1,18 @@
 {% extends 'base.html' %}
+{% load static %}
+
 
 {% block content %}
 {% include 'products/ads.html' %}
 <style>
-    .product-card {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        padding: 20px;
-        height: 480px;
-        overflow: hidden;
-    }
-
-    .product-card img {
-        margin: 0 auto;
-        display: flex;
-        width: 250px;
-        height: 200px;
-        object-fit: contain;
-        border-radius: 5px;
-        margin-bottom: 10px;
-    }
 </style>
 <div class="m-5">
     <!-- List of laptop brands -->
     {% include 'search/search_product.html' %}
     {% include 'products/brands.html' %}
-
-
+{% include 'products/list_laptop.html' %}
 
 </div>
+
+
 {% endblock content %}

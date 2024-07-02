@@ -1,8 +1,12 @@
 {% load static %}
 
+<link rel="stylesheet" href="{% static 'css/products/list_laptop.css' %}">
 
-<div id="products-container" class="product-container"></div>
+<div id="products-container">
+    <!-- Products will be dynamically added here -->
+</div>
 <script src="{% static 'js/price/formatPrice.js' %}"></script>
+
 <script>
     async function fetchData() {
         try {
@@ -38,21 +42,20 @@
                     let gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
 
                     let productCard = document.createElement('div');
-                    productCard.className = 'product-card';
+                    productCard.className = 'col-6 col-md-4 col-lg-3 mb-4'; // Adjust column sizes for different screen sizes
                     productCard.innerHTML = `
-                        <img class="product-image" src="${productImage}" alt="${spec.product.name}">
-                        <div class="product-info">
-                            <h4 class="product-title">${spec.product.name} ${spec.product.model} ${spec.product.year}</h4>
-                            <p class="product-specs">${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB | ${spec.product.color.name}</p>
-                            <div class="product-footer">
-                                <h3 class="product-price">$${formatPrice(spec.product.price)}</h3>
-                                <a href="/products/${spec.slug}/" class="btn btn-primary see-more-btn"><i class="fa-solid fa-eye"></i></a>
+                        <div class="product-card">
+                            <img class="product-image" src="${productImage}" alt="${spec.product.name}">
+                            <div class="product-info">
+                                <h4 class="product-title">${spec.product.name} ${spec.product.model} ${spec.product.year}</h4>
+                                <p class="product-specs">${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB | ${spec.product.color.name}</p>
+                                <div class="product-footer">
+                                    <h3 class="product-price">$${formatPrice(spec.product.price)}</h3>
+                                    <a href="/products/${spec.slug}/" class="btn btn-primary see-more-btn"><i class="fa-solid fa-eye"></i></a>
+                                </div>
                             </div>
                         </div>
                     `;
-                    
-                    
-                    
                     productsContainer.appendChild(productCard);
                 });
             });
