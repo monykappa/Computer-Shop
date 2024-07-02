@@ -31,7 +31,6 @@ a.logo-name {
     width: 290px;
     display: flex;
     flex-wrap: wrap;
-    margin-left: 10px;
     padding: 5px;
     
 }
@@ -44,6 +43,16 @@ h5.logo-name-logo {
     margin-top: 5px;
     font-family: var(--primary-font);
 }
+
+.logo-name img {
+    margin:0 auto !important;
+    display: flex;
+}
+
+.navbar-expand-lg .navbar-collapse{
+    margin-right: 2rem;
+}
+
 
 button.btn-toggle {
     height: 50px;
@@ -252,7 +261,7 @@ p.copy-rigth{
         box-shadow: none;
     }
     a.logo-name {
-        width:80% !important;
+        width:70% !important;
         margin-left: 0;
     }
     img.nav-logo{
@@ -429,6 +438,14 @@ p.copy-rigth{
         display: flex;
 
     }
+
+    .logo-name img {
+        margin:0 auto !important;
+        display: flex;
+    }
+    button.btn-toggle{
+        margin-right: 3rem;
+    }
 }
 
 
@@ -437,6 +454,11 @@ p.copy-rigth{
         width:100px;
         height: 100px;
     }
+    .logo-name img{
+        margin-left: 2rem !important;
+        display: flex;
+    }
+    
 }
 
 /* Define styles for small screens */
