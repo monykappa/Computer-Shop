@@ -7,78 +7,113 @@ Cart
 
 {% block content %}
 <style>
-    /* Hide the up and down arrows in number input fields */
-    input[type="number"] {
-        -moz-appearance: textfield;
-        appearance: textfield;
-    }
+/* Hide the up and down arrows in number input fields */
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
 
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
-    .quantity-control {
+.quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.quantity-input {
+    width: 70px;
+    text-align: center;
+    margin: 0 5px;
+}
+
+.cart-items-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.cart-item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    height: 100%; /* Ensure the card takes up full height of its container */
+}
+
+.card img {
+    max-height: 90px;
+    max-width: 200px;
+    object-fit: contain;
+    margin-top: 10px;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    flex-grow: 1; /* Take up remaining space */
+    align-self: stretch; /* Ensure consistent height */
+}
+
+/* Responsive design */
+@media (max-width: 575px) { /* For phones */
+    .cart-item {
         display: flex;
+        flex-direction: row;
         align-items: center;
-        justify-content: center;
-        margin-top: 10px;
+        justify-content: space-between;
     }
-
-    .quantity-input {
-        width: 70px;
-        text-align: center;
-        margin: 0 5px;
-    }
-
     .card {
-        margin-bottom: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: row;
+        width: 100%;
+        height: auto;
+        overflow: hidden;
     }
-
     .card img {
-        max-height: 90px;
-        /* Ensures image doesn't overflow */
-        max-width: 200px;
-        /* Ensures image doesn't overflow */
-        object-fit: contain;
-        margin-top: 10px;
+        width: 40%;
+        height: auto;
+        max-height: none; /* Allow height to adjust with width */
+        max-width: none;  /* Allow width to be 40% */
+        margin-top: 0;
     }
-
     .card-body {
-        display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        text-align: center;
+        align-items: flex-start;
+        justify-content: center;
+        text-align: left;
+        margin-left: 10px;
+        width: 60%; /* Take the remaining width */
     }
+}
 
-    @media (min-width: 768px) {
-        .card {
-            width: 18rem;
-            /* Fixed width for medium and larger screens */
-            height: 25rem;
-            /* Fixed height for medium and larger screens */
-        }
+@media (min-width: 576px) and (max-width: 991px) { /* For tablets */
+    .cart-item {
+        flex: 1 1 calc(50% - 1rem);
     }
+}
 
-    @media (max-width: 767px) {
-        .card {
-            width: 100%;
-            /* Full width for small screens */
-            height: auto;
-            /* Auto height for small screens */
-        }
-
-        .card img {
-            max-width: 100%;
-            /* Full width for small screens */
-        }
+@media (min-width: 992px) { /* For desktops */
+    .cart-item {
+        flex: 1 1 calc(33.333% - 1rem);
     }
+}
+
+
 </style>
 
 <div class="container mt-5">

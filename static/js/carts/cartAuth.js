@@ -165,23 +165,23 @@ function displayCart(cartData, laptopSpecs) {
             const gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
 
             cartItemsHtml += `
-                <div class="col-md-4 col-sm-6" id="cart-item-${item.id}">
-                    <div class="card">
-                        <img src="${imageUrl}" alt="${spec.product.name}" class="card-img-top" onerror="this.src='/static/images/placeholder.jpg';">
-                        <div class="card-body">
-                            <h5 class="card-title">${spec.product.name} ${spec.product.model} ${spec.product.year}</h5>
-                            <p><strong>Specs:</strong> ${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB</p>
-                            <div class="quantity-control mt-3">
-                            <button class="btn border decrease-btn mr-1" data-item-id="${item.id}" data-url="/orders/update_cart_quantity/${item.id}/">-</button>
-                            <input type="number" class="quantity-input form-control" data-item-id="${item.id}" value="${item.quantity}" min="1">
-                            <button class="btn border increase-btn mr-1" data-item-id="${item.id}" data-url="/orders/update_cart_quantity/${item.id}/">+</button>
-                        </div>
-                            <p class="card-text mt-3">Price: $<span id="subtotal-${item.id}">${item.subtotal}</span></p>
-                            <button type="button" class="btn btn-danger remove-btn" data-item-id="${item.id}"><i class="fa-solid fa-trash"></i></button>
-                        </div>
+        <div class="cart-item col-md-4 col-sm-6" id="cart-item-${item.id}">
+            <div class="card">
+                <img src="${imageUrl}" alt="${spec.product.name}" class="card-img-top" onerror="this.src='/static/images/placeholder.jpg';">
+                <div class="card-body">
+                    <h5 class="card-title">${spec.product.name} ${spec.product.model} ${spec.product.year}</h5>
+                    <p><strong>Specs:</strong> ${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB</p>
+                    <div class="quantity-control mt-3">
+                        <button class="btn border decrease-btn mr-1" data-item-id="${item.id}" data-url="/orders/update_cart_quantity/${item.id}/">-</button>
+                        <input type="number" class="quantity-input form-control" data-item-id="${item.id}" value="${item.quantity}" min="1">
+                        <button class="btn border increase-btn mr-1" data-item-id="${item.id}" data-url="/orders/update_cart_quantity/${item.id}/">+</button>
                     </div>
+                    <p class="card-text mt-3">$<span id="subtotal-${item.id}">${item.subtotal}</span></p>
+                    <button type="button" class="btn btn-danger remove-btn" data-item-id="${item.id}"><i class="fa-solid fa-trash"></i></button>
                 </div>
-            `;
+            </div>
+        </div>
+    `;
         });
         $('#cart-items').html(cartItemsHtml);
         $('#total-price').text(cartData.total_price);
