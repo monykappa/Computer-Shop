@@ -52,6 +52,16 @@
     background-color: #45a049; /* Slightly darker green for the "fold" */
     transform: skew(-45deg);
 }
+.product-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.product-card.show {
+    opacity: 1;
+    transform: translateY(0);
+}
 
 .product-card img {
     padding-top: 1em;

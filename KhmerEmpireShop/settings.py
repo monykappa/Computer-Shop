@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'corsheaders',
+    'ckeditor',
     
     
     
@@ -65,6 +66,17 @@ INSTALLED_APPS = [
     'paypal.standard.ipn',
     
 ]
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': 800,
+    },
+}
+
+
+
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {

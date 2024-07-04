@@ -13,13 +13,13 @@ from django.shortcuts import render, get_object_or_404
 from orders.models import *
 from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
-# import
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.filters import SearchFilter
 from products.serializers import *
+from .serializers import *
 from .models import *
 
 
@@ -58,7 +58,25 @@ class HomeAuth(LoginRequiredMixin, TemplateView):
         return render(request, template)
     
 
+class AboutUsAPIView(APIView):
+    def get(self, request):
+        about_content = AboutUs.objects.first()
+        if about_content:
+            serializer = AboutUsSerializer(about_content)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+def about_us(request):
+    return render(request, 'home/about_us.html')
 
 
+class ContactUsAPIView(APIView):
+    def get(self, request):
+        contact_content = ContactUs.objects.first()
+        if contact_content:
+            serializer = ContactUsSerializer(contact_content)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-
+def contact(request):
+    return render(request, 'home/contact.html')

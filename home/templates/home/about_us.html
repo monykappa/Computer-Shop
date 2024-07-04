@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="about-us-wrapper">
+    <div id="about-us-container" class="about-us-container">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+        <h1 id="about-us-title" class="about-us-title"></h1>
+        <div id="about-us-content" class="about-us-content"></div>
+        <p id="about-us-last-updated" class="about-us-last-updated"></p>
+    </div>
+</div>
+
+<style>
+    body{
+        background-color:#f5f5f5 !important;
+    }
+    .about-us-content img {
+        max-width: 100%;
+        height: auto;
+    }
+    .about-us-content table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .about-us-content table, .about-us-content th, .about-us-content td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    .about-us-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        background-color: #f5f5f5;
+    }
+    .about-us-container {
+        max-width: 90%;
+        width: 100%;
+        padding: 2rem;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .about-us-title {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 0.5rem;
+    }
+    .about-us-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #555;
+    }
+    .about-us-last-updated {
+        font-size: 0.9rem;
+        color: #888;
+        margin-top: 2rem;
+        text-align: right;
+        font-style: italic;
+    }
+    .loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+    }
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    const container = document.getElementById('about-us-container');
+    const loading = document.getElementById('loading');
+    const title = document.getElementById('about-us-title');
+    const content = document.getElementById('about-us-content');
+    const lastUpdated = document.getElementById('about-us-last-updated');
+
+    fetch('/api/about-us/')
+        .then(response => response.json())
+        .then(data => {
+            loading.style.display = 'none';
+            title.textContent = data.title;
+            content.innerHTML = data.content;
+            lastUpdated.textContent = 'Last updated: ' + new Date(data.last_updated).toLocaleDateString();
+            container.style.opacity = 0;
+            container.style.display = 'block';
+            setTimeout(() => {
+                container.style.transition = 'opacity 0.5s ease-in-out';
+                container.style.opacity = 1;
+            }, 50);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loading.innerHTML = '<p>Error loading content. Please try again later.</p>';
+        });
+</script>
+{% endblock %}

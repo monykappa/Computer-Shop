@@ -113,6 +113,17 @@
         right: 0;
         transform: skew(-45deg);
     }
+    .recommend-product {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.recommend-product.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 </style>
 <div id="product-details-container"></div>
 <script>
@@ -168,21 +179,18 @@
                     ` : `
                         <h3>${details.product.name} ${details.product.model} (${details.cpu.cpu_brand.name} / ${details.cpu.model} / ${details.memory.capacity}GB / ${details.storage.capacity} ${details.storage.capacity_type} / ${details.display.display} inches)</h3>
                     `}
-                    
-                <h3>${details.product.year}</h3>
+                    <h3>${details.product.year}</h3>
                     <p>Brand: ${details.product.brand.name}</p>
-                <p>
-                <span class="warranty-badge">
-                    ${details.product.warranty_years > 0
-                ? `${details.product.warranty_years} ${details.product.warranty_years === 1 ? 'year' : 'years'}`
-                : details.product.warranty_months > 0
-                    ? `${details.product.warranty_months} ${details.product.warranty_months === 1 ? 'month' : 'months'}`
-                    : 'No warranty information available'
-            } warranty
-                </span>
-            </p>
-
-
+                    <p>
+                    <span class="warranty-badge">
+                        ${details.product.warranty_years > 0
+                    ? `${details.product.warranty_years} ${details.product.warranty_years === 1 ? 'year' : 'years'}`
+                    : details.product.warranty_months > 0
+                        ? `${details.product.warranty_months} ${details.product.warranty_months === 1 ? 'month' : 'months'}`
+                        : 'No warranty information available'
+                } warranty
+                    </span>
+                </p>
                     <h1 class="text-danger">$${details.product.price}</h1>
                     <form id="add-to-cart-form" action="{% url 'orders:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
                         {% csrf_token %}
@@ -222,171 +230,125 @@
                     <h4 class="card-title">Recommended Products</h4>
                     ${Array.isArray(details.recommended_products) && details.recommended_products.length > 0 ? details.recommended_products.map(rp => `
                        <div class="card mb-3 recommend-product">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-4">
-                ${rp.product.images.length > 0
-                    ? `<img class="card-img-top img-fluid" src="${rp.product.images[0].image}" alt="${rp.product.name}">`
-                    : `<img class="card-img-top img-fluid" src="{% static 'placeholder_image.jpg' %}" alt="No image">`}
-            </div>
-            <div class="col-8">
-                <h5 class="card-title">${rp.product.name} ${rp.cpu.cpu_brand.name} ${rp.cpu.model} / ${rp.gpu.length > 0 ? rp.gpu[0].gpu_brand.name + ' ' + rp.gpu[0].model : 'No GPU'} / ${rp.storage.capacity} ${rp.storage.capacity_type} / ${rp.memory.capacity}GB</h5>
-                <p class="card-text">${rp.product.description}</p>
-                <p class="card-text text-danger"><b>$${rp.product.price}</b></p>
-                
-                <!-- Warranty Badge -->
-                <span class="warranty-badge">
-                    ${rp.product.warranty_years > 0
-                    ? `${rp.product.warranty_years} ${rp.product.warranty_years === 1 ? 'year' : 'years'}`
-                    : rp.product.warranty_months > 0
-                        ? `${rp.product.warranty_months} ${rp.product.warranty_months === 1 ? 'month' : 'months'}`
-                        : 'No warranty information available'
-                } warranty
-                </span>
-                
-                <a href="/products/${rp.slug}/" class="btn btn-primary"><i class="fa-solid fa-eye"></i></a>
-            </div>
-        </div>
-    </div>
-</div>
-
+                           <div class="card-body">
+                               <div class="row">
+                                   <div class="col-4">
+                                       ${rp.product.images.length > 0
+                                           ? `<img class="card-img-top img-fluid" src="${rp.product.images[0].image}" alt="${rp.product.name}">`
+                                           : `<img class="card-img-top img-fluid" src="{% static 'placeholder_image.jpg' %}" alt="No image">`}
+                                   </div>
+                                   <div class="col-8">
+                                       <h5 class="card-title">${rp.product.name} ${rp.cpu.cpu_brand.name} ${rp.cpu.model} / ${rp.gpu.length > 0 ? rp.gpu[0].gpu_brand.name + ' ' + rp.gpu[0].model : 'No GPU'} / ${rp.storage.capacity} ${rp.storage.capacity_type} / ${rp.memory.capacity}GB</h5>
+                                       <p class="card-text">${rp.product.description}</p>
+                                       <p class="card-text text-danger"><b>$${rp.product.price}</b></p>
+                                       <span class="warranty-badge">
+                                           ${rp.product.warranty_years > 0
+                                           ? `${rp.product.warranty_years} ${rp.product.warranty_years === 1 ? 'year' : 'years'}`
+                                           : rp.product.warranty_months > 0
+                                               ? `${rp.product.warranty_months} ${rp.product.warranty_months === 1 ? 'month' : 'months'}`
+                                               : 'No warranty information available'
+                                       } warranty
+                                       </span>
+                                       <a href="/products/${rp.slug}/" class="btn btn-primary"><i class="fa-solid fa-eye"></i></a>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
                     `).join('') : '<p class="card-text">No recommended products available.</p>'}
                 </div>
             </div>
-    
-            <!-- Full-screen modal for image preview -->
             <div id="imageModal" class="modal">
                 <span class="close">&times;</span>
                 <img class="modal-content" id="modalImage">
             </div>
         `;
-
+    
         // Zoom functionality
         const zoomWrapper = container.querySelector('.zoom-wrapper');
         const img = zoomWrapper.querySelector('img');
-
+    
         zoomWrapper.addEventListener('mousemove', (e) => {
             const rect = zoomWrapper.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-
             const xPercent = (x / rect.width) * 100;
             const yPercent = (y / rect.height) * 100;
-
             img.style.transformOrigin = `${xPercent}% ${yPercent}%`;
         });
-
+    
         zoomWrapper.addEventListener('mouseleave', () => {
             img.style.transformOrigin = 'center center';
         });
-
+    
         // Full-screen preview functionality
         const modal = document.getElementById('imageModal');
         const modalImg = document.getElementById('modalImage');
         const closeBtn = document.getElementsByClassName('close')[0];
-
-        // Function to open the modal
+    
         function openModal(imgSrc) {
             modal.style.display = "block";
             modalImg.src = imgSrc;
         }
-
-        // Add click event to main product image
+    
         img.onclick = function () {
             openModal(this.src);
         }
-
-        // Add click events to small product images
+    
         const smallImages = container.querySelectorAll('.small-image');
         smallImages.forEach(smallImg => {
             smallImg.onclick = function () {
                 openModal(this.src);
             }
         });
-
-        // Close the modal when the x is clicked
+    
         closeBtn.onclick = function () {
             modal.style.display = "none";
         }
-
-        // Close the modal when clicking outside the image
+    
         modal.onclick = function (event) {
             if (event.target === modal) {
                 modal.style.display = "none";
             }
         }
-
-        // Add form submission event listener
+    
         document.getElementById('add-to-cart-form').addEventListener('submit', function (event) {
             event.preventDefault();
-
             const form = this;
             const url = form.action;
             const data = new FormData(form);
-
+    
             $.ajaxSetup({
                 beforeSend: function (xhr, settings) {
-                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
                     }
                 }
             });
-
-            // Check if the user is logged in
+    
             $.ajax({
-                type: 'GET',
-                url: '/check-login-status/',
+                url: url,
+                type: 'POST',
+                data: data,
+                processData: false,
+                contentType: false,
                 success: function (response) {
-                    console.log('Login status checked', response);
-                    if (response.logged_in) {
-                        // User is logged in, proceed to add to cart
-                        $.ajax({
-                            type: 'POST',
-                            url: url,
-                            data: data,
-                            processData: false,
-                            contentType: false,
-                            success: function (response) {
-                                console.log('Add to cart success', response);
-                                Swal.fire({
-                                    title: 'Success',
-                                    text: 'Product added to cart successfully!',
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                });
-                            },
-                            error: function (response) {
-                                console.log('Add to cart error', response);
-                                Swal.fire({
-                                    title: 'Error',
-                                    text: 'There was a problem adding the product to the cart.',
-                                    icon: 'error',
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        });
-                    } else {
-                        console.log('User not logged in');
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'You need to log in to add items to the cart.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    }
+                    document.getElementById('cart-message').innerHTML = '<div class="alert alert-success">Item added to cart successfully!</div>';
                 },
-                error: function () {
-                    console.log('Login status check failed');
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'Unable to check login status. Please try again later.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
+                error: function (xhr, status, error) {
+                    document.getElementById('cart-message').innerHTML = '<div class="alert alert-danger">Failed to add item to cart.</div>';
                 }
             });
         });
+    
+        // Apply smooth transition to recommended products
+        const recommendedProducts = container.querySelectorAll('.recommend-product');
+        recommendedProducts.forEach((product, index) => {
+            setTimeout(() => {
+                product.classList.add('show');
+            }, 50 * index);
+        });
     }
+    
 
     document.addEventListener('DOMContentLoaded', fetchProductDetails);
 </script>

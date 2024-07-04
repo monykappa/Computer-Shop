@@ -14,10 +14,10 @@
             let laptopSpecsResponse = await fetch('/api/laptop-specs/');
             let brands = await brandsResponse.json();
             let laptopSpecs = await laptopSpecsResponse.json();
-
+    
             let container = document.getElementById('products-container');
             container.innerHTML = '';
-
+    
             brands.forEach(brand => {
                 let brandSection = document.createElement('div');
                 brandSection.id = brand.slug;
@@ -29,15 +29,15 @@
                     </div>
                 `;
                 container.appendChild(brandSection);
-
+    
                 let brandProducts = laptopSpecs.filter(spec => spec.product.brand.id === brand.id);
-
+    
                 let productsContainer = document.getElementById(`${brand.slug}-products`);
                 if (brandProducts.length === 0) {
                     console.warn(`No products found for brand ${brand.name}`);
                 }
-
-                brandProducts.forEach(spec => {
+    
+                brandProducts.forEach((spec, index) => {
                     let productImage = spec.product.images.length > 0 ? spec.product.images[0].image : '/static/placeholder_image.jpg';
                     let gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
                     let productCard = document.createElement('div');
@@ -66,12 +66,17 @@
                         </div>
                     `;
                     productsContainer.appendChild(productCard);
+                    
+                    // Apply transition with a delay based on the index
+                    setTimeout(() => {
+                        productCard.querySelector('.product-card').classList.add('show');
+                    }, 50 * index);
                 });
             });
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     }
-
+    
     document.addEventListener('DOMContentLoaded', fetchData);
 </script>

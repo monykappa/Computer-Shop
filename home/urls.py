@@ -15,6 +15,12 @@ urlpatterns = [
     path('', HomeAuth.as_view(), name='home_auth'),
     path('api/products/', views.ProductSearchView.as_view(), name='product-search'),
 
+
+    path('api/about-us/', views.AboutUsAPIView.as_view(), name='about_us_api'),
+    path('about-us/', views.about_us, name='about-us'),
+    
+    path('api/contact-us/', views.ContactUsAPIView.as_view(), name='contact_us_api'),
+    path('contact/', views.contact, name='contact'),
     # authentication
 
 ]

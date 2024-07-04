@@ -1,6 +1,7 @@
 # import
 from django.db import models
 from django.urls import reverse
+from ckeditor.fields import RichTextField # type: ignore
 from django.urls.exceptions import NoReverseMatch
 
 
@@ -25,12 +26,29 @@ class MenuItem(models.Model):
         except NoReverseMatch:
             return '#'
         
-# class SocialMediaLink(models.Model):
-#     platform_name = models.CharField(max_length=50)
-#     url = models.URLField()
-#     icon = models.CharField(max_length=50, blank=True, null=True, help_text='FontAwesome icon class')
 
-#     def __str__(self):
-#         return self.platform_name
+class ContactUs(models.Model):
+    title = models.CharField(max_length=200)
+    content = RichTextField()
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    address = models.TextField()
+    map_embed = models.TextField(blank=True, null=True)  # For Google Maps embed code
+    last_updated = models.DateTimeField(auto_now=True)
 
-    
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name_plural = "Contact Us"
+        
+class AboutUs(models.Model):
+    title = models.CharField(max_length=200)
+    content = RichTextField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name_plural = "About Us"
