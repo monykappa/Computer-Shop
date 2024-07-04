@@ -50,7 +50,7 @@ h5.logo-name-logo {
 }
 
 .navbar-expand-lg .navbar-collapse{
-    margin-right: 2rem;
+    margin:0 1em;
 }
 
 
@@ -112,7 +112,7 @@ ul li.cart a {
 
 ul li.menu {
     font-size: 18px;
-    padding: 5px;
+    padding: 3px;
 }
 
 ul li.menu a {

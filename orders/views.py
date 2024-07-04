@@ -33,7 +33,6 @@ from .serializers import *
 
 import logging
 
-logger = logging.getLogger(__name__)
 
 
 # Check if user logged-in, in order to add product to cart
@@ -44,11 +43,18 @@ class CheckLoginStatusView(View):
         else:
             return JsonResponse({"logged_in": False})
         
-        
-@method_decorator(login_required, name="dispatch")
+
+
+logger = logging.getLogger(__name__)
+
+@method_decorator(login_required, name='dispatch')
 class AddToCartView(View):
+
     def post(self, request, slug):
         try:
+            if not request.user.is_authenticated:
+                return JsonResponse({"message": "User not authenticated"}, status=401)
+
             logger.debug("AddToCartView post method called")
             product = get_object_or_404(Product, slug=slug)
             logger.debug(f"Product found: {product}")

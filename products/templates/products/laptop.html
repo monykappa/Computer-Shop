@@ -181,14 +181,14 @@
             productContainer.style.display = 'block';
         }
     }
-
+    
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
-
+    
     function renderProductDetails(details) {
         const container = document.getElementById('product-details-container');
         container.innerHTML = `
@@ -345,33 +345,79 @@
     
         document.getElementById('add-to-cart-form').addEventListener('submit', function (event) {
             event.preventDefault();
+        
             const form = this;
             const url = form.action;
             const data = new FormData(form);
-    
+        
             $.ajaxSetup({
                 beforeSend: function (xhr, settings) {
-                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
                     }
                 }
             });
-    
+        
+            // Check if the user is logged in
             $.ajax({
-                url: url,
-                type: 'POST',
-                data: data,
-                processData: false,
-                contentType: false,
+                type: 'GET',
+                url: '/check-login-status/',
                 success: function (response) {
-                    document.getElementById('cart-message').innerHTML = '<div class="alert alert-success">Item added to cart successfully!</div>';
+                    console.log('Login status checked', response);
+                    if (response.logged_in) {
+                        // User is logged in, proceed to add to cart
+                        $.ajax({
+                            type: 'POST',
+                            url: url,
+                            data: data,
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                console.log('Add to cart success', response);
+                                Swal.fire({
+                                    title: 'Success',
+                                    text: 'Product added to cart successfully!',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                });
+                            },
+                            error: function (response) {
+                                console.log('Add to cart error', response);
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'There was a problem adding the product to the cart.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        });
+                    } else {
+                        console.log('User not logged in');
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'You need to log in to add items to the cart.',
+                            icon: 'error',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sign In',
+                            cancelButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "{% url 'userprofile:sign_in' %}";
+                            }
+                        });
+                    }
                 },
-                error: function (xhr, status, error) {
-                    document.getElementById('cart-message').innerHTML = '<div class="alert alert-danger">Failed to add item to cart.</div>';
+                error: function () {
+                    console.log('Login status check failed');
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Unable to check login status. Please try again later.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 }
             });
         });
-    
         // Apply smooth transition to recommended products
         const recommendedProducts = container.querySelectorAll('.recommend-product');
         recommendedProducts.forEach((product, index) => {
@@ -381,6 +427,6 @@
         });
     }
     
-
     document.addEventListener('DOMContentLoaded', fetchProductDetails);
+    
 </script>
