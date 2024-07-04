@@ -40,12 +40,21 @@
                 brandProducts.forEach(spec => {
                     let productImage = spec.product.images.length > 0 ? spec.product.images[0].image : '/static/placeholder_image.jpg';
                     let gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
-
                     let productCard = document.createElement('div');
-                    productCard.className = 'col-6 col-md-4 col-lg-3 mb-4'; // Adjust column sizes for different screen sizes
+                    productCard.className = 'col-6 col-md-4 col-lg-3 mb-4';
                     productCard.innerHTML = `
                         <div class="product-card">
-                            <img class="product-image" src="${productImage}" alt="${spec.product.name}">
+                            <div class="warranty-badge">
+                                ${spec.product.warranty_years > 0
+                                    ? `${spec.product.warranty_years} ${spec.product.warranty_years === 1 ? 'year' : 'years'} warranty`
+                                    : spec.product.warranty_months > 0
+                                        ? `${spec.product.warranty_months} ${spec.product.warranty_months === 1 ? 'month' : 'months'} warranty`
+                                        : 'No warranty'
+                                }
+                            </div>
+                            <div class="product-image-container">
+                                <img class="product-image" src="${productImage}" alt="${spec.product.name}">
+                            </div>
                             <div class="product-info">
                                 <h4 class="product-title">${spec.product.name} ${spec.product.model} ${spec.product.year}</h4>
                                 <p class="product-specs">${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB | ${spec.product.color.name}</p>
