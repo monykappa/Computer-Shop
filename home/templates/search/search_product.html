@@ -1,4 +1,3 @@
-
 <style>
     .search-container {
         display: flex;
@@ -18,6 +17,7 @@
         border-bottom-left-radius: 0;
     }
 
+
     .modal {
         display: none;
         position: fixed;
@@ -30,7 +30,7 @@
         transition: opacity 0.3s ease;
 
     }
-    
+
     .modal-content {
         background-color: #ffffff;
         box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
@@ -44,15 +44,15 @@
         transform: translateY(-50px);
         transition: transform 0.3s ease;
     }
-    
+
     .modal.show {
         opacity: 1;
     }
-    
+
     .modal.show .modal-content {
         transform: translateY(0);
     }
-    
+
     .close {
         color: #aaa;
         float: right;
@@ -60,51 +60,56 @@
         font-weight: bold;
         cursor: pointer;
     }
-    
+
     .close:hover,
     .close:focus {
         color: #000;
         text-decoration: none;
     }
-    
+
     .product-item {
         display: flex;
-        flex-wrap: wrap; /* Allow items to wrap to the next row */
+        flex-wrap: wrap;
+        /* Allow items to wrap to the next row */
         gap: 20px;
         border-bottom: 1px solid #eee;
         padding: 15px 0;
     }
-    
+
     .product-image {
         flex: 0 0 200px;
-        width: 200px; /* Fixed width for the image */
-        min-width: 200px; /* Ensure minimum width for the image */
-        margin-right: 20px; /* Spacing between image and details */
+        width: 200px;
+        /* Fixed width for the image */
+        min-width: 200px;
+        /* Ensure minimum width for the image */
+        margin-right: 20px;
+        /* Spacing between image and details */
     }
-    
+
+
     .product-image img {
         width: 100%;
         height: auto;
         object-fit: contain;
     }
-    
+
     .product-details {
         flex: 1;
     }
-    
+
     .product-item:last-child {
         border-bottom: none;
     }
-    
+
     .product-item h3 {
         margin-top: 0;
         margin-bottom: 10px;
     }
-    
+
     .product-item p {
         margin: 5px 0;
     }
-    
+
     .product-item a {
         display: inline-block;
         margin-top: 10px;
@@ -114,27 +119,99 @@
         text-decoration: none;
         border-radius: 4px;
     }
-    
+
     .product-item a:hover {
         background-color: #0056b3;
     }
+
     @media (max-width: 576px) {
-        .modal{
-            top:15%;
-        z-index: 1000;
+        .modal {
+            top: 15%;
+            z-index: 1000;
 
         }
+
         .modal-content {
-            padding:0.5rem;
+            padding: 0.5rem;
             width: 95%;
             max-width: 100%;
-            margin:0 auto;
+            margin: 0 auto;
         }
-        .product-image img{
-            
+
+
+    }
+
+    @media (min-width:0px) and (max-width:389px) {
+        .custom-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .product-item a {
+            margin: 0;
+        }
+
+        .product-item h4 {
+            margin: 0.2rem 1rem 0 0;
+        }
+
+        .product-details {
+            margin: 1em;
+        }
+
+        .product-item h3 {
+            font-size: 1.4rem;
+            margin: 0.5rem 1rem 0 0;
+        }
+
+        .product-image {
+            display: block;
+            /* Removes extra space under the image */
+            margin: auto;
+            /* Centers the image horizontally */
+            max-width: 100%;
+            /* Ensures the image doesn't exceed container width */
+            max-height: 100%;
         }
     }
- 
+
+
+    @media (min-width: 390px) and (max-width:700px) {
+        .custom-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .product-item a {
+            margin: 0;
+        }
+
+        .product-item h4 {
+            margin: 0.2rem 1rem 0 0;
+        }
+
+        .product-item {
+            display: block !important;
+            margin: 1em 0;
+        }
+
+        .product-details {
+            margin: 1.8rem 0 0 0;
+            padding: 0.5rem;
+
+        }
+
+        .product-image img {
+            width: 200px;
+            display: flex;
+            margin: 0 auto;
+        }
+
+        .product-item h3 {
+            font-size: 1.3rem;
+        }
+
+    }
 </style>
 
 <!-- Search Input -->
@@ -180,9 +257,9 @@
     // Function to display search results in modal
     function displaySearchResults(laptops) {
         modalContent.innerHTML = '';
-    
+
         const searchQuery = searchInput.value.trim().toLowerCase();
-    
+
         if (laptops.length === 0) {
             modalContent.innerHTML = '<p>No laptops found.</p>';
         } else {
@@ -196,7 +273,7 @@
                     laptop.storage.type.toLowerCase().includes(searchQuery)
                 );
             });
-    
+
             if (filteredLaptops.length === 0) {
                 modalContent.innerHTML = `<p>No products found for "${searchQuery}".</p>`;
             } else {
@@ -209,19 +286,31 @@
                         </div>
                         <div class="product-details">
                             <h3>${laptop.product.name} ${laptop.product.model} ${laptop.product.year}</h3>
-                            <p><strong></strong> ${laptop.cpu.cpu_brand.name} ${laptop.cpu.model}, ${laptop.gpu.map(g => `${g.gpu_brand.name} ${g.model}`).join(', ')}, ${laptop.memory.capacity}GB ${laptop.memory.type}, ${laptop.storage.capacity} ${laptop.storage.capacity_type} ${laptop.storage.type}</p>
-                            <p class="text-danger">$${laptop.product.price}</p>
-                            <a href="/products/${laptop.slug}/">View Details</a>
+                            <p class="warranty">
+                                ${laptop.product.warranty_years > 0
+                            ? `${laptop.product.warranty_years} ${laptop.product.warranty_years === 1 ? 'year' : 'years'} warranty`
+                            : laptop.product.warranty_months > 0
+                                ? `${laptop.product.warranty_months} ${laptop.product.warranty_months === 1 ? 'month' : 'months'} warranty`
+                                : 'No warranty'
+                        }
+                                    
+                            </p>
+                            <p>${laptop.cpu.cpu_brand.name} ${laptop.cpu.model}, ${laptop.gpu.map(g => `${g.gpu_brand.name} ${g.model}`).join(', ')}, ${laptop.memory.capacity}GB ${laptop.memory.type}, ${laptop.storage.capacity} ${laptop.storage.capacity_type} ${laptop.storage.type}</p>
+                            <div class="custom-row">
+                                <h4 class="text-danger">$${laptop.product.price}</h4>
+                                <a href="/products/${laptop.slug}/"><i class="fa-solid fa-eye"></i></a>
+                            </div>
                         </div>
                     `;
+
                     modalContent.appendChild(laptopElement);
                 });
             }
         }
-    
+
         openModal();
     }
-    
+
 
     // Function to open modal
     function openModal() {

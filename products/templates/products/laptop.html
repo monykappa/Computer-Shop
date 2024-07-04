@@ -2,6 +2,8 @@
 <style>
     ul li {
         margin-top: 1rem;
+        text-align: left;
+        margin-left: 1rem;
     }
 
     .zoom-wrapper {
@@ -76,38 +78,41 @@
         color: #bbb;
         text-decoration: none;
     }
+
     .warranty-badge {
         display: inline-block;
-        background-color: #4CAF50; /* Green background */
+        background-color: #4CAF50;
+        /* Green background */
         color: white;
         padding: 5px 10px;
         font-size: 0.8rem;
         font-weight: bold;
         z-index: 2;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         border-radius: 3px;
         position: relative;
     }
-    
-    .warranty-badge::before, .warranty-badge::after {
+
+    .warranty-badge::before,
+    .warranty-badge::after {
         content: '';
         position: absolute;
         bottom: -5px;
         width: 10px;
         height: 5px;
-        background-color: #45a049; /* Slightly darker green for the "fold" */
+        background-color: #45a049;
+        /* Slightly darker green for the "fold" */
     }
-    
+
     .warranty-badge::before {
         left: 0;
         transform: skew(45deg);
     }
-    
+
     .warranty-badge::after {
         right: 0;
         transform: skew(-45deg);
     }
-    
 </style>
 <div id="product-details-container"></div>
 <script>
@@ -169,11 +174,11 @@
                 <p>
                 <span class="warranty-badge">
                     ${details.product.warranty_years > 0
-                        ? `${details.product.warranty_years} ${details.product.warranty_years === 1 ? 'year' : 'years'}`
-                        : details.product.warranty_months > 0
-                            ? `${details.product.warranty_months} ${details.product.warranty_months === 1 ? 'month' : 'months'}`
-                            : 'No warranty information available'
-                    } warranty
+                ? `${details.product.warranty_years} ${details.product.warranty_years === 1 ? 'year' : 'years'}`
+                : details.product.warranty_months > 0
+                    ? `${details.product.warranty_months} ${details.product.warranty_months === 1 ? 'month' : 'months'}`
+                    : 'No warranty information available'
+            } warranty
                 </span>
             </p>
 
@@ -220,8 +225,8 @@
     <div class="card-body">
         <div class="row">
             <div class="col-4">
-                ${rp.product.images.length > 0 
-                    ? `<img class="card-img-top img-fluid" src="${rp.product.images[0].image}" alt="${rp.product.name}">` 
+                ${rp.product.images.length > 0
+                    ? `<img class="card-img-top img-fluid" src="${rp.product.images[0].image}" alt="${rp.product.name}">`
                     : `<img class="card-img-top img-fluid" src="{% static 'placeholder_image.jpg' %}" alt="No image">`}
             </div>
             <div class="col-8">
@@ -232,11 +237,11 @@
                 <!-- Warranty Badge -->
                 <span class="warranty-badge">
                     ${rp.product.warranty_years > 0
-                        ? `${rp.product.warranty_years} ${rp.product.warranty_years === 1 ? 'year' : 'years'}`
-                        : rp.product.warranty_months > 0
-                            ? `${rp.product.warranty_months} ${rp.product.warranty_months === 1 ? 'month' : 'months'}`
-                            : 'No warranty information available'
-                    } warranty
+                    ? `${rp.product.warranty_years} ${rp.product.warranty_years === 1 ? 'year' : 'years'}`
+                    : rp.product.warranty_months > 0
+                        ? `${rp.product.warranty_months} ${rp.product.warranty_months === 1 ? 'month' : 'months'}`
+                        : 'No warranty information available'
+                } warranty
                 </span>
                 
                 <a href="/products/${rp.slug}/" class="btn btn-primary"><i class="fa-solid fa-eye"></i></a>
