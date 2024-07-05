@@ -7,6 +7,7 @@ from django.urls import re_path as url
 from django.shortcuts import render 
 from . import views
 from django.conf import settings
+from django.contrib.auth import views as auth_views
 
 app_name = 'userprofile'
 
@@ -17,6 +18,10 @@ urlpatterns = [
     path('check-username/', views.check_username_availability, name='check_username_availability'),
     path('check-email/', views.check_email_availability, name='check_email_availability'),
     
+    
+    
+    
+    # logout
     path('logout/', views.LogoutView.as_view(), name='logout'),
     
     # Profile
@@ -24,6 +29,8 @@ urlpatterns = [
     
     # api
     # path('api/profile/', views.ProfileAPIView.as_view(), name='profile-api'),
+    
+    
     
     
 ]

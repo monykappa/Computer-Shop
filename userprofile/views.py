@@ -19,6 +19,12 @@ from django.contrib.auth.hashers import make_password
 from django.contrib import messages 
 from .forms import *
 from django.urls import reverse_lazy
+from django.contrib.auth.views import (
+    PasswordResetView, 
+    PasswordResetDoneView, 
+    PasswordResetConfirmView, 
+    PasswordResetCompleteView
+)
 
 # Create your views here.
 
@@ -102,3 +108,5 @@ class LogoutView(View):
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'profile/profile.html'
+
+
