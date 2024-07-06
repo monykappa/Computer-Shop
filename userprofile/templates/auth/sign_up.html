@@ -1,21 +1,19 @@
-{% extends 'base.html' %}
-{% load socialaccount %}
-{% load static %}
-
-{% block title %}Sign Up{% endblock title %}
-
-{% block extra_head %}
+{% extends 'base.html' %} {% load socialaccount %} {% load static %} {% block
+title %}Sign Up{% endblock title %} {% block extra_head %}
 <style>
     .card {
         max-width: 500px;
         margin: auto;
     }
-    .form-floating > label {
+
+    .form-floating>label {
         left: 0.75rem;
     }
+
     .btn-lg {
         padding: 0.75rem 1rem;
     }
+
     .password-toggle {
         position: absolute;
         top: 50%;
@@ -24,27 +22,31 @@
         cursor: pointer;
         z-index: 10;
     }
+
     .form-control-password {
         padding-right: 2.5rem;
     }
+
     .img-thumbnail {
-        max-width: 100px; /* Adjust the maximum width as needed */
-        max-height: 100px; /* Adjust the maximum height as needed */
+        max-width: 100px;
+        /* Adjust the maximum width as needed */
+        max-height: 100px;
+        /* Adjust the maximum height as needed */
     }
 </style>
-{% endblock extra_head %}
-
-{% block content %}
+{% endblock extra_head %} {% block content %}
 <div class="container">
     <div class="row justify-content-center align-items-center min-vh-50">
         <div class="col-md-8 col-lg-6">
             <div class="card shadow-lg border-0 rounded-lg">
                 <div class="card-body p-5">
                     <h2 class="text-center mb-4 font-weight-light">Sign Up</h2>
-                    <form id="signup-form" method="post" action="{% url 'userprofile:signup' %}" enctype="multipart/form-data">
+                    <form id="signup-form" method="post" action="{% url 'userprofile:signup' %}"
+                        enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Full Name">
+                            <input type="text" class="form-control" id="full_name" name="full_name"
+                                placeholder="Full Name" />
                             <label for="full_name">Full Name</label>
                             {% if form.full_name.errors %}
                             <div class="alert alert-danger mt-2">
@@ -53,48 +55,61 @@
                             {% endif %}
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Username"
+                                required />
                             <label for="username">Username</label>
-                            <div id="username-error" class="alert alert-danger mt-2" style="display: none;"></div>
+                            <div id="username-error" class="alert alert-danger mt-2" style="display: none"></div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Email"
+                                required />
                             <label for="email">Email</label>
-                            <div id="email-error" class="alert alert-danger mt-2" style="display: none;"></div>
+                            <div id="email-error" class="alert alert-danger mt-2" style="display: none"></div>
                         </div>
                         <div class="mb-3">
                             <label for="pfp" class="form-label">Profile Picture</label>
-                            <input type="file" class="form-control" id="pfp" name="pfp" style="display: none;" onchange="previewFileName()">
+                            <input type="file" class="form-control" id="pfp" name="pfp" style="display: none"
+                                onchange="previewFileName()" />
                             <label for="pfp" class="btn btn-outline-secondary w-100">Browse</label>
                             <div id="file-name" class="mt-2"></div>
-                            <img id="image-preview" src="" alt="Preview Image" class="img-thumbnail mt-3" style="display: none;">
+                            <img id="image-preview" src="" alt="Preview Image" class="img-thumbnail mt-3"
+                                style="display: none" />
                         </div>
                         <div class="form-floating mb-3 position-relative">
-                            <input type="password" class="form-control form-control-password" id="password1" name="password1" placeholder="Password" required>
+                            <input type="password" class="form-control form-control-password" id="password1"
+                                name="password1" placeholder="Password" required />
                             <label for="password1">Password</label>
                             <i class="fa-solid fa-eye password-toggle" id="togglePassword1"></i>
                         </div>
                         <div class="form-floating mb-3 position-relative">
-                            <input type="password" class="form-control form-control-password" id="password2" name="password2" placeholder="Confirm Password" required>
+                            <input type="password" class="form-control form-control-password" id="password2"
+                                name="password2" placeholder="Confirm Password" required />
                             <label for="password2">Confirm Password</label>
                             <i class="fa-solid fa-eye password-toggle" id="togglePassword2"></i>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">Sign Up</button>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Sign Up
+                            </button>
                         </div>
                     </form>
-                    <hr class="my-4">
+                    <hr class="my-4" />
                     <div class="text-center mb-3">
                         <p class="text-muted">or sign up with</p>
                     </div>
                     <div class="d-grid">
-                        <a href="{% provider_login_url 'google' %}" class="btn btn-outline-secondary btn-lg d-flex align-items-center justify-content-center">
-                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20" alt="Google logo" class="me-2">
+                        <a href="{% provider_login_url 'google' %}"
+                            class="btn btn-outline-secondary btn-lg d-flex align-items-center justify-content-center">
+                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20"
+                                alt="Google logo" class="me-2" />
                             <span>Sign Up with Google</span>
                         </a>
                     </div>
                     <div class="text-center mt-3">
-                        <p class="text-muted">Already have an account? <a href="{% url 'userprofile:sign_in' %}" class="text-decoration-none">Sign in</a></p>
+                        <p class="text-muted">
+                            Already have an account?
+                            <a href="{% url 'userprofile:sign_in' %}" class="text-decoration-none">Sign in</a>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -102,49 +117,49 @@
     </div>
 </div>
 
-{% endblock content %}
-
-{% block js %}
+{% endblock content %} {% block js %}
 <script src="{% static 'js/auth/signUp.js' %}"></script>
 <script>
     function previewFileName() {
-        const fileInput = document.getElementById('pfp');
-        const fileNameDiv = document.getElementById('file-name');
-        const imagePreview = document.getElementById('image-preview');
+        const fileInput = document.getElementById("pfp");
+        const fileNameDiv = document.getElementById("file-name");
+        const imagePreview = document.getElementById("image-preview");
 
         if (fileInput.files && fileInput.files[0]) {
             fileNameDiv.textContent = `Selected file: ${fileInput.files[0].name}`;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
+                imagePreview.style.display = "block";
             };
             reader.readAsDataURL(fileInput.files[0]);
         } else {
-            fileNameDiv.textContent = '';
-            imagePreview.style.display = 'none';
+            fileNameDiv.textContent = "";
+            imagePreview.style.display = "none";
         }
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const togglePassword1 = document.querySelector('#togglePassword1');
-        const password1 = document.querySelector('#password1');
-        const togglePassword2 = document.querySelector('#togglePassword2');
-        const password2 = document.querySelector('#password2');
+    document.addEventListener("DOMContentLoaded", function () {
+        const togglePassword1 = document.querySelector("#togglePassword1");
+        const password1 = document.querySelector("#password1");
+        const togglePassword2 = document.querySelector("#togglePassword2");
+        const password2 = document.querySelector("#password2");
 
-        togglePassword1.addEventListener('click', function () {
-            const type = password1.getAttribute('type') === 'password' ? 'text' : 'password';
-            password1.setAttribute('type', type);
-            this.classList.toggle('fa-eye');
-            this.classList.toggle('fa-eye-slash');
+        togglePassword1.addEventListener("click", function () {
+            const type =
+                password1.getAttribute("type") === "password" ? "text" : "password";
+            password1.setAttribute("type", type);
+            this.classList.toggle("fa-eye");
+            this.classList.toggle("fa-eye-slash");
         });
 
-        togglePassword2.addEventListener('click', function () {
-            const type = password2.getAttribute('type') === 'password' ? 'text' : 'password';
-            password2.setAttribute('type', type);
-            this.classList.toggle('fa-eye');
-            this.classList.toggle('fa-eye-slash');
+        togglePassword2.addEventListener("click", function () {
+            const type =
+                password2.getAttribute("type") === "password" ? "text" : "password";
+            password2.setAttribute("type", type);
+            this.classList.toggle("fa-eye");
+            this.classList.toggle("fa-eye-slash");
         });
     });
 </script>

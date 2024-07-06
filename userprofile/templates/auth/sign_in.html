@@ -1,101 +1,111 @@
 {% extends 'base.html' %}
 {% load socialaccount %}
-{% block title %}Sign In{% endblock title %}
-
-{% block extra_head %}
+{% block title %}Sign In{% endblock title %} {% block extra_head %}
 <style>
-    .card {
-        max-width: 500px;
-        margin: auto;
-    }
-    .form-floating > label {
-        left: 0.75rem;
-    }
-    .btn-lg {
-        padding: 0.75rem 1rem;
-    }
-    .password-toggle {
-        position: absolute;
-        top: 50%;
-        right: 0.75rem;
-        transform: translateY(-50%);
-        cursor: pointer;
-        z-index: 10;
-    }
-    .form-control-password {
-        padding-right: 2.5rem;
-    }
+  .card {
+    max-width: 500px;
+    margin: auto;
+  }
+
+  .form-floating>label {
+    left: 0.75rem;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1rem;
+  }
+
+  .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  .form-control-password {
+    padding-right: 2.5rem;
+  }
 </style>
-{% endblock extra_head %}
-
-{% block content %}
+{% endblock extra_head %} {% block content %}
 <div class="container">
-    <div class="row justify-content-center align-items-center min-vh-50">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-body p-5">
-                    <h2 class="text-center mb-4 font-weight-light">Sign In</h2>
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
-                            <label for="username">Username</label>
-                        </div>
-                        <div class="form-floating mb-3 position-relative">
-                            <input type="password" class="form-control form-control-password" id="password" name="password" placeholder="Password" required>
-                            <label for="password">Password</label>
-                            <i class="fa-solid fa-eye password-toggle" id="togglePassword"></i>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">Sign In</button>
-                        </div>
-                    </form>
-
-                    
-                    
-                    <hr class="my-4">
-                    <div class="text-center mb-3">
-                        <p class="text-muted">or sign in with</p>
-                    </div>
-                    <div class="d-grid">
-                        <a href="{% provider_login_url 'google' %}" class="btn btn-outline-secondary btn-lg d-flex align-items-center justify-content-center">
-                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20" alt="Google logo" class="me-2">
-                            <span>Login with Google</span>
-                        </a>
-                    </div>
-                    <div class="text-center mt-3">
-                        <p class="text-muted">Don't have an account? <a href="{% url 'userprofile:signup' %}" class="text-decoration-none">Sign up</a></p>
-                    </div>
-                </div>
+  <div class="row justify-content-center align-items-center min-vh-50">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg border-0 rounded-lg">
+        <div class="card-body p-5">
+          <h2 class="text-center mb-4 font-weight-light">Sign In</h2>
+          <form method="post">
+            {% csrf_token %}
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control" id="username" name="username" placeholder="Username" required />
+              <label for="username">Username</label>
             </div>
+            <div class="form-floating mb-3 position-relative">
+              <input type="password" class="form-control form-control-password" id="password" name="password"
+                placeholder="Password" required />
+              <label for="password">Password</label>
+              <i class="fa-solid fa-eye password-toggle" id="togglePassword"></i>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Sign In
+              </button>
+            </div>
+          </form>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{% url 'password_reset' %}" class="text-decoration-none">Forgot password?</a>
+          </div>
+
+          <hr class="my-4" />
+          <div class="text-center mb-3">
+            <p class="text-muted">or sign in with</p>
+          </div>
+          <div class="d-grid">
+            <a href="{% provider_login_url 'google' %}"
+              class="btn btn-outline-secondary btn-lg d-flex align-items-center justify-content-center">
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" height="20" alt="Google logo"
+                class="me-2" />
+              <span>Login with Google</span>
+            </a>
+          </div>
+          <div class="text-center mt-3">
+            <p class="text-muted">
+              Don't have an account?
+              <a href="{% url 'userprofile:signup' %}" class="text-decoration-none">Sign up</a>
+            </p>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('error') === '1') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Invalid login credentials. Please try again.',
-            });
-        }
+  document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("error") === "1") {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Invalid login credentials. Please try again.",
+      });
+    }
 
-        // Password toggle functionality
-        const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#password');
+    // Password toggle functionality
+    const togglePassword = document.querySelector("#togglePassword");
+    const password = document.querySelector("#password");
 
-        togglePassword.addEventListener('click', function () {
-            // Toggle the type attribute
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            
-            // Toggle the icon
-            this.classList.toggle('fa-eye');
-            this.classList.toggle('fa-eye-slash');
-        });
+    togglePassword.addEventListener("click", function () {
+      // Toggle the type attribute
+      const type =
+        password.getAttribute("type") === "password" ? "text" : "password";
+      password.setAttribute("type", type);
+
+      // Toggle the icon
+      this.classList.toggle("fa-eye");
+      this.classList.toggle("fa-eye-slash");
     });
+  });
 </script>
 {% endblock content %}
