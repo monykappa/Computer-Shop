@@ -1,0 +1,34 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2e59d9;
+}
+
+.btn-outline-primary {
+    color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4e73df;
+    color: #ffffff;
+}

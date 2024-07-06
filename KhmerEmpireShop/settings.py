@@ -37,6 +37,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
+    'userprofile',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,7 +47,6 @@ INSTALLED_APPS = [
     'products',
     'home',
     'orders',
-    'userprofile',
     'dashboard',
     'advertisements',
     
@@ -80,8 +80,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = ('oudommonykim471@gmail.com')
-EMAIL_HOST_PASSWORD = ('monykappa$$')
+EMAIL_HOST_USER = 'oudommonykim471@gmail.com'
+EMAIL_HOST_PASSWORD = 'jmdpjlcgghpkgwvs'
 
 
 SOCIALACCOUNT_PROVIDERS = {
