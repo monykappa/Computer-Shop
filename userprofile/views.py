@@ -24,6 +24,12 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView,
 )
+from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
+import json
+from django.http import JsonResponse
+
 
 # Create your views here.
 
@@ -117,6 +123,8 @@ def check_email_availability(request):
     }
     return JsonResponse(data)
 
+class MyInfoView(LoginRequiredMixin, TemplateView):
+    template_name = 'profile/my_info.html'
 
 class LogoutView(View):
     def get(self, request):
@@ -128,4 +136,44 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = "profile/profile.html"
 
 
+class UpdateUsernameView(View):
+    @method_decorator(login_required)
+    @method_decorator(require_POST)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body)
+        new_username = data.get('new_username')
+
+        if not new_username:
+            return JsonResponse({'success': False, 'error': 'Username cannot be empty'})
+
+        try:
+            request.user.username = new_username
+            request.user.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+class UpdateFullNameView(View):
+    @method_decorator(login_required)
+    @method_decorator(require_POST)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body)
+        new_first_name = data.get('new_first_name')
+        new_last_name = data.get('new_last_name')
+
+        if not new_first_name or not new_last_name:
+            return JsonResponse({'success': False, 'error': 'First name and last name cannot be empty'})
+
+        try:
+            request.user.first_name = new_first_name
+            request.user.last_name = new_last_name
+            request.user.save()
+            return JsonResponse({'success': True, 'full_name': f"{new_first_name} {new_last_name}"})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})

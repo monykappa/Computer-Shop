@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Info{% endblock title %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h1 class="card-title mb-4">My Information</h1>
+
+                    {% if user.socialaccount_set.all %}
+                    <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}"
+                        class="rounded-circle img-thumbnail mb-3" width="150" height="150"
+                        alt="Social Account Profile Picture">
+                    <h2 class="h4 mb-3">{{ user.socialaccount_set.all.0.extra_data.name }}</h2>
+                    {% elif user.userprofile.profile_picture %}
+                    <img src="{{ user.userprofile.profile_picture.url }}" class="rounded-circle img-thumbnail mb-3"
+                        width="150" height="150" alt="User Profile Picture">
+                    <h2 class="h4 mb-3">{{ user.get_full_name }}</h2>
+                    {% else %}
+                    <img src="https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                        alt="Default Profile Picture" class="rounded-circle img-thumbnail mb-3" width="150"
+                        height="150">
+                    <h2 class="h4 mb-3">{{ user.get_full_name }}</h2>
+                    {% endif %}
+
+                    <div class="text-start mb-4">
+                        <p><strong>Username:</strong> <span id="username">{{ user.username }}</span>
+                            <a href="#" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal"
+                                data-bs-target="#editUsernameModal">Edit</a>
+                        </p>
+                        <p><strong>Full Name:</strong> <span id="fullName">{{ user.get_full_name }}</span>
+                            <a href="#" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal"
+                                data-bs-target="#editFullNameModal">Edit</a>
+                        </p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                        {% if user.profile %}
+                        <p><strong>Bio:</strong> {{ user.profile.bio }}</p>
+                        <p><strong>Location:</strong> {{ user.profile.location }}</p>
+                        <p><strong>Birth Date:</strong> {{ user.profile.birth_date }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2 col-lg-8 mx-auto">
+                        <a href="{% url 'password_reset' %}" class="btn btn-warning">Reset Password</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Username Modal -->
+<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUsernameModalLabel">Edit Username</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUsernameForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="newUsername" class="form-label">New Username</label>
+                        <input type="text" class="form-control" id="newUsername" name="new_username" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Full Name Modal -->
+<div class="modal fade" id="editFullNameModal" tabindex="-1" aria-labelledby="editFullNameModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editFullNameModalLabel">Edit Full Name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editFullNameForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="newFirstName" class="form-label">New First Name</label>
+                        <input type="text" class="form-control" id="newFirstName" name="new_first_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newLastName" class="form-label">New Last Name</label>
+                        <input type="text" class="form-control" id="newLastName" name="new_last_name" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('editUsernameForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const newUsername = document.getElementById('newUsername').value;
+        
+        fetch('{% url "userprofile:update_username" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ new_username: newUsername })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('username').textContent = newUsername;
+                $('#editUsernameModal').modal('hide');
+            } else {
+                alert('Failed to update username: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the username.');
+        });
+    });
+
+    document.getElementById('editFullNameForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const newFirstName = document.getElementById('newFirstName').value;
+        const newLastName = document.getElementById('newLastName').value;
+        
+        fetch('{% url "userprofile:update_full_name" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ new_first_name: newFirstName, new_last_name: newLastName })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const fullName = `${newFirstName} ${newLastName}`;
+                document.getElementById('fullName').textContent = fullName;
+                $('#editFullNameModal').modal('hide');
+            } else {
+                alert('Failed to update full name: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the full name.');
+        });
+    });
+</script>
+
+
+{% endblock content %}

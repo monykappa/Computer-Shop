@@ -87,15 +87,16 @@ EMAIL_HOST_PASSWORD = 'jmdpjlcgghpkgwvs'
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
+            'openid',
             'profile',
             'email',
         ],
         'AUTH_PARAMS': {
-            'access_type': 'online',
+            'access_type': 'offline',
+            'include_granted_scopes': 'true',
         }
     }
 }
-
 
 
 EMAIL_BECKEND = 'django.core.mail.beckend.console.EmailBeckend'

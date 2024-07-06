@@ -23,10 +23,16 @@ urlpatterns = [
     path(
         "check-email/", views.check_email_availability, name="check_email_availability"
     ),
+    
+    path('update-username/', views.UpdateUsernameView.as_view(), name='update_username'),
+    path('update-full-name/', views.UpdateFullNameView.as_view(), name='update_full_name'),
+    
+    
     # logout
     path("logout/", views.LogoutView.as_view(), name="logout"),
     # Profile
     path("profile/", views.ProfileView.as_view(), name="profile"),
+    path('my_info/', views.MyInfoView.as_view(), name='my_info'),
     # api
     # path('api/profile/', views.ProfileAPIView.as_view(), name='profile-api'),
     # Password reset
