@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class AdvertiseConfig(AppConfig):
+class ApiConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'advertise'
+    name = 'api'
