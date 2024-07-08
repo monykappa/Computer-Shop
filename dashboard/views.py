@@ -26,6 +26,7 @@ from .forms import *
 from django.contrib import messages
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import JsonResponse
 
 
 
@@ -159,13 +160,13 @@ class ProductUpdateView(UpdateView, SuperuserRequiredMixin):
     success_url = reverse_lazy('dashboard:product_list')
 
     def get_context_data(self, **kwargs):
-        data = super(ProductUpdateView, self).get_context_data(**kwargs)
+        data = super().get_context_data(**kwargs)
         if self.request.POST:
             data['laptopspec_formset'] = LaptopSpecFormSet(self.request.POST, instance=self.object)
         else:
             data['laptopspec_formset'] = LaptopSpecFormSet(instance=self.object)
-        data['product'] = self.object  # Ensure the product instance is added to context
         return data
+
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -178,6 +179,19 @@ class ProductUpdateView(UpdateView, SuperuserRequiredMixin):
         else:
             return self.form_invalid(form)
 
+
+class ProductImageDeleteView(SuperuserRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        image_id = kwargs.get('pk')
+        image = get_object_or_404(ProductImage, id=image_id)
+        
+        try:
+            image.image.delete()  # Delete the image file
+            image.delete()  # Delete the database record
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+        
 
 
 class ProductDeleteView(DeleteView, SuperuserRequiredMixin):

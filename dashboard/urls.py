@@ -25,6 +25,7 @@ urlpatterns = [
     path('dashboard/products/add/', views.ProductCreateView.as_view(), name='product_add'),
     path('products/edit/<int:pk>/', views.ProductUpdateView.as_view(), name='product_edit'),
     path('products/delete/<int:pk>/', views.ProductDeleteView.as_view(), name='product_delete'),
+    path('delete-product-image/<int:pk>/', views.ProductImageDeleteView.as_view(), name='delete_product_image'),
     # path('delete-product-image/<int:image_id>/', views.DeleteProductImageView.as_view(), name='delete_product_image'),
     
     path('dashboard/order/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
