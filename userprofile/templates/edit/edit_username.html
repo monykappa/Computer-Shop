@@ -1,0 +1,9 @@
+<form method="post" id="editUsernameForm">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="id_username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" required pattern="\S+" title="Username cannot contain spaces">
+        <div class="form-text" id="usernameHelp">Username cannot contain spaces.</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>

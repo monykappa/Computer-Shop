@@ -135,45 +135,61 @@ class LogoutView(View):
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = "profile/profile.html"
 
+class EditUsernameView(UpdateView):
+    model = User
+    fields = ['username']
+    template_name = 'edit/edit_username.html'
+    success_url = reverse_lazy('userprofile:my_info')
 
-class UpdateUsernameView(View):
-    @method_decorator(login_required)
-    @method_decorator(require_POST)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    def get_object(self):
+        return self.request.user
 
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.body)
-        new_username = data.get('new_username')
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'username': self.object.username})
+        return response
 
-        if not new_username:
-            return JsonResponse({'success': False, 'error': 'Username cannot be empty'})
+class EditFullNameView(UpdateView):
+    model = User
+    fields = ['first_name', 'last_name']
+    template_name = 'edit/edit_full_name.html'
+    success_url = reverse_lazy('userprofile:my_info')
 
-        try:
-            request.user.username = new_username
-            request.user.save()
-            return JsonResponse({'success': True})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+    def get_object(self):
+        return self.request.user
 
-class UpdateFullNameView(View):
-    @method_decorator(login_required)
-    @method_decorator(require_POST)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'full_name': self.object.get_full_name()})
+        return response
 
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.body)
-        new_first_name = data.get('new_first_name')
-        new_last_name = data.get('new_last_name')
 
-        if not new_first_name or not new_last_name:
-            return JsonResponse({'success': False, 'error': 'First name and last name cannot be empty'})
+class EditAddressView(UpdateView):
+    model = Address
+    form_class = AddressForm
+    template_name = 'edit/edit_address.html'
+    success_url = reverse_lazy('userprofile:my_info')
 
-        try:
-            request.user.first_name = new_first_name
-            request.user.last_name = new_last_name
-            request.user.save()
-            return JsonResponse({'success': True, 'full_name': f"{new_first_name} {new_last_name}"})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+    def get_object(self):
+        return Address.objects.get_or_create(user=self.request.user)[0]
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        response = super().form_valid(form)
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            data = {
+                'address1': self.object.address1,
+                'address2': self.object.address2,
+                'city': self.object.city,
+                'province': self.object.province,
+                'phone': self.object.phone,
+            }
+            return JsonResponse(data)
+        return response
+
+    def form_invalid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'error': form.errors}, status=400)
+        return super().form_invalid(form)

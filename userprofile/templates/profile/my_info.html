@@ -5,10 +5,11 @@
 
 {% block content %}
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
+    <div class="row">
+        <!-- User Info Column (Left) -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center h-100">
                     <h1 class="card-title mb-4">My Information</h1>
 
                     {% if user.socialaccount_set.all %}
@@ -29,12 +30,14 @@
 
                     <div class="text-start mb-4">
                         <p><strong>Username:</strong> <span id="username">{{ user.username }}</span>
-                            <a href="#" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal"
-                                data-bs-target="#editUsernameModal">Edit</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary ms-2 btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#editUsernameModal"><i
+                                    class="fa-solid fa-pen-to-square text-white"></i></a>
                         </p>
                         <p><strong>Full Name:</strong> <span id="fullName">{{ user.get_full_name }}</span>
-                            <a href="#" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal"
-                                data-bs-target="#editFullNameModal">Edit</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary ms-2 btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#editFullNameModal"><i
+                                    class="fa-solid fa-pen-to-square text-white"></i></a>
                         </p>
                         <p><strong>Email:</strong> {{ user.email }}</p>
                         {% if user.profile %}
@@ -50,116 +53,199 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Edit Username Modal -->
-<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editUsernameModalLabel">Edit Username</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editUsernameForm">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="newUsername" class="form-label">New Username</label>
-                        <input type="text" class="form-control" id="newUsername" name="new_username" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </form>
+        <!-- Address Column (Right) -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">My Address</h2>
+                    {% if user.address_set.exists %}
+                    {% with address=user.address_set.first %}
+                    <p><strong>Address 1:</strong> {{ address.address1 }}</p>
+                    <p><strong>Address 2:</strong> {{ address.address2|default:"N/A" }}</p>
+                    <p><strong>City:</strong> {{ address.city }}</p>
+                    <p><strong>Province:</strong> {{ address.province }}</p>
+                    <p><strong>Phone:</strong> {{ address.phone }}</p>
+                    <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAddressModal"><i
+                            class="fa-solid fa-pen-to-square"></i></a>
+                    {% endwith %}
+                    {% else %}
+                    <p>No address information available.</p>
+                    <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAddressModal">Add
+                        Address</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Edit Full Name Modal -->
-<div class="modal fade" id="editFullNameModal" tabindex="-1" aria-labelledby="editFullNameModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editFullNameModalLabel">Edit Full Name</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editFullNameForm">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="newFirstName" class="form-label">New First Name</label>
-                        <input type="text" class="form-control" id="newFirstName" name="new_first_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="newLastName" class="form-label">New Last Name</label>
-                        <input type="text" class="form-control" id="newLastName" name="new_last_name" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'modal/edit_username_modal.html' %}
+{% include 'modal/edit_full_name_modal.html' %}
+{% include 'modal/edit_address_modal.html' %}
 
 <script>
-    document.getElementById('editUsernameForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const newUsername = document.getElementById('newUsername').value;
-        
-        fetch('{% url "userprofile:update_username" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({ new_username: newUsername })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('username').textContent = newUsername;
-                $('#editUsernameModal').modal('hide');
-            } else {
-                alert('Failed to update username: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while updating the username.');
+    $(document).ready(function () {
+        // Load username edit form
+        $('#editUsernameModal').on('show.bs.modal', function (e) {
+            $(this).find('.modal-body').load("{% url 'userprofile:edit_username' %}");
+        });
+
+        // Load full name edit form
+        $('#editFullNameModal').on('show.bs.modal', function (e) {
+            $(this).find('.modal-body').load("{% url 'userprofile:edit_full_name' %}");
+        });
+        $('#editAddressModal').on('show.bs.modal', function (e) {
+            $(this).find('.modal-body').load("{% url 'userprofile:edit_address' %}");
+        });
+
+        // Handle address form submission
+        $(document).on('submit', '#editAddressForm', function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'userprofile:edit_address' %}",
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error,
+                        });
+                    } else {
+                        $('#editAddressModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Address has been updated successfully!',
+                        }).then(() => {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred. Please try again.',
+                    });
+                }
+            });
         });
     });
 
-    document.getElementById('editFullNameForm').addEventListener('submit', function(e) {
+
+    // Handle username form submission
+    $(document).ready(function () {
+        // Function to check username availability
+        function checkUsernameAvailability(username) {
+            $.ajax({
+                url: "{% url 'userprofile:check_username_availability' %}",
+                data: {
+                    'username': username
+                },
+                success: function (data) {
+                    if (data.is_taken) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Username Error',
+                            text: data.message
+                        });
+                    } else {
+                        // Proceed with form submission if username is available
+                        submitUsernameForm();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while checking username availability. Please try again.'
+                    });
+                }
+            });
+        }
+    
+        // Handle form submission
+        $(document).on('submit', '#editUsernameForm', function (e) {
+            e.preventDefault();
+            var username = $('#id_username').val();
+    
+            // Check for spaces in username
+            if (username.includes(' ')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Username',
+                    text: 'Username cannot contain spaces. Please remove any spaces.'
+                });
+                return;
+            }
+    
+            // Check username availability before submitting form
+            checkUsernameAvailability(username);
+        });
+    
+        // Function to submit username form
+        function submitUsernameForm() {
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'userprofile:edit_username' %}",
+                data: $('#editUsernameForm').serialize(),
+                success: function (response) {
+                    if (response.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error
+                        });
+                    } else {
+                        $('#username').text(response.username);
+                        $('#editUsernameModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Username has been updated successfully!'
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while updating username. Please try again.'
+                    });
+                }
+            });
+        }
+    });
+
+    // Handle full name form submission
+    $(document).on('submit', '#editFullNameForm', function (e) {
         e.preventDefault();
-        const newFirstName = document.getElementById('newFirstName').value;
-        const newLastName = document.getElementById('newLastName').value;
-        
-        fetch('{% url "userprofile:update_full_name" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({ new_first_name: newFirstName, new_last_name: newLastName })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const fullName = `${newFirstName} ${newLastName}`;
-                document.getElementById('fullName').textContent = fullName;
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'userprofile:edit_full_name' %}",
+            data: $(this).serialize(),
+            success: function (response) {
+                $('#fullName').text(response.full_name);
                 $('#editFullNameModal').modal('hide');
-            } else {
-                alert('Failed to update full name: ' + data.error);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Full name has been updated successfully!',
+                });
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred. Please try again.',
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while updating the full name.');
         });
     });
-</script>
 
+</script>
 
 {% endblock content %}

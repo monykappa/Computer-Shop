@@ -24,9 +24,9 @@ urlpatterns = [
         "check-email/", views.check_email_availability, name="check_email_availability"
     ),
     
-    path('update-username/', views.UpdateUsernameView.as_view(), name='update_username'),
-    path('update-full-name/', views.UpdateFullNameView.as_view(), name='update_full_name'),
-    
+    path('edit-username/', views.EditUsernameView.as_view(), name='edit_username'),
+    path('edit-full-name/', views.EditFullNameView.as_view(), name='edit_full_name'),
+    path('edit-address/', views.EditAddressView.as_view(), name='edit_address'),
     
     # logout
     path("logout/", views.LogoutView.as_view(), name="logout"),
