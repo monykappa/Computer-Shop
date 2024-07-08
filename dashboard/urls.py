@@ -32,6 +32,9 @@ urlpatterns = [
     
     path('dashboard/tables/', views.DisplayTablesView.as_view(), name='display_tables'),
     path('dashboard/edit/<str:model>/<int:pk>/', views.EditModelView.as_view(), name='edit_model'),
+    
+    
+    path('<str:model_name>/create/', views.GenericModelFormView.as_view(), name='model_create'),
 ]
 
 if settings.DEBUG:

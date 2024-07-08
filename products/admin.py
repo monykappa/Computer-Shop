@@ -32,7 +32,6 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(Category)
 admin.site.register(Brand)
 admin.site.register(LaptopSpec)
-admin.site.register(Stock)
 admin.site.register(Color)
 admin.site.register(CpuBrand)
 admin.site.register(GpuBrand)

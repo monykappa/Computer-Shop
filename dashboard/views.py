@@ -17,18 +17,18 @@ from .mixins import SuperuserRequiredMixin
 from django.db.models import Sum
 from django.http import HttpResponse
 import io
-from bokeh.plotting import figure
-from bokeh.embed import components
-from plotly.offline import plot
-import plotly.graph_objs as go
+from bokeh.plotting import figure # type: ignore
+from bokeh.embed import components # type: ignore
+from plotly.offline import plot # type: ignore
+import plotly.graph_objs as go # type: ignore
 from userprofile.models import *
 from .forms import *
 from django.contrib import messages
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.http import JsonResponse
-
-
+from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
 
 
 
@@ -228,6 +228,53 @@ class DisplayTablesView(TemplateView):
         context['operating_systems'] = OperatingSystem.objects.all()
         return context
 
+
+
+class GenericModelFormView(CreateView, UpdateView):
+    template_name = 'dashboard/add/generic_form.html'
+    
+    MODEL_FORM_MAP = {
+        'category': (Category, CategoryForm),
+        'brand': (Brand, BrandForm),
+        'color': (Color, ColorForm),
+        'cpubrand': (CpuBrand, CpuBrandForm),
+        'gpubrand': (GpuBrand, GpuBrandForm),
+        'cpuspec': (CpuSpec, CpuSpecForm),
+        'gpuspec': (GpuSpec, GpuSpecForm),
+        'memorybrand': (MemoryBrand, MemoryBrandForm),
+        'memoryspec': (MemorySpec, MemorySpecForm),
+        'storagebrand': (StorageBrand, StorageBrandForm),
+        'storagespec': (StorageSpec, StorageSpecForm),
+        'displayspec': (DisplaySpec, DisplaySpecForm),
+        'portspec': (PortSpec, PortSpecForm),
+        'wirelessconnectivity': (WirelessConnectivity, WirelessConnectivityForm),
+        'webcamspec': (WebcamSpec, WebcamSpecForm),
+        'batteryspec': (BatterySpec, BatterySpecForm),
+        'operatingsystem': (OperatingSystem, OperatingSystemForm),
+    }
+
+    def dispatch(self, request, *args, **kwargs):
+        self.model_name = kwargs.get('model_name')
+        self.model, self.form_class = self.MODEL_FORM_MAP.get(self.model_name.lower(), (None, None))
+        
+        if not self.model or not self.form_class:
+            raise Http404("Model not found")
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return get_object_or_404(self.model, pk=self.kwargs['pk'])
+        return None
+
+    def get_success_url(self):
+        return reverse_lazy('model_list', kwargs={'model_name': self.model_name})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['model_name'] = self.model_name.capitalize()
+        return context
+    
 
 class EditModelView(UpdateView):
     template_name = 'dashboard/edit/edit_model.html'

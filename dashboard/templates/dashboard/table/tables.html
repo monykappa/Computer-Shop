@@ -36,118 +36,134 @@
     
 </style><div class="container">
     <h1>Table</h1>
-    <div class="row">
-        <div class="col-md-4">
-            <button class="collapsible">Category</button>
-            <div class="content">
-                {% include 'dashboard/table/category.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">Brand</button>
-            <div class="content">
-                {% include 'dashboard/table/brand.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">Color</button>
-            <div class="content">
-                {% include 'dashboard/table/color.html' %}
-            </div>
+<div class="row">
+    <div class="col-md-4">
+        <button class="collapsible">Category</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='category' %}" class="btn btn-primary">Add Category</a>
+            {% include 'dashboard/table/category.html' %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <button class="collapsible">CPU Brand</button>
-            <div class="content">
-                {% include 'dashboard/table/cpu/cpu_brand.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">CPU</button>
-            <div class="content">
-                {% include 'dashboard/table/cpu/cpu.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">GPU Brand</button>
-            <div class="content">
-                {% include 'dashboard/table/gpu/gpu_brand.html' %}
-            </div>
+    <div class="col-md-4">
+        <button class="collapsible">Brand</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='brand' %}" class="btn btn-primary">Add Brand</a>
+            {% include 'dashboard/table/brand.html' %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <button class="collapsible">GPU</button>
-            <div class="content">
-                {% include 'dashboard/table/gpu/gpu.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">Memory Brand</button>
-            <div class="content">
-                {% include 'dashboard/table/memory/memory_brand.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">Memory</button>
-            <div class="content">
-                {% include 'dashboard/table/memory/memory.html' %}
-            </div>
+    <div class="col-md-4">
+        <button class="collapsible">Color</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='color' %}" class="btn btn-primary">Add Color</a>
+            {% include 'dashboard/table/color.html' %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <button class="collapsible">Storage Brand</button>
-            <div class="content">
-                {% include 'dashboard/table/storage/storage_brand.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">Storage</button>
-            <div class="content">
-                {% include 'dashboard/table/storage/storage.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">Display</button>
-            <div class="content">
-                {% include 'dashboard/table/display.html' %}
-            </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <button class="collapsible">CPU Brand</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='cpubrand' %}" class="btn btn-primary">Add CPU Brand</a>
+            {% include 'dashboard/table/cpu/cpu_brand.html' %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <button class="collapsible">Port</button>
-            <div class="content">
-                {% include 'dashboard/table/port.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">Wireless Connectivity</button>
-            <div class="content">
-                {% include 'dashboard/table/wireless_connectivity.html' %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            <button class="collapsible">Webcam</button>
-            <div class="content">
-                {% include 'dashboard/table/webcam.html' %}
-            </div>
+    <div class="col-md-4">
+        <button class="collapsible">CPU</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='cpuspec' %}" class="btn btn-primary">Add CPU</a>
+            {% include 'dashboard/table/cpu/cpu.html' %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <button class="collapsible">Battery</button>
-            <div class="content">
-                {% include 'dashboard/table/battery.html' %}
-            </div>
+    <div class="col-md-4">
+        <button class="collapsible">GPU Brand</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='gpubrand' %}" class="btn btn-primary">Add GPU Brand</a>
+            {% include 'dashboard/table/gpu/gpu_brand.html' %}
         </div>
-        <div class="col-md-4">
-            <button class="collapsible">Operating System</button>
-            <div class="content">
-                {% include 'dashboard/table/operating_system.html' %}
-            </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <button class="collapsible">GPU</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='gpuspec' %}" class="btn btn-primary">Add GPU</a>
+            {% include 'dashboard/table/gpu/gpu.html' %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <button class="collapsible">Memory Brand</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='memorybrand' %}" class="btn btn-primary">Add Memory Brand</a>
+            {% include 'dashboard/table/memory/memory_brand.html' %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <button class="collapsible">Memory</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='memoryspec' %}" class="btn btn-primary">Add Memory</a>
+            {% include 'dashboard/table/memory/memory.html' %}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <button class="collapsible">Storage Brand</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='storagebrand' %}" class="btn btn-primary">Add Storage Brand</a>
+            {% include 'dashboard/table/storage/storage_brand.html' %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <button class="collapsible">Storage</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='storagespec' %}" class="btn btn-primary">Add Storage</a>
+            {% include 'dashboard/table/storage/storage.html' %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <button class="collapsible">Display</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='displayspec' %}" class="btn btn-primary">Add Display</a>
+            {% include 'dashboard/table/display.html' %}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <button class="collapsible">Port</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='portspec' %}" class="btn btn-primary">Add Port</a>
+            {% include 'dashboard/table/port.html' %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <button class="collapsible">Wireless Connectivity</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='wirelessconnectivity' %}" class="btn btn-primary">Add Wireless Connectivity</a>
+            {% include 'dashboard/table/wireless_connectivity.html' %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <button class="collapsible">Webcam</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='webcamspec' %}" class="btn btn-primary">Add Webcam</a>
+            {% include 'dashboard/table/webcam.html' %}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <button class="collapsible">Battery</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='batteryspec' %}" class="btn btn-primary">Add Battery</a>
+            {% include 'dashboard/table/battery.html' %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <button class="collapsible">Operating System</button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='operatingsystem' %}" class="btn btn-primary">Add Operating System</a>
+            {% include 'dashboard/table/operating_system.html' %}
         </div>
     </div>
 </div>
