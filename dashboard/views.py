@@ -31,6 +31,8 @@ from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from delivery.models import *
 from delivery.forms import *
+from django.views.generic import FormView, ListView, DetailView
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 
@@ -113,7 +115,7 @@ class OrderDetailView(LoginRequiredMixin, SuperuserRequiredMixin, DetailView):
     login_url = reverse_lazy('dashboard:sign_in')
 
 
-class ProductListView(ListView, SuperuserRequiredMixin):
+class ProductListView(SuperuserRequiredMixin, ListView):
     model = Product
     template_name = 'dashboard/product_list.html'
     context_object_name = 'products'
@@ -123,7 +125,7 @@ class ProductListView(ListView, SuperuserRequiredMixin):
         return Product.objects.all()
 
 
-class ProductCreateView(CreateView, SuperuserRequiredMixin):
+class ProductCreateView(SuperuserRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = 'dashboard/add/add_new_product.html'
@@ -154,7 +156,7 @@ class ProductCreateView(CreateView, SuperuserRequiredMixin):
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
-class ProductUpdateView(UpdateView, SuperuserRequiredMixin):
+class ProductUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = 'dashboard/edit/edit_product.html'
@@ -195,7 +197,7 @@ class ProductImageDeleteView(SuperuserRequiredMixin, View):
         
 
 
-class ProductDeleteView(DeleteView, SuperuserRequiredMixin):
+class ProductDeleteView(SuperuserRequiredMixin, DeleteView):
     model = Product
     success_url = reverse_lazy('dashboard:product_list')
 
@@ -231,7 +233,7 @@ class DisplayTablesView(TemplateView):
 
 
 
-class GenericModelFormView(CreateView, UpdateView):
+class GenericModelFormView(SuperuserRequiredMixin, CreateView, UpdateView):
     template_name = 'dashboard/add/generic_form.html'
     
     MODEL_FORM_MAP = {
@@ -277,7 +279,7 @@ class GenericModelFormView(CreateView, UpdateView):
         return context
     
 
-class EditModelView(UpdateView):
+class EditModelView(SuperuserRequiredMixin, UpdateView):
     template_name = 'dashboard/edit/edit_model.html'
     model = None
     fields = '__all__'
@@ -331,35 +333,41 @@ class EditModelView(UpdateView):
 
 
 from django.db import transaction
+class AssignOrderView(SuperuserRequiredMixin, LoginRequiredMixin, UserPassesTestMixin, FormView):
+    template_name = 'dashboard/delivery/assign_order.html'
+    form_class = AssignOrderForm
+    success_url = reverse_lazy('dashboard:assign_order')
 
-@login_required
-@transaction.atomic
-def assign_order(request):
-    if request.method == 'POST':
-        form = AssignOrderForm(request.POST)
-        if form.is_valid():
-            order = form.cleaned_data['order']
-            delivery_staff = form.cleaned_data['delivery_staff']
+    def test_func(self):
+        return self.request.user.is_superuser
 
+    @method_decorator(transaction.atomic)
+    def form_valid(self, form):
+        orders = form.cleaned_data['orders']
+        delivery_staff = form.cleaned_data['delivery_staff']
+
+        assigned_orders = []
+        for order in orders:
             # Check if the order is already assigned
             if hasattr(order, 'delivery_assignment'):
-                messages.error(request, "This order is already assigned.")
-                return redirect('dashboard:order_list')
+                messages.warning(self.request, f"Order #{order.id} is already assigned and was skipped.")
+                continue
 
             # Create the delivery assignment
             DeliveryAssignment.objects.create(order=order, delivery_staff=delivery_staff)
+            assigned_orders.append(order.id)
 
-            # Update delivery staff availability if needed
+        # Update delivery staff availability if any orders were assigned
+        if assigned_orders:
             delivery_staff.is_available = False
             delivery_staff.save()
 
-            messages.success(request, f"Order #{order.id} has been assigned to {delivery_staff.user.username}.")
-            return redirect('dashboard:assign_order')
-    else:
-        form = AssignOrderForm()
+            messages.success(self.request, f"Orders #{', '.join(map(str, assigned_orders))} have been assigned to {delivery_staff.user.username}.")
+        else:
+            messages.warning(self.request, "No orders were assigned. They may already be assigned or an error occurred.")
 
-    context = {
-        'form': form,
-    }
+        return super().form_valid(form)
 
-    return render(request, 'dashboard/delivery/assign_order.html', context)
+    def form_invalid(self, form):
+        messages.error(self.request, "There was an error in assigning the orders. Please try again.")
+        return super().form_invalid(form)

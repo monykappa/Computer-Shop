@@ -34,16 +34,18 @@ def mark_delivery_complete(request, assignment_id):
     )
 
     if request.method == "POST":
-        assignment.mark_completed()
-        messages.success(
-            request, f"Order #{assignment.order.id} has been marked as delivered."
-        )
+        try:
+            assignment.mark_completed()
+            messages.success(
+                request, f"Order #{assignment.order.id} has been marked as delivered and you are now available for new deliveries."
+            )
+        except Exception as e:
+            messages.error(request, f"An error occurred while marking the delivery as complete: {str(e)}")
         return redirect("delivery:delivery_guy_dashboard")
 
     return render(
         request, "delivery/confirm_completion.html", {"assignment": assignment}
     )
-
 
 def create_delivery_staff(request):
     if request.method == "POST":

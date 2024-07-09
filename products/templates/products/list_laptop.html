@@ -30,7 +30,7 @@
 
         try {
             let brandsResponse = await fetch('/api/public-brands/');
-            let laptopSpecsResponse = await fetch('/api/public-laptop-specs/');  // Updated to fetch from the public endpoint
+            let laptopSpecsResponse = await fetch('/api/public-laptop-specs/');
 
             if (!brandsResponse.ok || !laptopSpecsResponse.ok) {
                 throw new Error('Network response was not ok');

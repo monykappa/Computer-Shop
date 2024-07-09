@@ -8,6 +8,7 @@ from PIL import Image
 import qrcode
 from django.urls import reverse
 from decimal import Decimal
+from userprofile.models import *
 
 # Create your models here.
 
@@ -57,7 +58,15 @@ class OrderHistory(models.Model):
     qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)
 
     def __str__(self):
-        return f"Order History #{self.id} - {self.ordered_date} - Total: ${self.total_price:.2f}"
+        # Get the most recent address for the user
+        address = Address.objects.filter(user=self.user).last()
+        
+        if address:
+            address_str = f"{address.address1}, {address.city}, {address.province} , {address.phone}"
+        else:
+            address_str = 'No address found'
+        
+        return f"Order ID #{self.id} - Date: {self.ordered_date.strftime('%Y-%m-%d %H:%M')} - Address: {address_str} - Total: ${self.total_price:.2f}"
 
     def update_status(self, new_status):
         if new_status in [OrderStatus.COMPLETED, OrderStatus.CANCELLED]:

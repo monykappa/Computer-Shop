@@ -34,7 +34,7 @@ urlpatterns = [
     path('dashboard/edit/<str:model>/<int:pk>/', views.EditModelView.as_view(), name='edit_model'),
     
     
-    path('assign/', views.assign_order, name='assign_order'),
+    path('assign/', views.AssignOrderView.as_view(), name='assign_order'),
     
     path('<str:model_name>/create/', views.GenericModelFormView.as_view(), name='model_create'),
 ]

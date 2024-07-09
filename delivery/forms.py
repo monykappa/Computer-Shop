@@ -27,9 +27,9 @@ class DeliveryStaffCreationForm(forms.ModelForm):
 
 
 class AssignOrderForm(forms.Form):
-    order = forms.ModelChoiceField(
+    orders = forms.ModelMultipleChoiceField(
         queryset=OrderHistory.objects.filter(status='Pending', delivery_assignment__isnull=True),
-        empty_label="Select an order"
+        widget=forms.CheckboxSelectMultiple
     )
     delivery_staff = forms.ModelChoiceField(
         queryset=DeliveryStaff.objects.filter(is_available=True),

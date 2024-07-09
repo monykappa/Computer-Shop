@@ -1,3 +1,4 @@
+from venv import logger
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -15,7 +16,7 @@ class DeliveryStaff(models.Model):
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Delivery Staff: {self.user.username}"
+        return f"Delivery by: {self.user.username}"
 
 class DeliveryAssignment(models.Model):
     order = models.OneToOneField(OrderHistory, on_delete=models.CASCADE, related_name='delivery_assignment')
@@ -30,7 +31,39 @@ class DeliveryAssignment(models.Model):
         return f"Delivery Assignment: Order History #{self.order.id} - {self.delivery_staff.user.username}"
 
     def mark_completed(self):
-        self.completed_at = timezone.now()
-        self.save()
-        # Update the order status in the OrderHistory model
-        self.order.update_status(OrderStatus.COMPLETED)
+        if not self.completed_at:
+            try:
+                self.completed_at = timezone.now()
+                self.save()
+                
+                self.order.status = OrderStatus.COMPLETED
+                self.order.save()
+                
+                # Set the delivery staff as available
+                self.delivery_staff.is_available = True
+                self.delivery_staff.save()
+                
+                DeliveryAssignmentHistory.objects.create(
+                    order=self.order,
+                    delivery_staff=self.delivery_staff,
+                    assigned_at=self.assigned_at,
+                    completed_at=self.completed_at
+                )
+                logger.info(f"Delivery Assignment {self.id} marked as completed, history entry created, and delivery staff set as available.")
+            except Exception as e:
+                logger.error(f"Error marking delivery {self.id} as completed: {str(e)}")
+                raise
+        
+        
+class DeliveryAssignmentHistory(models.Model):
+    order = models.ForeignKey(OrderHistory, on_delete=models.CASCADE, related_name='delivery_assignment_history')
+    delivery_staff = models.ForeignKey(DeliveryStaff, on_delete=models.CASCADE)
+    assigned_at = models.DateTimeField()
+    completed_at = models.DateTimeField()
+
+    def __str__(self):
+        return f"Delivery History: Order #{self.order.id} - {self.delivery_staff.user.username}"
+    
+    def get_queryset(self, request):
+        # Use the default manager instead of pending_orders
+        return super().get_queryset(request).select_related('order', 'delivery_staff__user')

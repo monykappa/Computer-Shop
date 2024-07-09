@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
-from .models import DeliveryStaff, DeliveryAssignment
+from .models import *
 from orders.models import OrderHistory, OrderStatus
 
 @admin.register(DeliveryStaff)
@@ -34,3 +34,17 @@ class DeliveryAssignmentAdmin(admin.ModelAdmin):
         if db_field.name == "order":
             kwargs["queryset"] = OrderHistory.objects.filter(status=OrderStatus.PENDING)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+@admin.register(DeliveryAssignmentHistory)
+class DeliveryAssignmentHistoryAdmin(admin.ModelAdmin):
+    list_display = ('order', 'delivery_staff', 'assigned_at_display', 'completed_at_display')
+    list_filter = ('assigned_at', 'completed_at')
+    search_fields = ('order__id', 'delivery_staff__user__username')
+
+    def assigned_at_display(self, obj):
+        return timezone.localtime(obj.assigned_at) if obj.assigned_at else None
+    assigned_at_display.short_description = 'Assigned At'
+
+    def completed_at_display(self, obj):
+        return timezone.localtime(obj.completed_at) if obj.completed_at else None
+    completed_at_display.short_description = 'Completed At'
