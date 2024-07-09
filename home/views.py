@@ -25,27 +25,27 @@ from .models import *
 
 
 
-class ProductSearchView(APIView):
-    pagination_class = LimitOffsetPagination  # Define pagination class here
-    filter_backends = [SearchFilter]
-    search_fields = ['name', 'description']
+# class ProductSearchView(APIView):
+#     pagination_class = LimitOffsetPagination  # Define pagination class here
+#     filter_backends = [SearchFilter]
+#     search_fields = ['name', 'description']
 
-    def get(self, request):
-        try:
-            queryset = Product.objects.all()
-            query = self.request.query_params.get('q', None)
-            if query:
-                queryset = queryset.filter(name__icontains=query)
-            # Paginate queryset
-            page = self.pagination_class().paginate_queryset(queryset, request)
-            if page is not None:
-                serializer = ProductSerializer(page, many=True)
-                return self.pagination_class().get_paginated_response(serializer.data)
-            else:
-                serializer = ProductSerializer(queryset, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#     def get(self, request):
+#         try:
+#             queryset = Product.objects.all()
+#             query = self.request.query_params.get('q', None)
+#             if query:
+#                 queryset = queryset.filter(name__icontains=query)
+#             # Paginate queryset
+#             page = self.pagination_class().paginate_queryset(queryset, request)
+#             if page is not None:
+#                 serializer = ProductSerializer(page, many=True)
+#                 return self.pagination_class().get_paginated_response(serializer.data)
+#             else:
+#                 serializer = ProductSerializer(queryset, many=True)
+#                 return Response(serializer.data, status=status.HTTP_200_OK)
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 # If user is not logged in, show home.html
 class HomeView(TemplateView):

@@ -14,6 +14,7 @@
 </div>
 
 <script src="{% static 'js/price/formatPrice.js' %}"></script>
+
 <script>
     async function fetchData() {
         const loadingAnimation = document.getElementById('loading-animation');
@@ -23,13 +24,13 @@
             console.error('Products container not found');
             return;
         }
-        
+
         loadingAnimation.style.display = 'block';
         productsContainer.style.display = 'none';
 
         try {
-            let brandsResponse = await fetch('/api/brands/');
-            let laptopSpecsResponse = await fetch('/api/laptop-specs/');
+            let brandsResponse = await fetch('/api/public-brands/');
+            let laptopSpecsResponse = await fetch('/api/public-laptop-specs/');  // Updated to fetch from the public endpoint
 
             if (!brandsResponse.ok || !laptopSpecsResponse.ok) {
                 throw new Error('Network response was not ok');
@@ -37,9 +38,9 @@
 
             let brands = await brandsResponse.json();
             let laptopSpecs = await laptopSpecsResponse.json();
-    
+
             productsContainer.innerHTML = '';
-    
+
             brands.forEach(brand => {
                 let brandSection = document.createElement('div');
                 brandSection.id = brand.slug;
@@ -50,9 +51,9 @@
                     <div class="row" id="${brand.slug}-products"></div>
                 `;
                 productsContainer.appendChild(brandSection);
-    
+
                 let brandProducts = laptopSpecs.filter(spec => spec.product.brand.id === brand.id);
-    
+
                 let brandProductsContainer = document.getElementById(`${brand.slug}-products`);
                 if (brandProducts.length === 0) {
                     console.warn(`No products found for brand ${brand.name}`);
@@ -67,11 +68,11 @@
                             <div class="product-card">
                                 <div class="warranty-badge">
                                     ${spec.product.warranty_years > 0
-                                        ? `${spec.product.warranty_years} ${spec.product.warranty_years === 1 ? 'year' : 'years'} warranty`
-                                        : spec.product.warranty_months > 0
-                                            ? `${spec.product.warranty_months} ${spec.product.warranty_months === 1 ? 'month' : 'months'} warranty`
-                                            : 'No warranty'
-                                    }
+                                ? `${spec.product.warranty_years} ${spec.product.warranty_years === 1 ? 'year' : 'years'} warranty`
+                                : spec.product.warranty_months > 0
+                                    ? `${spec.product.warranty_months} ${spec.product.warranty_months === 1 ? 'month' : 'months'} warranty`
+                                    : 'No warranty'
+                            }
                                 </div>
                                 <div class="product-image-container">
                                     <img class="product-image" src="${productImage}" alt="${spec.product.name}">
@@ -87,7 +88,7 @@
                             </div>
                         `;
                         brandProductsContainer.appendChild(productCard);
-                        
+
                         // Apply transition with a delay based on the index
                         setTimeout(() => {
                             productCard.querySelector('.product-card').classList.add('show');
@@ -108,6 +109,6 @@
             productsContainer.style.display = 'block';
         }
     }
-    
+
     document.addEventListener('DOMContentLoaded', fetchData);
 </script>

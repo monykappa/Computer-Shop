@@ -134,8 +134,8 @@ $(document).ready(function () {
 async function fetchCart() {
     try {
         const [cartResponse, laptopSpecsResponse] = await Promise.all([
-            fetch('/api/cart/'),
-            fetch('/api/laptop-specs/')
+            fetch('/api/public-cart/'),
+            fetch('/api/public-laptop-specs/')
         ]);
 
         const cartData = await cartResponse.json();

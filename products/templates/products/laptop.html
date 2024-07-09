@@ -157,8 +157,8 @@
         const slug = "{{ laptop_spec.slug }}";
         try {
             const [productResponse, recommendedResponse] = await Promise.all([
-                fetch(`/api/laptop-specs/${slug}/`),
-                fetch(`/api/recommended-products/${slug}/`)
+                fetch(`/api/public-laptop-specs/${slug}/`),
+                fetch(`/api/public-recommended-products/${slug}/`)
             ]);
     
             const productDetails = await productResponse.json();

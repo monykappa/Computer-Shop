@@ -254,7 +254,7 @@
         event.preventDefault();
         const searchQuery = searchInput.value.trim();
         if (searchQuery) {
-            const response = await fetch(`/api/laptop-specs/?q=${encodeURIComponent(searchQuery)}`, {
+            const response = await fetch(`/api/public-laptop-specs/?q=${encodeURIComponent(searchQuery)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

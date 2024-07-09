@@ -38,6 +38,7 @@ urlpatterns = [
     
     # api
     path('api/cart/', views.CartAPIView.as_view(), name='cart_api'),
+    path('api/public-cart/', views.PublicCartAPIView.as_view(), name='public_cart_api'),
 ]
 
 if settings.DEBUG:

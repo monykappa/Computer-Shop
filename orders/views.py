@@ -26,6 +26,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
+# import
+from products.permissions import IsSuperAdmin
 
 
 # Create your views here.
@@ -97,10 +99,12 @@ class CartDetailView(TemplateView):
         context['user_authenticated'] = self.request.user.is_authenticated
         return context
 
-class CartAPIView(APIView):
+class PublicCartAPIView(APIView):
+    permission_classes = []  # No specific permissions required
+
     def get(self, request):
-        if request.user.is_authenticated:
-            try:
+        try:
+            if request.user.is_authenticated:
                 order = Order.objects.get(user=request.user, created_at__isnull=False)
                 cart_items = order.cartitem_set.all().select_related('product').prefetch_related(
                     Prefetch('product__images', queryset=ProductImage.objects.all())
@@ -111,27 +115,75 @@ class CartAPIView(APIView):
                     hasattr(request.user, "userprofile")
                     and request.user.userprofile.address1 is not None
                 )
-                
+
                 return Response({
                     "cart_items": serializer.data,
                     "total_price": total_price,
                     "user_authenticated": True,
                     "user_has_address": user_has_address,
                 })
-            except Order.DoesNotExist:
+            else:
                 return Response({
                     "cart_items": [],
                     "total_price": 0,
-                    "user_authenticated": True,
-                    "user_has_address": False,
-                })
-        else:
+                    "user_authenticated": False,
+                    "message": "You need to sign in to view your cart.",
+                }, status=status.HTTP_401_UNAUTHORIZED)
+        except Order.DoesNotExist:
             return Response({
                 "cart_items": [],
                 "total_price": 0,
+                "user_authenticated": True,
+                "user_has_address": False,
+            })
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "cart_items": [],
+                "total_price": 0,
                 "user_authenticated": False,
-                "message": "You need to sign in to purchase items.",
-            }, status=status.HTTP_401_UNAUTHORIZED)
+                "message": "Failed to fetch cart data.",
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class CartAPIView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        try:
+            order = Order.objects.get(user=request.user, created_at__isnull=False)
+            cart_items = order.cartitem_set.all().select_related('product').prefetch_related(
+                Prefetch('product__images', queryset=ProductImage.objects.all())
+            )
+            serializer = CartItemSerializer(cart_items, many=True)
+            total_price = order.total_price
+            user_has_address = (
+                hasattr(request.user, "userprofile")
+                and request.user.userprofile.address1 is not None
+            )
+            
+            return Response({
+                "cart_items": serializer.data,
+                "total_price": total_price,
+                "user_authenticated": True,
+                "user_has_address": user_has_address,
+            })
+        except Order.DoesNotExist:
+            return Response({
+                "cart_items": [],
+                "total_price": 0,
+                "user_authenticated": True,
+                "user_has_address": False,
+            })
+        except Exception as e:
+            return Response({
+                "error": str(e),
+                "cart_items": [],
+                "total_price": 0,
+                "user_authenticated": False,
+                "message": "Failed to fetch cart data.",
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RemoveFromCartView(DeleteView):
     model = CartItem
