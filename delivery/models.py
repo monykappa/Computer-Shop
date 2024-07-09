@@ -14,6 +14,7 @@ class PendingOrderHistoryManager(models.Manager):
 class DeliveryStaff(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_available = models.BooleanField(default=True)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return f"Delivery by: {self.user.username}"

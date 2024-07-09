@@ -1,11 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import DeliveryAssignment
+from .models import *
 from orders.models import OrderStatus
 from .forms import *
 from userprofile.models import *
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.db.models import Prefetch
+
 
 
 @login_required
@@ -47,14 +51,16 @@ def mark_delivery_complete(request, assignment_id):
         request, "delivery/confirm_completion.html", {"assignment": assignment}
     )
 
-def create_delivery_staff(request):
-    if request.method == "POST":
-        form = DeliveryStaffCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect(
-                "dashboard:delivery_staff_list"
-            )  # Redirect to a page listing all delivery staff members
-    else:
-        form = DeliveryStaffCreationForm()
-    return render(request, "delivery/create_delivery_staff.html", {"form": form})
+class DeliveryHistoryReportView(LoginRequiredMixin, ListView):
+    model = DeliveryAssignmentHistory
+    template_name = 'delivery/delivery_history_report.html'
+    context_object_name = 'delivery_histories'
+
+    def get_queryset(self):
+        try:
+            delivery_staff = DeliveryStaff.objects.get(user=self.request.user)
+            return DeliveryAssignmentHistory.objects.filter(delivery_staff=delivery_staff).select_related('order')
+        except DeliveryStaff.DoesNotExist:
+            return DeliveryAssignmentHistory.objects.none()
+
+

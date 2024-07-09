@@ -1,0 +1,25 @@
+<!-- templates/delivery/delivery_history_report.html -->
+{% extends "delivery_base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Delivery History Report</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Assigned At</th>
+                <th>Completed At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for history in delivery_histories %}
+            <tr>
+                <td>{{ history.order.id }}</td>
+                <td>{{ history.assigned_at }}</td>
+                <td>{{ history.completed_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

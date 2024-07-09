@@ -33,6 +33,7 @@ from delivery.models import *
 from delivery.forms import *
 from django.views.generic import FormView, ListView, DetailView
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import Http404
 
 
 
@@ -371,3 +372,14 @@ class AssignOrderView(SuperuserRequiredMixin, LoginRequiredMixin, UserPassesTest
     def form_invalid(self, form):
         messages.error(self.request, "There was an error in assigning the orders. Please try again.")
         return super().form_invalid(form)
+    
+
+class DeliveryStaffCreateView(SuperuserRequiredMixin, LoginRequiredMixin, CreateView):
+    model = DeliveryStaff
+    form_class = DeliveryStaffCreationForm
+    template_name = 'delivery/create_delivery_staff.html'
+    success_url = reverse_lazy('dashboard:delivery_staff_list')  # Redirect to a page listing all delivery staff members
+
+    def form_valid(self, form):
+        # Perform any additional actions if needed
+        return super().form_valid(form)

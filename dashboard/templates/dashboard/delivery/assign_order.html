@@ -2,20 +2,65 @@
 
 {% block content %}
 
-<h2>Assign Orders to Delivery Staff</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    <div class="form-group">
-        {{ form.orders.label_tag }}
-        {{ form.orders }}
-        {{ form.orders.errors }}
-    </div>
-    <div class="form-group">
-        {{ form.delivery_staff.label_tag }}
-        {{ form.delivery_staff }}
-        {{ form.delivery_staff.errors }}
-    </div>
-    <button type="submit" class="btn btn-primary">Assign Orders</button>
-</form>
+<div class="container">
+    <h2>Assign Orders to Delivery Staff</h2>
+    <form id="assign-orders-form" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="mb-3">
+            <label class="form-label">{{ form.orders.label }}</label>
+            <div class="form-check">
+                {% for checkbox in form.orders %}
+                    <div class="form-check">
+                        {{ checkbox }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.orders.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.orders.errors %}
+                        <span>{{ error }}</span><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">{{ form.delivery_staff.label }}</label>
+            {{ form.delivery_staff }}
+            {% if form.delivery_staff.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.delivery_staff.errors %}
+                        <span>{{ error }}</span><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Assign Orders</button>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("assign-orders-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent form submission
+
+        swal({
+            title: "Assign Orders",
+            text: "Are you sure you want to assign these orders?",
+            icon: "info",
+            buttons: ["Cancel", "Assign"],
+        })
+        .then((willAssign) => {
+            if (willAssign) {
+                // Submit the form if user confirms
+                event.target.submit(); // Use event.target to submit the form
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

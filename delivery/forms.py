@@ -4,14 +4,17 @@ from django.contrib.auth.models import User
 from .models import DeliveryStaff
 from orders.models import *
 
+
+
 class DeliveryStaffCreationForm(forms.ModelForm):
-    username = forms.CharField(label='Username')
-    email = forms.EmailField(label='Email')
-    password = forms.CharField(label='Password', widget=forms.PasswordInput)
+    username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    phone_number = forms.CharField(label='Phone Number', max_length=20, widget=forms.TextInput(attrs={'class': 'form-control'}))  
 
     class Meta:
         model = DeliveryStaff
-        fields = ['username', 'email', 'password', 'is_available']
+        fields = ['username', 'email', 'password', 'phone_number', 'is_available']
 
     def save(self, commit=True):
         user = User.objects.create_user(
@@ -21,6 +24,7 @@ class DeliveryStaffCreationForm(forms.ModelForm):
         )
         delivery_staff = super().save(commit=False)
         delivery_staff.user = user
+        delivery_staff.phone_number = self.cleaned_data['phone_number']  
         if commit:
             delivery_staff.save()
         return delivery_staff
@@ -29,9 +33,10 @@ class DeliveryStaffCreationForm(forms.ModelForm):
 class AssignOrderForm(forms.Form):
     orders = forms.ModelMultipleChoiceField(
         queryset=OrderHistory.objects.filter(status='Pending', delivery_assignment__isnull=True),
-        widget=forms.CheckboxSelectMultiple
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
     )
     delivery_staff = forms.ModelChoiceField(
         queryset=DeliveryStaff.objects.filter(is_available=True),
-        empty_label="Select a delivery staff"
+        empty_label="Select a delivery staff",
+        widget=forms.Select(attrs={'class': 'form-select'})
     )

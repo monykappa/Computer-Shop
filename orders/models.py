@@ -95,6 +95,11 @@ class OrderHistory(models.Model):
         # Save the QR code image to the qr_code field
         file_name = f'order_{self.id}_qr.png'
         self.qr_code.save(file_name, File(buffer), save=True)
+        
+        @property
+        def address(self):
+            address = Address.objects.filter(user=self.user).last()
+            return address
 
 
 class OrderHistoryItem(models.Model):

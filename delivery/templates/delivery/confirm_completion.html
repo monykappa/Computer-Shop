@@ -1,11 +1,13 @@
 {% extends 'delivery_base.html' %}
 
 {% block content %}
-<h1>Confirm Delivery Completion</h1>
-<p>Are you sure you want to mark Order #{{ assignment.order.id }} as delivered?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Confirm Delivery</button>
-</form>
-<a href="{% url 'delivery:delivery_guy_dashboard' %}">Cancel</a>
+<div class="container">
+    <h1 class="mt-5">Confirm Delivery Completion</h1>
+    <p>Are you sure you want to mark Order #{{ assignment.order.id }} as delivered?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary me-2">Confirm Delivery</button>
+        <a href="{% url 'delivery:delivery_guy_dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
 {% endblock %}
