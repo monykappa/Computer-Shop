@@ -34,6 +34,7 @@ from delivery.forms import *
 from django.views.generic import FormView, ListView, DetailView
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import Http404
+from delivery.forms import *
 
 
 
@@ -382,4 +383,58 @@ class DeliveryStaffCreateView(SuperuserRequiredMixin, LoginRequiredMixin, Create
 
     def form_valid(self, form):
         # Perform any additional actions if needed
+        return super().form_valid(form)
+
+class UserListView(SuperuserRequiredMixin, LoginRequiredMixin, ListView):
+    model = User
+    template_name = 'dashboard/user/user_list.html'
+    context_object_name = 'users'
+
+    def get_queryset(self):
+        # Exclude superusers and delivery staff from the customers' table
+        return User.objects.filter(is_superuser=False, deliverystaff__isnull=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['staff'] = DeliveryStaff.objects.select_related('user').all()
+        context['superusers'] = User.objects.filter(is_superuser=True)
+        return context
+
+class UserUpdateView(SuperuserRequiredMixin, LoginRequiredMixin,  UpdateView):
+    model = User
+    form_class = UserForm
+    template_name = 'dashboard/user/user_form.html'
+    context_object_name = 'user'
+
+    def get_success_url(self):
+        return reverse_lazy('dashboard:user_list')
+
+class DeliveryStaffUpdateView(SuperuserRequiredMixin, LoginRequiredMixin, UpdateView):
+    model = DeliveryStaff
+    form_class = DeliveryStaffUserForm
+    template_name = 'dashboard/user/staff_form.html'
+    context_object_name = 'staff'
+
+    def get_object(self, queryset=None):
+        user_id = self.kwargs['pk']
+        user = get_object_or_404(User, pk=user_id)
+        staff, created = DeliveryStaff.objects.get_or_create(user=user)
+        return staff
+
+    def get_success_url(self):
+        return reverse_lazy('dashboard:user_list')
+
+class AddSuperuserView(SuperuserRequiredMixin, LoginRequiredMixin, CreateView):
+    model = User
+    form_class = UserForm
+    template_name = 'dashboard/user/add_user.html'  # Ensure this matches your actual template path
+    success_url = reverse_lazy('dashboard:user_list')  # Replace with your success URL
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        password = form.cleaned_data['password']
+        user.set_password(password)
+        user.is_superuser = form.cleaned_data['is_superuser']
+        user.is_staff = form.cleaned_data['is_staff']
+        user.save()
         return super().form_valid(form)

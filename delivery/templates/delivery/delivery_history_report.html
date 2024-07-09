@@ -14,7 +14,7 @@
         <tbody>
             {% for history in delivery_histories %}
             <tr>
-                <td>{{ history.order.id }}</td>
+                <td>#{{ history.order.id }}</td>
                 <td>{{ history.assigned_at }}</td>
                 <td>{{ history.completed_at }}</td>
             </tr>

@@ -34,6 +34,12 @@ urlpatterns = [
     path('dashboard/edit/<str:model>/<int:pk>/', views.EditModelView.as_view(), name='edit_model'),
     
     
+    path('users/', views.UserListView.as_view(), name='user_list'),
+    path('users/update/<int:pk>/', views.UserUpdateView.as_view(), name='user_update'),
+    path('staff/update/<int:pk>/', views.DeliveryStaffUpdateView.as_view(), name='staff_update'),
+    path('users/add/', views.AddSuperuserView.as_view(), name='add_superuser'),
+    
+    
     path('dashboard/create/', views.DeliveryStaffCreateView.as_view(), name='create_delivery_staff'),
     
     
