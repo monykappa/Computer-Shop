@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'orders',
     'dashboard',
     'advertisements',
+    'delivery',
     
     'rest_framework',
     'corsheaders',

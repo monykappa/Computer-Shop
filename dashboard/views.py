@@ -29,8 +29,8 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
-
-
+from delivery.models import *
+from delivery.forms import *
 
 
 
@@ -56,11 +56,12 @@ class DashboardSignInView(LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        next_url = self.request.GET.get('next')
-        if next_url:
-            return next_url
-        else:
-            return reverse_lazy('dashboard:dashboard')
+        if self.request.user.is_authenticated:
+            if hasattr(self.request.user, 'deliverystaff'): 
+                return reverse_lazy('delivery:delivery_guy_dashboard')  # Redirect delivery staff to dashboard/delivery/
+            else:
+                return reverse_lazy('dashboard:dashboard')  # Redirect others to dashboard:dashboard
+        return reverse_lazy('dashboard:login')
 
 class DashboardLogoutView(View):
     def get(self, request):
@@ -75,9 +76,9 @@ class OrderHistoryView(LoginRequiredMixin, SuperuserRequiredMixin, ListView):
     paginate_by = 10  
 
     def get_queryset(self):
-        # Filter the order history by the logged-in user and status
+        # Filter the order history by status
         status = self.request.GET.get('status', OrderStatus.PENDING)
-        return OrderHistory.objects.filter(user=self.request.user, status=status).order_by('-ordered_date')
+        return OrderHistory.objects.filter(status=status).order_by('-ordered_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -327,3 +328,38 @@ class EditModelView(UpdateView):
             fields = [field for field in fields if field != 'slug']
             form_class.Meta.fields = fields
         return form_class
+
+
+from django.db import transaction
+
+@login_required
+@transaction.atomic
+def assign_order(request):
+    if request.method == 'POST':
+        form = AssignOrderForm(request.POST)
+        if form.is_valid():
+            order = form.cleaned_data['order']
+            delivery_staff = form.cleaned_data['delivery_staff']
+
+            # Check if the order is already assigned
+            if hasattr(order, 'delivery_assignment'):
+                messages.error(request, "This order is already assigned.")
+                return redirect('dashboard:order_list')
+
+            # Create the delivery assignment
+            DeliveryAssignment.objects.create(order=order, delivery_staff=delivery_staff)
+
+            # Update delivery staff availability if needed
+            delivery_staff.is_available = False
+            delivery_staff.save()
+
+            messages.success(request, f"Order #{order.id} has been assigned to {delivery_staff.user.username}.")
+            return redirect('dashboard:assign_order')
+    else:
+        form = AssignOrderForm()
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'dashboard/delivery/assign_order.html', context)

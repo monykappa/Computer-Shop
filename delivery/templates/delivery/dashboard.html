@@ -1,0 +1,44 @@
+{% extends 'delivery_base.html' %}
+
+{% block content %}
+<h1>Delivery Dashboard</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Address</th>
+            <th>Total Price</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for assignment in assignments %}
+        <tr>
+            <td>{{ assignment.order.id }}</td>
+            <td>{{ assignment.order.user.username }}</td>
+            <td>
+                {% if assignment.order.user.addresses %}
+                    {% with address=assignment.order.user.addresses.0 %}
+                        {{ address.address1 }}
+                        {% if address.address2 %}, {{ address.address2 }}{% endif %}
+                        , {{ address.city }}, {{ address.province }}
+                        {% if address.phone %}<br>Phone: {{ address.phone }}{% endif %}
+                    {% endwith %}
+                {% else %}
+                    No address available
+                {% endif %}
+            </td>
+            <td>${{ assignment.order.total_price }}</td>
+            <td>
+                <a href="{% url 'delivery:mark_delivery_complete' assignment.id %}">Mark as Delivered</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No pending deliveries.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
