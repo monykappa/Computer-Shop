@@ -20,7 +20,7 @@
     position: absolute;
     top: 15px;
     right: -0px;
-    background-color: #4CAF50; /* Green background */
+    background-color: #4CAF50 !important; /* Green background */
     color: white;
     padding: 5px 10px;
     font-size: 0.8rem;

@@ -27,7 +27,7 @@ DEBUG = True
 
 
 # Config the IP address of the server
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.89.205']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.94.148']
 
 # settings.py
 CORS_ALLOW_ALL_ORIGINS = True

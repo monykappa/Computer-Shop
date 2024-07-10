@@ -49,46 +49,49 @@ class CheckLoginStatusView(View):
 
 logger = logging.getLogger(__name__)
 
+from django.db import transaction
+
 @method_decorator(login_required, name='dispatch')
 class AddToCartView(View):
-
     def post(self, request, slug):
+        logger.info(f"AddToCartView post method called for slug: {slug}")
+        logger.info(f"User: {request.user}")
         try:
-            if not request.user.is_authenticated:
-                return JsonResponse({"message": "User not authenticated"}, status=401)
-
-            logger.debug("AddToCartView post method called")
             product = get_object_or_404(Product, slug=slug)
-            logger.debug(f"Product found: {product}")
+            logger.info(f"Product found: {product}")
 
-            order, created = Order.objects.get_or_create(
-                user=request.user, created_at__isnull=False
-            )
-            logger.debug(f"Order found or created: {order}, created: {created}")
+            with transaction.atomic():
+                order, created = Order.objects.get_or_create(
+                    user=request.user,
+                    status=OrderStatus.PENDING
+                )
+                logger.info(f"Order found or created: {order}, created: {created}")
 
-            quantity = int(request.POST.get("quantity", 1))
-            logger.debug(f"Quantity from form: {quantity}")
+                quantity = int(request.POST.get("quantity", 1))
+                logger.info(f"Quantity: {quantity}")
 
-            cart_item, created = CartItem.objects.get_or_create(
-                order=order, product=product
-            )
-            if not created:
-                cart_item.quantity += quantity
-                logger.debug(f"Updated cart item quantity: {cart_item.quantity}")
-            else:
-                cart_item.quantity = quantity
-                logger.debug(f"New cart item quantity: {cart_item.quantity}")
-            cart_item.save()
+                cart_item, created = CartItem.objects.get_or_create(
+                    order=order,
+                    product=product,
+                    defaults={'quantity': quantity}
+                )
+                if created:
+                    logger.info(f"CartItem created: {cart_item}")
+                else:
+                    cart_item.quantity += quantity
+                    cart_item.save()
+                    logger.info(f"CartItem updated: {cart_item}")
 
-            return HttpResponse(status=204)
+                order.calculate_total_price()
+                logger.info(f"Order total price calculated: {order.total_price}")
+
+            return JsonResponse({'message': 'Product added to cart successfully.'})
 
         except Exception as e:
-            logger.error(f"Error adding product to cart: {str(e)}", exc_info=True)
-            return JsonResponse({"message": f"Error: {str(e)}"}, status=500)
-
-    def get(self, request, slug):
-        return JsonResponse({"message": "Invalid request method"}, status=400)
-
+            logger.error(f"Error adding product to cart: {e}")
+            return JsonResponse({'error': str(e)}, status=400)
+        
+        
 from django.db.models import Prefetch 
 
 class CartDetailView(TemplateView):
@@ -99,22 +102,45 @@ class CartDetailView(TemplateView):
         context['user_authenticated'] = self.request.user.is_authenticated
         return context
 
+
+logger = logging.getLogger(__name__)
 class PublicCartAPIView(APIView):
     permission_classes = []  # No specific permissions required
 
     def get(self, request):
         try:
+            logger.info("Fetching cart for user: %s", request.user)
             if request.user.is_authenticated:
-                order = Order.objects.get(user=request.user, created_at__isnull=False)
+                order = Order.objects.filter(user=request.user, created_at__isnull=False).first()
+                
+                if not order:
+                    logger.info("No active order found for user: %s", request.user)
+                    return Response({
+                        "cart_items": [],
+                        "total_price": 0,
+                        "user_authenticated": True,
+                        "user_has_address": False,
+                    })
+                
+                logger.info("Order found: %s", order)
+                
                 cart_items = order.cartitem_set.all().select_related('product').prefetch_related(
                     Prefetch('product__images', queryset=ProductImage.objects.all())
                 )
                 serializer = CartItemSerializer(cart_items, many=True)
                 total_price = order.total_price
-                user_has_address = (
-                    hasattr(request.user, "userprofile")
-                    and request.user.userprofile.address1 is not None
-                )
+                
+                # Check if UserProfile exists and has an address
+                user_has_address = False
+                if hasattr(request.user, "userprofile"):
+                    user_profile = request.user.userprofile
+                    user_has_address = any([
+                        getattr(user_profile, 'address', None),
+                        getattr(user_profile, 'address1', None),
+                        getattr(user_profile, 'street_address', None)
+                    ])
+                
+                logger.info("Cart items serialized successfully")
 
                 return Response({
                     "cart_items": serializer.data,
@@ -123,25 +149,20 @@ class PublicCartAPIView(APIView):
                     "user_has_address": user_has_address,
                 })
             else:
+                logger.warning("User not authenticated")
                 return Response({
                     "cart_items": [],
                     "total_price": 0,
                     "user_authenticated": False,
                     "message": "You need to sign in to view your cart.",
                 }, status=status.HTTP_401_UNAUTHORIZED)
-        except Order.DoesNotExist:
-            return Response({
-                "cart_items": [],
-                "total_price": 0,
-                "user_authenticated": True,
-                "user_has_address": False,
-            })
         except Exception as e:
+            logger.error("Error fetching cart data: %s", str(e), exc_info=True)
             return Response({
                 "error": str(e),
                 "cart_items": [],
                 "total_price": 0,
-                "user_authenticated": False,
+                "user_authenticated": request.user.is_authenticated,
                 "message": "Failed to fetch cart data.",
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

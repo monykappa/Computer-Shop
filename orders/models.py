@@ -21,7 +21,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-    # status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)
+    status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)
 
     def calculate_total_price(self):
         # Calculate total price based on cart items
@@ -30,7 +30,7 @@ class Order(models.Model):
             total += item.subtotal
         self.total_price = total
         self.save()
-        
+
     def __str__(self):
         return f"Order #{self.id} - Total: ${self.total_price:.2f}"
 
@@ -49,7 +49,6 @@ class CartItem(models.Model):
         order_items = self.order.cartitem_set.all()
         self.order.total_price = sum(item.subtotal for item in order_items)
         self.order.save()
-
 class OrderHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ordered_date = models.DateTimeField(default=timezone.now)

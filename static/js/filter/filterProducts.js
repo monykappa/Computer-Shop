@@ -225,7 +225,7 @@ function createProductCard(spec) {
                 <p class="product-specs card-text small mb-2">${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB | ${spec.product.color.name}</p>
                 <div class="product-footer mt-auto d-flex justify-content-between align-items-center">
                     <h4 class="product-price card-title mb-0">$${formatPrice(spec.product.price)}</h4>
-                    <a href="/products/${spec.slug}/" class="btn btn-primary btn-sm see-more-btn"><i class="fa-solid fa-eye"></i> Details</a>
+                    <a href="/products/${spec.slug}/" class="btn btn-primary btn-sm see-more-btn"><i class="fa-solid fa-eye"></i></a>
                 </div>
             </div>
         </div>

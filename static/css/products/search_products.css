@@ -125,9 +125,10 @@
 }
 
 @media (max-width: 576px) {
-    .modal {
+    .modal .modal-search{
         top: 15%;
         z-index: 1000;
+    opacity: 0;
 
     }
 
