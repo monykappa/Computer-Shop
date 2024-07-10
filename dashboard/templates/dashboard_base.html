@@ -27,11 +27,13 @@
   <title>{% block title %}Base{% endblock %}</title>
 
   <!--   Core JS Files   -->
+
   <script src="{% static 'js/bootstrap/jquery-3.6.0.min.js' %}"></script>
   <script src="{% static 'js/bootstrap/popper.min.js' %}"></script>
   <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
   <script src="{% static 'js/plugins/perfect-scrollbar.min.js' %}"></script>
   <script src="{% static 'js/plugins/smooth-scrollbar.min.js' %}"></script>
+
 
 
 
@@ -228,14 +230,14 @@
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
           <div class="ms-md-auto pe-md-3 d-flex align-items-center">
 
-            <div class="input-group input-group-outline">
+            <!-- <div class="input-group input-group-outline">
               <label class="form-label">Type here...</label>
               <input type="text" class="form-control">
-            </div>
+            </div> -->
 
           </div>
           <ul class="navbar-nav  justify-content-end">
-            <li class="nav-item d-flex align-items-center">
+            <!-- <li class="nav-item d-flex align-items-center">
               <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank"
                 href="https://www.creative-tim.com/builder?ref=navbar-material-dashboard">Online Builder</a>
             </li>
@@ -243,7 +245,7 @@
               <a class="github-button" href="https://github.com/creativetimofficial/material-dashboard"
                 data-icon="octicon-star" data-size="large" data-show-count="true"
                 aria-label="Star creativetimofficial/material-dashboard on GitHub">Star</a>
-            </li>
+            </li> -->
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
                 <div class="sidenav-toggler-inner">
@@ -372,9 +374,9 @@
 
 
   <div class="fixed-plugin">
-    <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
+    <!-- <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
       <i class="material-icons py-2">settings</i>
-    </a>
+    </a> -->
     <div class="card shadow-lg">
       <div class="card-header pb-0 pt-3">
         <div class="float-start">
@@ -494,6 +496,7 @@
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
 
   {% block js %}
+  <script src="{% static 'js/bootstrap/material_dashboard.min.js' %}"></script>
 
   {% endblock js %}
 

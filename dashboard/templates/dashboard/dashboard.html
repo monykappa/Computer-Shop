@@ -6,7 +6,6 @@ Dashboard
 {% endblock title %}
 {% block content %}
 
-
 <div class="row ">
     <div class="col-lg-6 col-sm-6">
         <div class="card mb-3">
@@ -85,17 +84,14 @@ Dashboard
 
 
     </div>
-        <div class="row">
-            <div class="col-md-6">
-                {% include 'dashboard/most_order.html' %}
+    <div class="row">
+        <div class="col-md-6">
+            {% include 'dashboard/most_order.html' %}
 
-            </div>
         </div>
-
     </div>
 
-    {% endblock content %}
+</div>
 
-    {% block js %}
-    <script src="{% static 'js/bootstrap/material-dashboard.min.js' %}"></script>
-    {% endblock js %}
+{% endblock content %}
+
