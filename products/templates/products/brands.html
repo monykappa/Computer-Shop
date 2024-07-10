@@ -12,7 +12,7 @@
 <script>
     async function fetchData() {
         try {
-            let brandsResponse = await fetch('/api/brands/');
+            let brandsResponse = await fetch('/api/public-brands/');
             let brands = await brandsResponse.json();
 
 

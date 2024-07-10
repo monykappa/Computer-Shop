@@ -11,7 +11,7 @@ from django.conf import settings
 app_name = 'delivery'
 
 urlpatterns = [
-    path('dashboard/delivery/', views.delivery_guy_dashboard, name='delivery_guy_dashboard'),
+    path('dashboard/delivery/', views.DeliveryGuyDashboardView.as_view(), name='delivery_guy_dashboard'),
     path('dashboard/delivery/complete/<int:assignment_id>/', views.mark_delivery_complete, name='mark_delivery_complete'),
     path('dashboard/delivery/history/', views.DeliveryHistoryReportView.as_view(), name='delivery_history_report'),
 ]

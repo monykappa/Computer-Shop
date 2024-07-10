@@ -12,23 +12,27 @@ from django.db.models import Prefetch
 
 
 
-@login_required
-def delivery_guy_dashboard(request):
-    assignments = (
-        DeliveryAssignment.objects.filter(
-            delivery_staff__user=request.user, order__status=OrderStatus.PENDING
-        )
-        .select_related("order", "order__user")
-        .prefetch_related(
-            Prefetch(
-                "order__user__address_set",
-                queryset=Address.objects.all(),
-                to_attr="addresses",
+class DeliveryGuyDashboardView(LoginRequiredMixin, ListView):
+    template_name = "delivery/dashboard.html"
+    context_object_name = "assignments"
+    login_url = "dashboard:sign_in"
+
+    def get_queryset(self):
+        return (
+            DeliveryAssignment.objects.filter(
+                delivery_staff__user=self.request.user, 
+                order__status=OrderStatus.PENDING
+            )
+            .select_related("order", "order__user")
+            .prefetch_related(
+                Prefetch(
+                    "order__user__address_set",
+                    queryset=Address.objects.all(),
+                    to_attr="addresses",
+                )
             )
         )
-    )
 
-    return render(request, "delivery/dashboard.html", {"assignments": assignments})
 
 
 @login_required
