@@ -16,18 +16,15 @@ Products
 
     <div class="container">
         <div class="row">
-            <div class="col-md-6">
-                {% include 'filter/filter_products.html' %}
-
-            </div>
-            <div class="col-md-6">
+            <div class="col-md-12">
                 {% include 'search/search_product.html' %}
-
             </div>
         </div>
+    {% include 'filter/filter_products.html' %}
+
     </div>
 
-    
+        
     {% include 'products/list_laptop.html' %}
 
 </div>

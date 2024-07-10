@@ -5,13 +5,18 @@
 
 {% block content %}
 {% include 'products/ads.html' %}
-<div class="">
-    <!-- List of laptop brands -->
-    {% include 'search/search_product.html' %}
-    {% include 'products/brands.html' %}
-{% include 'products/list_laptop.html' %}
 
+<!-- List of laptop brands -->
+<div class="container">
+    {% include 'search/search_product.html' %}
 </div>
+
+<div class="mt-3">
+    {% include 'products/brands.html' %}
+    {% include 'products/list_laptop.html' %}
+</div>
+
+
 
 
 {% endblock content %}
