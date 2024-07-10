@@ -1,0 +1,24 @@
+{% load static %}
+{% block content %}
+    <style>
+        @media (max-width: 575.98px) {
+            .modal.fade .modal-dialog {
+                transform: translate(0, 100%);
+            }
+            .modal.show .modal-dialog {
+                transform: none;
+            }
+        }
+    </style>
+    
+    <div class="m-3">
+        <button class="btn btn-secondary w-20" data-bs-toggle="modal" data-bs-target="#filterModal ">
+            <i class="fas fa-filter mr-3"></i>Filter Products
+        </button>
+    </div>
+
+
+{% endblock content %}
+{% block js %}
+    <script src="{% static 'js/filter/filterProducts.js' %}"></script>
+{% endblock js %}

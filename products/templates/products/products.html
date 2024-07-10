@@ -14,8 +14,20 @@ Products
     <!-- List of laptop brands -->
     {% include 'products/brands.html' %}
 
-{% include  'brands/brand_filter.html' %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                {% include 'filter/filter_products.html' %}
 
+            </div>
+            <div class="col-md-6">
+                {% include 'search/search_product.html' %}
+
+            </div>
+        </div>
+    </div>
+
+    
     {% include 'products/list_laptop.html' %}
 
 </div>
