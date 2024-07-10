@@ -49,6 +49,7 @@ class CartItem(models.Model):
         order_items = self.order.cartitem_set.all()
         self.order.total_price = sum(item.subtotal for item in order_items)
         self.order.save()
+        
 class OrderHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ordered_date = models.DateTimeField(default=timezone.now)

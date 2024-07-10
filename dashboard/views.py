@@ -39,22 +39,36 @@ from delivery.forms import *
 
 
 # Create your views here.
-
 class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
     login_url = reverse_lazy('dashboard:sign_in')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Total number of products
         context['total_products'] = Product.objects.count()
+        
+        # Total number of orders
         context['total_orders'] = OrderHistory.objects.count()
+        
+        # Total number of users
         context['total_users'] = User.objects.count()
 
         # Retrieve the newest product
         newest_product = Product.objects.latest('id')
         context['newest_product_name'] = newest_product.name
-        return context
 
+        # Count pending orders
+        context['pending_orders'] = OrderHistory.objects.filter(status=OrderStatus.PENDING).count()
+
+        # Count orders assigned to delivery (exclude completed deliveries)
+        context['assigned_to_delivery'] = DeliveryAssignment.objects.filter(completed_at__isnull=True).count()
+
+        return context
+    
+    
+    
 class DashboardSignInView(LoginView):
     template_name = 'dashboard/sign_in.html'
     redirect_authenticated_user = True
