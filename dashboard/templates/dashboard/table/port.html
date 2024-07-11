@@ -7,7 +7,7 @@
     {% for port_spec in port_specs %}
     <tr>
         <td>{{ port_spec.port }}</td>
-        <td><a href="{% url 'dashboard:edit_model' model='port_spec' pk=port_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+        <td><a href="{% url 'dashboard:edit_model' model='port_spec' pk=port_spec.pk %}">Edit</a> | <a href="{% url 'dashboard:model_delete' model_name='portspec' pk=port_spec.pk %}" class="delete-link">Delete</a></td>
 
         </td>
     </tr>

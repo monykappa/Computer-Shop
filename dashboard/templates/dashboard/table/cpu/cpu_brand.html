@@ -7,7 +7,7 @@
     {% for cpu_brand in cpu_brands %}
     <tr>
         <td>{{ cpu_brand.name }}</td>
-        <td><a href="{% url 'dashboard:edit_model' model='cpu_brand' pk=cpu_brand.pk %}">Edit</a> | <a href="">Delete</a></td>
+        <td><a href="{% url 'dashboard:edit_model' model='cpu_brand' pk=cpu_brand.pk %}">Edit</a> | <a href="{% url 'dashboard:model_delete' model_name='cpubrand' pk=cpu_brand.pk %}" class="delete-link">Delete</a></td>
         </td>
     </tr>
     {% endfor %}

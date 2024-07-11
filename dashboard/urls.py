@@ -31,6 +31,9 @@ urlpatterns = [
     path('dashboard/order/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
     
     path('dashboard/tables/', views.DisplayTablesView.as_view(), name='display_tables'),
+    path('dashboard/<str:model_name>/create/', views.GenericModelFormView.as_view(), name='model_create'),
+    path('delete/<str:model_name>/<int:pk>/', views.GenericDeleteView.as_view(), name='model_delete'),
+    # path('<str:model_name>/<int:pk>/update/', views.GenericModelFormView.as_view(), name='model_update'),
     path('dashboard/edit/<str:model>/<int:pk>/', views.EditModelView.as_view(), name='edit_model'),
     
     
@@ -40,12 +43,11 @@ urlpatterns = [
     path('users/add/', views.AddSuperuserView.as_view(), name='add_superuser'),
     
     
-    path('dashboard/create/', views.DeliveryStaffCreateView.as_view(), name='create_delivery_staff'),
+    path('dashboard/create/', views.DeliveryStaffCreateView.as_view(), name='create_delivery_staff'),   
     
     
     path('assign/', views.AssignOrderView.as_view(), name='assign_order'),
     
-    path('<str:model_name>/create/', views.GenericModelFormView.as_view(), name='model_create'),
 ]
 
 if settings.DEBUG:

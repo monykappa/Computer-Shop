@@ -232,33 +232,6 @@ class ProductDeleteView(SuperuserRequiredMixin, DeleteView):
         self.object.delete()
         return HttpResponseRedirect(self.success_url)
 
-class DisplayTablesView(TemplateView):
-    template_name = 'dashboard/table/tables.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Get instances of all models except LaptopSpec and Product
-        context['categories'] = Category.objects.all()
-        context['brands'] = Brand.objects.all()
-        context['colors'] = Color.objects.all()
-        context['cpu_brands'] = CpuBrand.objects.all()
-        context['gpu_brands'] = GpuBrand.objects.all()
-        context['cpu_specs'] = CpuSpec.objects.all()
-        context['gpu_specs'] = GpuSpec.objects.all()
-        context['memory_brands'] = MemoryBrand.objects.all()
-        context['memory_specs'] = MemorySpec.objects.all()
-        context['storage_brands'] = StorageBrand.objects.all()
-        context['storage_specs'] = StorageSpec.objects.all()
-        context['display_specs'] = DisplaySpec.objects.all()
-        context['port_specs'] = PortSpec.objects.all()
-        context['wireless_connectivities'] = WirelessConnectivity.objects.all()
-        context['webcam_specs'] = WebcamSpec.objects.all()
-        context['battery_specs'] = BatterySpec.objects.all()
-        context['operating_systems'] = OperatingSystem.objects.all()
-        return context
-
-
-
 class GenericModelFormView(SuperuserRequiredMixin, CreateView, UpdateView):
     template_name = 'dashboard/add/generic_form.html'
     
@@ -297,66 +270,116 @@ class GenericModelFormView(SuperuserRequiredMixin, CreateView, UpdateView):
         return None
 
     def get_success_url(self):
-        return reverse_lazy('model_list', kwargs={'model_name': self.model_name})
+        return reverse_lazy('dashboard:display_tables')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['model_name'] = self.model_name.capitalize()
         return context
-    
+
+class DisplayTablesView(TemplateView):
+    template_name = 'dashboard/table/tables.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get instances of all models except LaptopSpec and Product
+        context['categories'] = Category.objects.all()
+        context['brands'] = Brand.objects.all()
+        context['colors'] = Color.objects.all()
+        context['cpu_brands'] = CpuBrand.objects.all()
+        context['gpu_brands'] = GpuBrand.objects.all()
+        context['cpu_specs'] = CpuSpec.objects.all()
+        context['gpu_specs'] = GpuSpec.objects.all()
+        context['memory_brands'] = MemoryBrand.objects.all()
+        context['memory_specs'] = MemorySpec.objects.all()
+        context['storage_brands'] = StorageBrand.objects.all()
+        context['storage_specs'] = StorageSpec.objects.all()
+        context['display_specs'] = DisplaySpec.objects.all()
+        context['port_specs'] = PortSpec.objects.all()
+        context['wireless_connectivities'] = WirelessConnectivity.objects.all()
+        context['webcam_specs'] = WebcamSpec.objects.all()
+        context['battery_specs'] = BatterySpec.objects.all()
+        context['operating_systems'] = OperatingSystem.objects.all()
+        return context
+
+
+class GenericDeleteView(SuperuserRequiredMixin, View):
+    MODEL_MAP = {
+        'category': Category,
+        'brand': Brand,
+        'color': Color,
+        'cpubrand': CpuBrand,
+        'gpubrand': GpuBrand,
+        'cpuspec': CpuSpec,
+        'gpuspec': GpuSpec,
+        'memorybrand': MemoryBrand,
+        'memoryspec': MemorySpec,
+        'storagebrand': StorageBrand,
+        'storagespec': StorageSpec,
+        'displayspec': DisplaySpec,
+        'portspec': PortSpec,
+        'wirelessconnectivity': WirelessConnectivity,
+        'webcamspec': WebcamSpec,
+        'batteryspec': BatterySpec,
+        'operatingsystem': OperatingSystem,
+    }
+
+    def post(self, request, *args, **kwargs):
+        model_name = kwargs.get('model_name')
+        pk = kwargs.get('pk')
+        
+        model = self.MODEL_MAP.get(model_name.lower())
+        if not model:
+            return JsonResponse({'success': False, 'message': 'Model not found'}, status=404)
+        
+        try:
+            instance = get_object_or_404(model, pk=pk)
+            instance.delete()
+            return JsonResponse({'success': True, 'message': f'{model_name.capitalize()} deleted successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+        
 
 class EditModelView(SuperuserRequiredMixin, UpdateView):
     template_name = 'dashboard/edit/edit_model.html'
-    model = None
-    fields = '__all__'
     success_url = reverse_lazy('dashboard:display_tables')
 
+    MODEL_FORM_MAP = {
+        'category': (Category, CategoryForm),
+        'brand': (Brand, BrandForm),
+        'color': (Color, ColorForm),
+        'cpu_brand': (CpuBrand, CpuBrandForm),
+        'gpu_brand': (GpuBrand, GpuBrandForm),
+        'cpu_spec': (CpuSpec, CpuSpecForm),
+        'gpu_spec': (GpuSpec, GpuSpecForm),
+        'memory_brand': (MemoryBrand, MemoryBrandForm),
+        'memory_spec': (MemorySpec, MemorySpecForm),
+        'storage_brand': (StorageBrand, StorageBrandForm),
+        'storage_spec': (StorageSpec, StorageSpecForm),
+        'display_spec': (DisplaySpec, DisplaySpecForm),
+        'port_spec': (PortSpec, PortSpecForm),
+        'wireless_connectivity': (WirelessConnectivity, WirelessConnectivityForm),
+        'webcam_spec': (WebcamSpec, WebcamSpecForm),
+        'battery_spec': (BatterySpec, BatterySpecForm),
+        'operating_system': (OperatingSystem, OperatingSystemForm),
+    }
+
+    def dispatch(self, request, *args, **kwargs):
+        model_name = kwargs.get('model')
+        self.model, self.form_class = self.MODEL_FORM_MAP.get(model_name, (None, None))
+        
+        if not self.model or not self.form_class:
+            raise Http404("Model not found")
+        
+        return super().dispatch(request, *args, **kwargs)
+
     def get_object(self, queryset=None):
-        model_name = self.kwargs.get('model')
-        if model_name == 'category':
-            self.model = Category
-        elif model_name == 'brand':
-            self.model = Brand
-        elif model_name == 'color':
-            self.model = Color
-        elif model_name == 'cpu_brand':
-            self.model = CpuBrand
-        elif model_name == 'gpu_brand':
-            self.model = GpuBrand
-        elif model_name == 'cpu_spec':
-            self.model = CpuSpec
-        elif model_name == 'gpu_spec':
-            self.model = GpuSpec
-        elif model_name == 'memory_brand':
-            self.model = MemoryBrand
-        elif model_name == 'memory_spec':
-            self.model = MemorySpec
-        elif model_name == 'storage_brand':
-            self.model = StorageBrand
-        elif model_name == 'storage_spec':
-            self.model = StorageSpec
-        elif model_name == 'display_spec':
-            self.model = DisplaySpec
-        elif model_name == 'port_spec':
-            self.model = PortSpec
-        elif model_name == 'wireless_connectivity':
-            self.model = WirelessConnectivity
-        elif model_name == 'webcam_spec':
-            self.model = WebcamSpec
-        elif model_name == 'battery_spec':
-            self.model = BatterySpec
-        elif model_name == 'operating_system':
-            self.model = OperatingSystem
-        return super().get_object(queryset)
+        return get_object_or_404(self.model, pk=self.kwargs['pk'])
 
-    def get_form_class(self):
-        form_class = super().get_form_class()
-        if hasattr(self.model, 'slug'):
-            fields = form_class.Meta.fields
-            fields = [field for field in fields if field != 'slug']
-            form_class.Meta.fields = fields
-        return form_class
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['model_name'] = self.kwargs.get('model').replace('_', ' ').title()
+        return context
 
 from django.db import transaction
 class AssignOrderView(SuperuserRequiredMixin, LoginRequiredMixin, UserPassesTestMixin, FormView):

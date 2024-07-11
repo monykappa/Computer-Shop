@@ -6,8 +6,8 @@
     </tr>
     {% for storage_spec in storage_specs %}
     <tr>
-        <td>{{ storage_spec.capacity }} {{ storage_spec.capacity_type }}{{ storage_spec.type }}</td>
-        <td><a href="{% url 'dashboard:edit_model' model='storage_spec' pk=storage_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+        <td>{{ storage_spec.capacity }}{{ storage_spec.capacity_type }} {{ storage_spec.type }}</td>
+        <td><a href="{% url 'dashboard:edit_model' model='storage_spec' pk=storage_spec.pk %}">Edit</a> | <a href="{% url 'dashboard:model_delete' model_name='storagespec' pk=storage_spec.pk %}" class="delete-link">Delete</a></td>
 
         </td>
     </tr>

@@ -7,7 +7,7 @@
     {% for operating_system in operating_systems %}
     <tr>
         <td>{{ operating_system.operating_system }}</td>
-        <td><a href="{% url 'dashboard:edit_model' model='operating_system' pk=operating_system.pk %}">Edit</a> | <a href="">Delete</a></td>
+        <td><a href="{% url 'dashboard:edit_model' model='operating_system' pk=operating_system.pk %}">Edit</a> | <a href="{% url 'dashboard:model_delete' model_name='operatingsystem' pk=operating_system.pk %}" class="delete-link">Delete</a></td>
     </tr>
     {% endfor %}
 </table>

@@ -7,7 +7,7 @@
     {% for battery_spec in battery_specs %}
     <tr>
         <td>{{ battery_spec.battery }} Kwh</td>
-        <td><a href="{% url 'dashboard:edit_model' model='battery_spec' pk=battery_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+        <td><a href="{% url 'dashboard:edit_model' model='battery_spec' pk=battery_spec.pk %}">Edit</a> | <a href="{% url 'dashboard:model_delete' model_name='batteryspec' pk=battery_spec.pk %}" class="delete-link">Delete</a></td>
 
         </td>
     </tr>

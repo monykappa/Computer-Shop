@@ -7,7 +7,7 @@
     {% for display_spec in display_specs %}
     <tr>
         <td>{{ display_spec.display }} Inches</td>
-        <td><a href="{% url 'dashboard:edit_model' model='display_spec' pk=display_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+        <td><a href="{% url 'dashboard:edit_model' model='display_spec' pk=display_spec.pk %}">Edit</a> | <a href="{% url 'dashboard:model_delete' model_name='displayspec' pk=display_spec.pk %}" class="delete-link">Delete</a></td>
 
         </td>
     </tr>

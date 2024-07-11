@@ -7,7 +7,7 @@
     {% for wireless_connectivity in wireless_connectivities %}
     <tr>
         <td>{{ wireless_connectivity.wireless_connectivity }}</td>
-        <td><a href="{% url 'dashboard:edit_model' model='wireless_connectivity' pk=wireless_connectivity.pk %}">Edit</a> | <a href="">Delete</a></td>
+        <td><a href="{% url 'dashboard:edit_model' model='wireless_connectivity' pk=wireless_connectivity.pk %}">Edit</a> | <a href="{% url 'dashboard:model_delete' model_name='wirelessconnectivity' pk=wireless_connectivity.pk %}" class="delete-link">Delete</a></td>
 
         </td>
     </tr>

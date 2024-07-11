@@ -4,7 +4,7 @@
 <style>
     .collapsible {
         background-color: #28282b;
-        border-radius: 15px;
+        border-radius: 5px;
         color: white;
         cursor: pointer;
         padding: 18px;
@@ -13,175 +13,273 @@
         text-align: left;
         outline: none;
         font-size: 15px;
-        transition: background-color 0.5s ease-in-out; /* Add transition for background color */
+        transition: background-color 0.5s ease-in-out;
+        /* Add transition for background color */
     }
-    
-    .active, .collapsible:hover {
+
+    .active,
+    .collapsible:hover {
         background-color: #555;
     }
-    
+
     .content {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.5s ease-in-out; /* Add transition for max-height */
+        transition: max-height 0.3s ease-in-out;
+        /* Add transition for max-height */
     }
-    
-    .collapsible.active + .content {
-        max-height: 1000px; /* Set a value larger than the expected maximum height of the content */
+
+    .collapsible.active+.content {
+        max-height: 1000px;
+        /* Set a value larger than the expected maximum height of the content */
     }
-    
+
     .row {
         margin-bottom: 20px;
     }
+    .collapsible i {
+        transition: transform 0.5s ease;
+    }
     
-</style><div class="container">
-    <h1>Table</h1>
-<div class="row">
-    <div class="col-md-4">
-        <button class="collapsible">Category</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='category' %}" class="btn btn-primary">Add Category</a>
-            {% include 'dashboard/table/category.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">Brand</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='brand' %}" class="btn btn-primary">Add Brand</a>
-            {% include 'dashboard/table/brand.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">Color</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='color' %}" class="btn btn-primary">Add Color</a>
-            {% include 'dashboard/table/color.html' %}
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <button class="collapsible">CPU Brand</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='cpubrand' %}" class="btn btn-primary">Add CPU Brand</a>
-            {% include 'dashboard/table/cpu/cpu_brand.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">CPU</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='cpuspec' %}" class="btn btn-primary">Add CPU</a>
-            {% include 'dashboard/table/cpu/cpu.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">GPU Brand</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='gpubrand' %}" class="btn btn-primary">Add GPU Brand</a>
-            {% include 'dashboard/table/gpu/gpu_brand.html' %}
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <button class="collapsible">GPU</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='gpuspec' %}" class="btn btn-primary">Add GPU</a>
-            {% include 'dashboard/table/gpu/gpu.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">Memory Brand</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='memorybrand' %}" class="btn btn-primary">Add Memory Brand</a>
-            {% include 'dashboard/table/memory/memory_brand.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">Memory</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='memoryspec' %}" class="btn btn-primary">Add Memory</a>
-            {% include 'dashboard/table/memory/memory.html' %}
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <button class="collapsible">Storage Brand</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='storagebrand' %}" class="btn btn-primary">Add Storage Brand</a>
-            {% include 'dashboard/table/storage/storage_brand.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">Storage</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='storagespec' %}" class="btn btn-primary">Add Storage</a>
-            {% include 'dashboard/table/storage/storage.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">Display</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='displayspec' %}" class="btn btn-primary">Add Display</a>
-            {% include 'dashboard/table/display.html' %}
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <button class="collapsible">Port</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='portspec' %}" class="btn btn-primary">Add Port</a>
-            {% include 'dashboard/table/port.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">Wireless Connectivity</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='wirelessconnectivity' %}" class="btn btn-primary">Add Wireless Connectivity</a>
-            {% include 'dashboard/table/wireless_connectivity.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">Webcam</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='webcamspec' %}" class="btn btn-primary">Add Webcam</a>
-            {% include 'dashboard/table/webcam.html' %}
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <button class="collapsible">Battery</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='batteryspec' %}" class="btn btn-primary">Add Battery</a>
-            {% include 'dashboard/table/battery.html' %}
-        </div>
-    </div>
-    <div class="col-md-4">
-        <button class="collapsible">Operating System</button>
-        <div class="content">
-            <a href="{% url 'dashboard:model_create' model_name='operatingsystem' %}" class="btn btn-primary">Add Operating System</a>
-            {% include 'dashboard/table/operating_system.html' %}
-        </div>
-    </div>
-</div>
-<script>
-    var coll = document.getElementsByClassName("collapsible");
-    var i;
+    .active i {
+        transform: rotate(180deg);
+    }
+    
+</style>
 
-    for (i = 0; i < coll.length; i++) {
-        coll[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var content = this.nextElementSibling;
-            if (content.style.display === "block") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "block";
+<div class="">
+    <h1>Tables</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">Category <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='category' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Category</a>
+                {% include 'dashboard/table/category.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Brand <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='brand' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add Brand</a>
+                {% include 'dashboard/table/brand.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Color <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='color' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add Color</a>
+                {% include 'dashboard/table/color.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">CPU Brand <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='cpubrand' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add CPU
+                    Brand</a>
+                {% include 'dashboard/table/cpu/cpu_brand.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">CPU <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='cpuspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add CPU</a>
+                {% include 'dashboard/table/cpu/cpu.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">GPU Brand <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='gpubrand' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add GPU
+                    Brand</a>
+                {% include 'dashboard/table/gpu/gpu_brand.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">GPU <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='gpuspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add GPU</a>
+                {% include 'dashboard/table/gpu/gpu.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Memory Brand <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='memorybrand' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add Memory
+                    Brand</a>
+                {% include 'dashboard/table/memory/memory_brand.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Memory <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='memoryspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Memory</a>
+                {% include 'dashboard/table/memory/memory.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">Storage Brand <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='storagebrand' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Storage Brand</a>
+                {% include 'dashboard/table/storage/storage_brand.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Storage <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='storagespec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Storage</a>
+                {% include 'dashboard/table/storage/storage.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Display <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='displayspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Display</a>
+                {% include 'dashboard/table/display.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">Port <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='portspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add Port</a>
+                {% include 'dashboard/table/port.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Wireless Connectivity <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='wirelessconnectivity' %}"
+                    class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add Wireless Connectivity</a>
+                {% include 'dashboard/table/wireless_connectivity.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Webcam <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='webcamspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Webcam</a>
+                {% include 'dashboard/table/webcam.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="collapsible">Battery <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='batteryspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Battery</a>
+                {% include 'dashboard/table/battery.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Operating System <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='operatingsystem' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Operating System</a>
+                {% include 'dashboard/table/operating_system.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var coll = document.getElementsByClassName("collapsible");
+            var i;
+
+            for (i = 0; i < coll.length; i++) {
+                coll[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var content = this.nextElementSibling;
+                    if (content.style.maxHeight){
+                        content.style.maxHeight = null;
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                });
+            }
+
+            document.querySelectorAll('.delete-link').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('href');
+                    const modelName = url.split('/')[2]; // Adjust this based on your URL structure
+                    const pk = url.split('/').pop();
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': getCookie('csrftoken'),
+                                },
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire(
+                                            'Deleted!',
+                                            data.message,
+                                            'success'
+                                        ).then(() => {
+                                            location.reload();
+                                        });
+                                    } else {
+                                        Swal.fire(
+                                            'Error!',
+                                            data.message,
+                                            'error'
+                                        );
+                                    }
+                                })
+                                .catch(error => {
+                                    Swal.fire(
+                                        'Error!',
+                                        'There was a problem deleting the item.',
+                                        'error'
+                                    );
+                                });
+                        }
+                    });
+                });
+            });
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
             }
         });
-    }
-</script>
+    </script>
 
-{% endblock content %}
+    {% endblock content %}

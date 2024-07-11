@@ -2,12 +2,15 @@
 <table class="table">
     <tr>
         <th>Name</th>
-        <th>Edit/Delete</th>
+        <th>Action</th>
     </tr>
     {% for brand in brands %}
     <tr>
         <td>{{ brand.name }}</td>
-        <td><a href="{% url 'dashboard:edit_model' model='brand' pk=brand.pk %}">Edit</a> | <a href="">Delete</a>
+        <td><a href="{% url 'dashboard:edit_model' model='brand' pk=brand.pk %}" class="btn btn-primary"><i
+                    class="fa-solid fa-pen-to-square"></i></a>
+            <a href="{% url 'dashboard:model_delete' model_name='brand' pk=brand.pk %}"
+                class="delete-link btn btn-danger"><i class="fa-solid fa-trash"></i></a>
         </td>
     </tr>
     {% endfor %}

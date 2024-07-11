@@ -7,7 +7,7 @@
     {% for memory_spec in memory_specs %}
     <tr>
         <td>{{ memory_spec.capacity }}GB {{ memory_spec.type }}</td>
-        <td><a href="{% url 'dashboard:edit_model' model='memory_spec' pk=memory_spec.pk %}">Edit</a> | <a href="">Delete</a></td>
+        <td><a href="{% url 'dashboard:edit_model' model='memory_spec' pk=memory_spec.pk %}">Edit</a> | <a href="{% url 'dashboard:model_delete' model_name='memoryspec' pk=memory_spec.pk %}" class="delete-link">Delete</a></td>
 
         </td>
     </tr>
