@@ -40,7 +40,6 @@ class DeliveryAssignment(models.Model):
                 self.order.status = OrderStatus.COMPLETED
                 self.order.save()
                 
-                # Set the delivery staff as available
                 self.delivery_staff.is_available = True
                 self.delivery_staff.save()
                 
@@ -50,7 +49,14 @@ class DeliveryAssignment(models.Model):
                     assigned_at=self.assigned_at,
                     completed_at=self.completed_at
                 )
-                logger.info(f"Delivery Assignment {self.id} marked as completed, history entry created, and delivery staff set as available.")
+
+                # Create notification for the user
+                Notification.objects.create(
+                    user=self.order.user,
+                    message=f"Your order #{self.order.id} has been delivered and marked as completed."
+                )
+
+                logger.info(f"Delivery Assignment {self.id} marked as completed, history entry created, delivery staff set as available, and notification sent to user.")
             except Exception as e:
                 logger.error(f"Error marking delivery {self.id} as completed: {str(e)}")
                 raise

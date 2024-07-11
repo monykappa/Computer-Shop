@@ -118,6 +118,16 @@ class OrderStatusUpdateView(LoginRequiredMixin, SuperuserRequiredMixin, View):
         new_status = request.POST.get('status')
         if new_status in [OrderStatus.COMPLETED, OrderStatus.CANCELLED]:
             order_history.update_status(new_status)
+            
+            # Create a notification for the user
+            notification_message = f'Your order #{order_history.id} has been {new_status.lower()}.'
+            Notification.objects.create(
+                user=order_history.user,
+                message=notification_message,
+                created_at=timezone.now(),
+                is_read=False
+            )
+            
             messages.success(request, f'Order {order_history.id} has been updated to {new_status}')
         else:
             messages.error(request, 'Invalid status')

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .notifications-list {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .notification {
+        transition: all 0.3s ease;
+    }
+
+    .notification.unread {
+        border-left: 4px solid #007bff;
+    }
+
+    .notification-message {
+        margin-bottom: 0.5rem;
+    }
+
+    .mark-as-read {
+        transition: opacity 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+        .notifications-list {
+            padding: 0 15px;
+        }
+    }
+
+    .btn:disabled {
+        cursor: not-allowed;
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">My Notifications</h2>
+            {% if notifications %}
+            <button id="mark-all-read" class="btn btn-primary mb-3">Mark All as Read</button>
+            {% endif %}
+            <div class="notifications-list">
+                {% for notification in notifications %}
+                <div class="notification card mb-3 {% if not notification.is_read %}unread{% endif %}">
+                    <div class="card-body">
+                        <p class="notification-message {% if not notification.is_read %}font-weight-bold{% endif %}">
+                            {{ notification.message }}
+                        </p>
+                        <small class="text-muted">{{ notification.created_at|date:"F d, Y H:i" }}</small>
+                        {% if not notification.is_read %}
+                        <button class="btn btn-sm btn-primary float-right mark-as-read"
+                            data-notification-id="{{ notification.id }}">
+                            Mark as Read
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">You have no notifications.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        function markAsRead(button) {
+            var notificationId = button.data('notification-id');
+            console.log("Marking notification as read:", notificationId);
+            $.ajax({
+                url: "{% url 'home:mark_notification_as_read' %}",
+                method: 'POST',
+                data: {
+                    notification_id: notificationId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    console.log("Success response:", response);
+                    if (response.success) {
+                        button.closest('.notification').removeClass('unread');
+                        button.closest('.notification').find('.notification-message').removeClass('font-weight-bold');
+                        button.fadeOut();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error marking notification as read:", error);
+                    console.log("Response:", xhr.responseText);
+                }
+            });
+        }
+
+        $('.mark-as-read').click(function () {
+            markAsRead($(this));
+        });
+
+        $('#mark-all-read').click(function () {
+            var button = $(this);
+            console.log("Marking all notifications as read");
+            $.ajax({
+                url: "{% url 'home:mark_all_notifications_as_read' %}",
+                method: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    console.log("Success response:", response);
+                    if (response.success) {
+                        $('.notification').removeClass('unread');
+                        $('.notification-message').removeClass('font-weight-bold');
+                        $('.mark-as-read').fadeOut();
+                        button.prop('disabled', true)
+                            .removeClass('btn-primary')
+                            .addClass('btn-secondary')
+                            .html('All Read');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error marking all notifications as read:", error);
+                    console.log("Response:", xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -22,6 +22,10 @@ urlpatterns = [
     
     path('api/contact-us/', views.ContactUsAPIView.as_view(), name='contact_us_api'),
     path('contact/', views.contact, name='contact'),
+    
+    path('notifications/', views.NotificationView.as_view(), name='notifications'),
+    path('mark-notification-as-read/', views.mark_notification_as_read, name='mark_notification_as_read'),
+    path('mark-all-notifications-as-read/', views.mark_all_notifications_as_read, name='mark_all_notifications_as_read'),
     # authentication
 
 ]

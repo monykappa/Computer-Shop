@@ -13,39 +13,23 @@ from django.shortcuts import render, get_object_or_404
 from orders.models import *
 from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.filters import SearchFilter
+from rest_framework.views import APIView  # type: ignore
+from rest_framework.response import Response # type: ignore
+from rest_framework import status # type: ignore
+from rest_framework.pagination import LimitOffsetPagination # type: ignore
+from rest_framework.filters import SearchFilter # type: ignore
 from products.serializers import *
 from .serializers import *
 from .models import *
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+from django.urls import reverse_lazy
 
 
 
 
-# class ProductSearchView(APIView):
-#     pagination_class = LimitOffsetPagination  # Define pagination class here
-#     filter_backends = [SearchFilter]
-#     search_fields = ['name', 'description']
 
-#     def get(self, request):
-#         try:
-#             queryset = Product.objects.all()
-#             query = self.request.query_params.get('q', None)
-#             if query:
-#                 queryset = queryset.filter(name__icontains=query)
-#             # Paginate queryset
-#             page = self.pagination_class().paginate_queryset(queryset, request)
-#             if page is not None:
-#                 serializer = ProductSerializer(page, many=True)
-#                 return self.pagination_class().get_paginated_response(serializer.data)
-#             else:
-#                 serializer = ProductSerializer(queryset, many=True)
-#                 return Response(serializer.data, status=status.HTTP_200_OK)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     
 # If user is not logged in, show home.html
 class HomeView(TemplateView):
@@ -80,3 +64,38 @@ class ContactUsAPIView(APIView):
 
 def contact(request):
     return render(request, 'home/contact.html')
+
+class NotificationView(LoginRequiredMixin, ListView):
+    model = Notification
+    template_name = 'profile/notifications.html'
+    context_object_name = 'notifications'
+    login_url = reverse_lazy('userprofile:sign_in')
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at')
+
+@login_required
+@require_POST
+@csrf_protect
+def mark_notification_as_read(request):
+    notification_id = request.POST.get('notification_id')
+    try:
+        notification = Notification.objects.get(id=notification_id, user=request.user)
+        notification.is_read = True
+        notification.save()
+        return JsonResponse({'success': True})
+    except Notification.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notification not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+
+@login_required
+@require_POST
+@csrf_protect
+def mark_all_notifications_as_read(request):
+    try:
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

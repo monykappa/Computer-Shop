@@ -39,7 +39,7 @@ class DeliveryGuyDashboardView(LoginRequiredMixin, ListView):
 def mark_delivery_complete(request, assignment_id):
     assignment = get_object_or_404(
         DeliveryAssignment, id=assignment_id, delivery_staff__user=request.user
-    )
+    )   
 
     if request.method == "POST":
         try:
