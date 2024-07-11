@@ -1,0 +1,41 @@
+{% load static %}
+
+<div class="col-6 col-md-4 col-lg-3 mb-4">
+    <div class="product-card">
+        <div class="warranty-badge">
+            {% if product.warranty_years > 0 %}
+            {{ product.warranty_years }} {% if product.warranty_years == 1 %}year{% else %}years{% endif %} warranty
+            {% elif product.warranty_months > 0 %}
+            {{ product.warranty_months }} {% if product.warranty_months == 1 %}month{% else %}months{% endif %} warranty
+            {% else %}
+            No warranty
+            {% endif %}
+        </div>
+        <div class="product-image-container">
+            {% if product.images.all|length > 0 %}
+            <img class="product-image" src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}">
+            {% else %}
+            <img class="product-image" src="{% static 'placeholder_image.jpg' %}" alt="{{ product.name }}">
+            {% endif %}
+        </div>
+        <div class="product-info">
+            <h4 class="product-title">{{ product.name }} {{ product.model }} {{ product.year }}</h4>
+            <p class="product-specs">
+                {{ product.laptop_spec.cpu.cpu_brand.name }} {{ product.laptop_spec.cpu.model }} |
+                {% for gpu in product.laptop_spec.gpu.all %}
+                {% if not forloop.first %}, {% endif %}
+                {{ gpu.gpu_brand.name }} {{ gpu.model }}
+                {% endfor %} |
+                {{ product.laptop_spec.storage.capacity }}{{ product.laptop_spec.storage.capacity_type }}
+                {{ product.laptop_spec.memory.capacity }}GB |
+                {{ product.color.name }}
+            </p>
+            <div class="product-footer">
+                <h3 class="product-price">${{ product.price|floatformat:2 }}</h3>
+                <a href="{% url 'products:product_detail' product.laptop_spec.slug %}" class="btn btn-primary see-more-btn">
+                    <i class="fa-solid fa-eye"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

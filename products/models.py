@@ -63,6 +63,7 @@ class Product(SlugMixin):
     year = models.CharField(max_length=4, choices=[(str(year), str(year)) for year in range(2015, 2056)], null=True, blank=True)
     warranty_months = models.IntegerField(null=True, blank=True)
     warranty_years = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     @property
     def slug_source(self):

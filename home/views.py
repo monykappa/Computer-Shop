@@ -24,17 +24,47 @@ from .models import *
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 from django.urls import reverse_lazy
-
+from django.db.models import Count
+from django.db.models import Sum
+from django.db.models import Prefetch
 
 
 
 
 
     
-# If user is not logged in, show home.html
 class HomeView(TemplateView):
     template_name = 'home/home.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Most ordered items
+        most_ordered_items = OrderHistoryItem.objects.values('product_id').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity')[:8]
+        most_ordered_ids = [item['product_id'] for item in most_ordered_items]
+        
+        # Newest products
+        newest_products = Product.objects.order_by('-id')[:8]  # Using 'id' as a proxy for creation time
+        
+        # Affordable products
+        affordable_products = Product.objects.order_by('price')[:8]
+        
+        # Combine and prefetch related data
+        product_ids = list(set(most_ordered_ids + list(newest_products.values_list('id', flat=True)) + list(affordable_products.values_list('id', flat=True))))
+        products = Product.objects.filter(id__in=product_ids).prefetch_related(
+            'images',
+            Prefetch('laptop_spec', queryset=LaptopSpec.objects.select_related('cpu__cpu_brand', 'storage', 'memory').prefetch_related('gpu__gpu_brand'))
+        ).select_related('color')
+        
+        # Sort most ordered products
+        most_ordered_products = sorted([p for p in products if p.id in most_ordered_ids], key=lambda x: most_ordered_ids.index(x.id))
+        
+        context['most_ordered_items'] = most_ordered_products[:8]
+        context['newest_products'] = newest_products[:8]
+        context['affordable_products'] = affordable_products
+        return context
+    
+    
 # If user is logged in, show home_auth.html
 class HomeAuth(LoginRequiredMixin, TemplateView):
     def get(self, request):
@@ -99,3 +129,5 @@ def mark_all_notifications_as_read(request):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
