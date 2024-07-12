@@ -50,7 +50,6 @@ function updateQuantity(itemId, newQuantity) {
     });
 }
 
-
 function removeCartItem(itemId) {
     const removeUrl = `/cart/remove/${itemId}/`;
     const csrftoken = getCookie('csrftoken');
@@ -62,25 +61,16 @@ function removeCartItem(itemId) {
             'csrfmiddlewaretoken': csrftoken,
         },
         success: function (response) {
-            $('#cart-item-' + response.item_id).remove();
-
-            if (response.total_price !== undefined) {
-                $('#total-price').text(response.total_price.toFixed(2));
-            }
-            if (response.item_count !== undefined) {
-                $('#item-count').text('(' + response.item_count + ')');
-            }
-
-            if (response.item_count === 0) {
-                $('#cart-items').html('<div class="col-12"><p>Your cart is empty.</p></div>');
-                $('#cart-total').hide();
-            }
+            // Refresh the page after successfully removing the item
+            location.reload();
         },
         error: function (response) {
             console.error('Error removing item from cart:', response);
         }
     });
 }
+
+
 
 function attachEventListeners() {
     $('#cart-items').on('click', '.increase-btn', function () {
@@ -127,8 +117,8 @@ function attachEventListeners() {
 }
 
 $(document).ready(function () {
-    fetchCart();
     attachEventListeners();
+    fetchCart();
 });
 
 async function fetchCart() {

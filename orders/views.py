@@ -205,7 +205,8 @@ class CartAPIView(APIView):
                 "user_authenticated": False,
                 "message": "Failed to fetch cart data.",
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            
+            
 class RemoveFromCartView(DeleteView):
     model = CartItem
     success_url = reverse_lazy('orders:cart_detail')
@@ -213,14 +214,22 @@ class RemoveFromCartView(DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         order = self.object.order
+        item_id = self.object.id
         self.object.delete()
         
         # Recalculate the total price after removing the item
         order_items = order.cartitem_set.all()
         order.total_price = sum(item.subtotal for item in order_items)
         order.save()
-        
-        return JsonResponse({'success': True})
+
+        # Calculate the remaining item count
+        item_count = order_items.count()
+
+        return JsonResponse({
+            'item_id': item_id,
+            'total_price': order.total_price,
+            'item_count': item_count,
+        })
 
 class UpdateCartQuantityView(View):
     def post(self, request, item_id):
