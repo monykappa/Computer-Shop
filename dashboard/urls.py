@@ -48,6 +48,7 @@ urlpatterns = [
     
     path('assign/', views.AssignOrderView.as_view(), name='assign_order'),
     
+    
 ]
 
 if settings.DEBUG:

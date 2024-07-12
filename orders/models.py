@@ -9,6 +9,7 @@ import qrcode
 from django.urls import reverse
 from decimal import Decimal
 from userprofile.models import *
+from django.utils import timezone
 
 # Create your models here.
 

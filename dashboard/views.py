@@ -36,8 +36,10 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import Http404
 from delivery.forms import *
 from django.db.models import Prefetch
-
+# import
+from django.db.models import Prefetch
 from django.db import transaction
+import datetime
 
 
 
@@ -69,9 +71,31 @@ class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
         # Count orders assigned to delivery (exclude completed deliveries)
         context['assigned_to_delivery'] = DeliveryAssignment.objects.filter(completed_at__isnull=True).count()
 
+        # Get top 5 most ordered products
+        top_products = OrderHistoryItem.objects.values('product__name', 'product__description').annotate(total_ordered=Sum('quantity')).order_by('-total_ordered')[:5]
+
+        product_names = [f"{item['product__name']} - {item['product__description']}" for item in top_products]
+        quantities = [item['total_ordered'] for item in top_products]
+
+        # Create Plotly bar chart for top products
+        data = [
+            go.Bar(
+                x=product_names,
+                y=quantities,
+                marker=dict(color='rgb(26, 118, 255)')
+            )
+        ]
+
+        layout = go.Layout(
+            title='Top 5 Most Ordered Products',
+            yaxis=dict(title='Quantity Ordered')
+        )
+
+        chart = plot({'data': data, 'layout': layout}, output_type='div', include_plotlyjs=False)
+
+        context['chart'] = chart
+
         return context
-    
-    
     
 class DashboardSignInView(LoginView):
     template_name = 'dashboard/sign_in.html'
