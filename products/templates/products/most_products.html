@@ -1,89 +1,100 @@
 {% load static %}
 {% block css %}
-    <link rel="stylesheet" href="{% static 'css/products/list_laptop.css' %}">
-    <link rel="stylesheet" href="{% static 'css/home/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/products/list_laptop.css' %}">
+<link rel="stylesheet" href="{% static 'css/home/home.css' %}">
 {% endblock css %}
 <style>
-  .product-section {
-    margin-bottom: 3rem;
-}
 
-.section-title {
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 2rem;
-    position: relative;
-    padding-bottom: 0.5rem;
-}
-
-.section-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50px;
-    height: 3px;
-    background-color: var(--fourth-color);
-}
-
-@media (max-width: 768px) {
-    .section-title {
-        font-size: 2rem;
+    #most-product {
+        width: 100%;
     }
-}
+    .product-section {
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background-color: var(--fourth-color);
+    }
+
+    @media (max-width: 768px) {
+        .section-title {
+            font-size: 2rem;
+        }
+       
+    }
+
+
+    
 </style>
-<section class="product-section mt-5">
-    <h2 class="section-title">Most Ordered Products</h2>
-    <div class="row" id="most-ordered-products-container">
-        {% for product in most_ordered_items %}
+
+
+    <section class="product-section mt-5">
+        <h2 class="section-title">Top Selling Products <img
+                src="https://img.icons8.com/?size=100&id=18515&format=png&color=000000" width="50" /></h2>
+        <div class="row" id="most-ordered-products-container">
+            {% for product in most_ordered_items %}
             {% include "products/product_card.html" with product=product %}
-        {% empty %}
+            {% empty %}
             <p>No most ordered products found.</p>
-        {% endfor %}
-    </div>
-</section>
+            {% endfor %}
+        </div>
+    </section>
 
-<section class="product-section">
-    <h2 class="section-title">Newest Products</h2>
-    <div class="row" id="newest-products-container">
-        {% for product in newest_products %}
+    <section class="product-section">
+        <h2 class="section-title">New Arrival <img
+                src="https://img.icons8.com/?size=100&id=12023&format=png&color=000000" width="50" /></h2>
+        <div class="row" id="newest-products-container">
+            {% for product in newest_products %}
             {% include "products/product_card.html" with product=product %}
-        {% empty %}
+            {% empty %}
             <p>No new products found.</p>
-        {% endfor %}
-    </div>
-</section>
+            {% endfor %}
+        </div>
+    </section>
 
-<section class="product-section">
-    <h2 class="section-title">Products You Can Afford</h2>
-    <div class="row" id="affordable-products-container">
-        {% for product in affordable_products %}
+    <section class="product-section">
+        <h2 class="section-title">Affordable Laptops</h2>
+        <div class="row" id="affordable-products-container">
+            {% for product in affordable_products %}
             {% include "products/product_card.html" with product=product %}
-        {% empty %}
+            {% empty %}
             <p>No affordable products found.</p>
-        {% endfor %}
-    </div>
-</section>
-
+            {% endfor %}
+        </div>
+    </section>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const containers = [
-    document.getElementById('most-ordered-products-container'),
-    document.getElementById('newest-products-container'),
-    document.getElementById('affordable-products-container')
-  ];
+    document.addEventListener('DOMContentLoaded', function () {
+        const containers = [
+            document.getElementById('most-ordered-products-container'),
+            document.getElementById('newest-products-container'),
+            document.getElementById('affordable-products-container')
+        ];
 
-  containers.forEach(container => {
-    const productCards = container.querySelectorAll('.product-card');
-    productCards.forEach((card, index) => {
-      setTimeout(() => {
-        card.classList.add('show');
-      }, 50 * index);
+        containers.forEach(container => {
+            const productCards = container.querySelectorAll('.product-card');
+            productCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('show');
+                }, 50 * index);
+            });
+        });
     });
-  });
-});
 </script>

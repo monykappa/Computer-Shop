@@ -5,9 +5,20 @@
 
 {% block content %}
 <style>
-    .product-container{
+    .product-container {
         width: 80%;
         margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+        .product-container{
+            width: 90%;
+            margin: 0 auto;
+        }
+        .col-6, .col-md-4, .col-lg-3{
+            padding:0 0.1rem !important;
+        }
+
     }
 </style>
 {% include 'products/ads.html' %}

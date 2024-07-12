@@ -134,6 +134,7 @@
 }
 
 /* Adjust image height for different screen sizes */
+
 @media (min-width: 768px) {
     .product-image {
         height: 250px;
