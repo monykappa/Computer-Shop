@@ -55,6 +55,14 @@
                             Mark as Read
                         </button>
                         {% endif %}
+                        {% if notification.order and notification.order.status == 'COMPLETED' %}
+                        {% for item in notification.order.get_reviewable_products %}
+                        <a href="{% url 'delivery:create_review' order_id=notification.order.id product_id=item.product.id %}"
+                            class="btn btn-sm btn-success float-right mr-2">
+                            Review {{ item.product.name }}
+                        </a>
+                        {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
                 {% empty %}

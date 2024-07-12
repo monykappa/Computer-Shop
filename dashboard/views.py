@@ -35,6 +35,10 @@ from django.views.generic import FormView, ListView, DetailView
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import Http404
 from delivery.forms import *
+from django.db.models import Prefetch
+
+from django.db import transaction
+
 
 
 
@@ -338,7 +342,7 @@ class GenericDeleteView(SuperuserRequiredMixin, View):
             return JsonResponse({'success': True, 'message': f'{model_name.capitalize()} deleted successfully'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
-        
+    
 
 class EditModelView(SuperuserRequiredMixin, UpdateView):
     template_name = 'dashboard/edit/edit_model.html'
@@ -381,11 +385,21 @@ class EditModelView(SuperuserRequiredMixin, UpdateView):
         context['model_name'] = self.kwargs.get('model').replace('_', ' ').title()
         return context
 
-from django.db import transaction
 class AssignOrderView(SuperuserRequiredMixin, LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = 'dashboard/delivery/assign_order.html'
     form_class = AssignOrderForm
     success_url = reverse_lazy('dashboard:assign_order')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['assignments'] = DeliveryAssignment.objects.filter(
+            completed_at__isnull=True
+        ).select_related(
+            'order', 'delivery_staff__user'
+        ).prefetch_related(
+            Prefetch('order', queryset=OrderHistory.objects.select_related('user'))
+        ).order_by('-assigned_at')
+        return context
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -421,7 +435,8 @@ class AssignOrderView(SuperuserRequiredMixin, LoginRequiredMixin, UserPassesTest
         messages.error(self.request, "There was an error in assigning the orders. Please try again.")
         return super().form_invalid(form)
     
-
+    
+    
 class DeliveryStaffCreateView(SuperuserRequiredMixin, LoginRequiredMixin, CreateView):
     model = DeliveryStaff
     form_class = DeliveryStaffCreationForm

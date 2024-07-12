@@ -2,65 +2,102 @@
 
 {% block content %}
 
-<div class="container">
-    <h2>Assign Orders to Delivery Staff</h2>
-    <form id="assign-orders-form" method="post">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        <div class="mb-3">
-            <label class="form-label">{{ form.orders.label }}</label>
-            <div class="form-check">
-                {% for checkbox in form.orders %}
-                    <div class="form-check">
-                        {{ checkbox }}
-                    </div>
-                {% endfor %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <h2>Current Assignments</h2>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Customer Address</th>
+                            <th>Delivery Staff</th>
+                            <th>Assigned At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <td>{{ assignment.order.id }}</td>
+                            <td>{{ assignment.order.user.username }}</td>
+                            <td>{{ assignment.order.address }}</td>
+                            <td>{{ assignment.delivery_staff.user.username }}</td>
+                            <td>{{ assignment.assigned_at|date:"Y-m-d H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">No assignments found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            {% if form.orders.errors %}
-                <div class="invalid-feedback d-block">
-                    {% for error in form.orders.errors %}
-                        <span>{{ error }}</span><br>
-                    {% endfor %}
-                </div>
-            {% endif %}
         </div>
-        <div class="mb-3">
-            <label class="form-label">{{ form.delivery_staff.label }}</label>
-            {{ form.delivery_staff }}
-            {% if form.delivery_staff.errors %}
-                <div class="invalid-feedback d-block">
-                    {% for error in form.delivery_staff.errors %}
+
+        <div class="col-lg-6">
+            <h2>Assign Orders to Delivery Staff</h2>
+            <form id="assign-orders-form" method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="mb-3">
+                    <label class="form-label">{{ form.orders.label }}</label>
+                    <div class="form-check">
+                        {% for checkbox in form.orders %}
+                        <div class="form-check">
+                            {{ checkbox }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.orders.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.orders.errors %}
                         <span>{{ error }}</span><br>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </div>
-            {% endif %}
+                <div class="mb-3">
+                    <label class="form-label">{{ form.delivery_staff.label }}</label>
+                    {{ form.delivery_staff }}
+                    {% if form.delivery_staff.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.delivery_staff.errors %}
+                        <span>{{ error }}</span><br>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary">Assign Orders</button>
+            </form>
         </div>
-        <button type="submit" class="btn btn-primary">Assign Orders</button>
-    </form>
+    </div>
 </div>
 
-{% endblock %}
 
-{% block scripts %}
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("assign-orders-form").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent form submission
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("assign-orders-form").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent form submission
 
-        swal({
-            title: "Assign Orders",
-            text: "Are you sure you want to assign these orders?",
-            icon: "info",
-            buttons: ["Cancel", "Assign"],
-        })
-        .then((willAssign) => {
-            if (willAssign) {
-                // Submit the form if user confirms
-                event.target.submit(); // Use event.target to submit the form
-            }
+            Swal.fire({
+                title: "Assign Orders",
+                text: "Are you sure you want to assign these orders?",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonText: "Assign",
+                cancelButtonText: "Cancel",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form if user confirms
+                    event.target.submit(); // Use event.target to submit the form
+                }
+            });
         });
     });
-});
 </script>
+
 {% endblock %}
+

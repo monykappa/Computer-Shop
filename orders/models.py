@@ -57,6 +57,13 @@ class OrderHistory(models.Model):
     status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)
     qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)
 
+    def address(self):
+        # Get the most recent address for the user
+        address = Address.objects.filter(user=self.user).last()
+        if address:
+            return f"{address.address1}, {address.city}, {address.province}"
+        return 'No address found'
+    
     def __str__(self):
         # Get the most recent address for the user
         address = Address.objects.filter(user=self.user).last()
