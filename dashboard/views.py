@@ -95,6 +95,27 @@ class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
 
         context['chart'] = chart
 
+        # New code for user distribution pie chart
+        super_admin_count = User.objects.filter(is_superuser=True).count()
+        customer_user_count = User.objects.filter(is_superuser=False, deliverystaff__isnull=True).count()
+        delivery_staff_count = DeliveryStaff.objects.count()
+
+        user_data = [
+            go.Pie(
+                labels=['Super Admin', 'Customer User', 'Delivery Staff'],
+                values=[super_admin_count, customer_user_count, delivery_staff_count],
+                marker=dict(colors=['#FF9999', '#66B2FF', '#99FF99'])
+            )
+        ]
+
+        user_layout = go.Layout(
+            title='User Distribution'
+        )
+
+        user_chart = plot({'data': user_data, 'layout': user_layout}, output_type='div', include_plotlyjs=False)
+
+        context['user_chart'] = user_chart
+
         return context
     
 class DashboardSignInView(LoginView):
