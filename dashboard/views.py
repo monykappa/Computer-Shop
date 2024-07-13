@@ -40,11 +40,12 @@ from django.db.models import Prefetch
 from django.db.models import Prefetch
 from django.db import transaction
 import datetime
+# import q
+from django.db.models import Q
+from django.db.models import Count
 
 
 
-
-# Create your views here.
 class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
     login_url = reverse_lazy('dashboard:sign_in')
@@ -71,45 +72,61 @@ class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
         # Count orders assigned to delivery (exclude completed deliveries)
         context['assigned_to_delivery'] = DeliveryAssignment.objects.filter(completed_at__isnull=True).count()
 
-        # Get top 5 most ordered products
-        top_products = OrderHistoryItem.objects.values('product__name', 'product__description').annotate(total_ordered=Sum('quantity')).order_by('-total_ordered')[:5]
+        # Get top 5 most ordered products with their models and year
+        top_products = OrderHistoryItem.objects.values('product__name', 'product__model', 'product__description', 'product__year').annotate(total_ordered=Sum('quantity')).order_by('-total_ordered')[:5]
 
-        product_names = [f"{item['product__name']} - {item['product__description']}" for item in top_products]
+        product_info = [f"{item['product__name']} - {item['product__model']} - {item['product__description']} ({item['product__year']})" for item in top_products]
         quantities = [item['total_ordered'] for item in top_products]
 
-        # Create Plotly bar chart for top products
+        # Create Plotly bar chart for top products with different colors
+        colors = ['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#9467BD']  # Example colors
         data = [
             go.Bar(
-                x=product_names,
+                x=product_info,
                 y=quantities,
-                marker=dict(color='rgb(26, 118, 255)')
+                marker=dict(color=colors),
+                hoverinfo='text',
+                text=product_info,
+                textposition='auto'
             )
         ]
 
         layout = go.Layout(
             title='Top 5 Most Ordered Products',
-            yaxis=dict(title='Quantity Ordered')
+            yaxis=dict(title='Quantity Ordered'),
+            xaxis=dict(title='Product Information'),
+            margin=dict(b=150)  # Adjust bottom margin to accommodate longer product names
         )
 
         chart = plot({'data': data, 'layout': layout}, output_type='div', include_plotlyjs=False)
 
-        context['chart'] = chart
+        # Indent text under the chart due to its length
+        text_under_chart = """
+            This bar chart displays the top 5 most ordered products with their models and years. 
+            Each bar represents the quantity ordered for each product.
+            """
 
-        # New code for user distribution pie chart
-        super_admin_count = User.objects.filter(is_superuser=True).count()
-        customer_user_count = User.objects.filter(is_superuser=False, deliverystaff__isnull=True).count()
-        delivery_staff_count = DeliveryStaff.objects.count()
+        context['chart'] = chart
+        context['text_under_chart'] = text_under_chart
+
+        # Bar chart for user distribution
+        user_counts = User.objects.aggregate(
+            super_admin_count=Count('id', filter=Q(is_superuser=True)),
+            customer_user_count=Count('id', filter=Q(is_superuser=False, deliverystaff__isnull=True)),
+            delivery_staff_count=Count('deliverystaff')
+        )
 
         user_data = [
-            go.Pie(
-                labels=['Super Admin', 'Customer User', 'Delivery Staff'],
-                values=[super_admin_count, customer_user_count, delivery_staff_count],
-                marker=dict(colors=['#FF9999', '#66B2FF', '#99FF99'])
+            go.Bar(
+                x=['Super Admin', 'Customer User', 'Delivery Staff'],
+                y=[user_counts['super_admin_count'], user_counts['customer_user_count'], user_counts['delivery_staff_count']],
+                marker=dict(color=['#FF9999', '#66B2FF', '#99FF99'])
             )
         ]
 
         user_layout = go.Layout(
-            title='User Distribution'
+            title='User Distribution',
+            yaxis=dict(title='Number of Users')
         )
 
         user_chart = plot({'data': user_data, 'layout': user_layout}, output_type='div', include_plotlyjs=False)
@@ -135,8 +152,7 @@ class DashboardLogoutView(View):
         logout(request)
         return redirect('dashboard:sign_in')
 
-
-class OrderHistoryView(LoginRequiredMixin, SuperuserRequiredMixin, ListView):
+class OrderHistoryView(SuperuserRequiredMixin, LoginRequiredMixin, ListView):
     model = OrderHistory
     template_name = 'dashboard/orders.html'
     context_object_name = 'order_histories'
@@ -145,7 +161,8 @@ class OrderHistoryView(LoginRequiredMixin, SuperuserRequiredMixin, ListView):
     def get_queryset(self):
         # Filter the order history by status
         status = self.request.GET.get('status', OrderStatus.PENDING)
-        return OrderHistory.objects.filter(status=status).order_by('-ordered_date')
+        queryset = OrderHistory.objects.filter(status=status).order_by('-ordered_date')
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
