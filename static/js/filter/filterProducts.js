@@ -59,7 +59,7 @@ function createBrandFilter(brands, laptopSpecs) {
                             </select>
                         </div>
                         <div class="col-12 col-md-6 mb-3">
-                            <label for="cpu-select" class="form-label">CPU</label>
+                            <label for="cpu-select" class="form-label">CPU (not yet)</label>
                             <select id="cpu-select" class="form-select form-control">
                                 <option value="all">All CPUs</option>
                                 ${getUniqueCPUs(laptopSpecs).map(cpu => `
@@ -68,7 +68,7 @@ function createBrandFilter(brands, laptopSpecs) {
                             </select>
                         </div>
                         <div class="col-12 col-md-6 mb-3">
-                            <label for="gpu-select" class="form-label">GPU</label>
+                            <label for="gpu-select" class="form-label">GPU (not yet)</label>
                             <select id="gpu-select" class="form-select form-control">
                                 <option value="all">All GPUs</option>
                                 ${getUniqueGPUs(laptopSpecs).map(gpu => `

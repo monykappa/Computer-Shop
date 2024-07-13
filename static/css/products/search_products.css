@@ -138,6 +138,12 @@
         max-width: 100%;
         margin: 0 auto;
     }
+    .modal-dialog-scrollable .modal-footer, .modal-dialog-scrollable .modal-header{
+        margin-top: 2rem;
+    }
+    #apply-filter{
+        margin-bottom: 3rem;
+    }
 
 
 }
