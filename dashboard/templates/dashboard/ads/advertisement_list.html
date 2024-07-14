@@ -1,4 +1,7 @@
 {% extends 'dashboard_base.html' %}
+{% block title %}
+  Dashboard | Advertisements
+{% endblock title %}
 {% load static %}
 
 {% block content %}
@@ -12,15 +15,16 @@
           </div>
         </div>
         <div class="card-body px-0 pb-2">
-            <a href="{% url 'dashboard:advertisement_create' %}" class="btn btn-primary">Add Advertisement</a>
+            <a href="{% url 'dashboard:advertisement_create' %}" class="btn btn-primary ml-3"><i class="fa-solid fa-plus"></i> Add Advertisement</a>
           <div class="table-responsive p-0">
             <table class="table align-items-center mb-0">
               <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Title</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Priority</th>
-                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Created At</th>
-                  <th class="text-secondary opacity-7">Actions</th>
+                  <th>Image</th>
+                  <th>Title</th>
+                  <th>Priority</th>
+                  <th>Created At</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -29,25 +33,24 @@
                   <td>
                     <div class="d-flex px-2 py-1">
                       <div>
-                        <img src="{{ ad.image.url }}" class="avatar avatar-sm me-3 border-radius-lg" alt="{{ ad.title }}">
-                      </div>
-                      <div class="d-flex flex-column justify-content-center">
-                        <h6 class="mb-0 text-sm">{{ ad.title }}</h6>
+                        <img src="{{ ad.image.url }}" class="img-fluid" alt="{{ ad.title }}" width="500">
                       </div>
                     </div>
                   </td>
+                  <td>{{ ad.title }}</td>
                   <td>
-                    <p class="text-xs font-weight-bold mb-0">{{ ad.priority }}</p>
+                    <p>{{ ad.priority }}</p>
                   </td>
-                  <td class="align-middle text-center">
-                    <span class="text-secondary text-xs font-weight-bold">{{ ad.created_at|date:"Y-m-d H:i" }}</span>
+                  <td>
+                    <span>{{ ad.created_at|date:"Y-m-d H:i" }}</span>
                   </td>
                   <td class="align-middle">
-                    <a href="{% url 'dashboard:advertisement_edit' ad.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit advertisement">
-                      Edit
+                    <a href="{% url 'dashboard:advertisement_edit' ad.pk %}" class="btn btn-primary" data-toggle="tooltip" data-original-title="Edit advertisement">
+                      <i
+                    class="fa-solid fa-pen-to-square"></i>
                     </a>
-                    <a href="#" class="text-danger font-weight-bold text-xs ms-2 delete-ad" data-id="{{ ad.pk }}" data-toggle="tooltip" data-original-title="Delete advertisement">
-                      Delete
+                    <a href="#" class="btn btn-danger ms-2 delete-ad" data-id="{{ ad.pk }}" data-toggle="tooltip" data-original-title="Delete advertisement">
+                      <i class="fa-solid fa-trash"></i
                     </a>
                   </td>
                 </tr>

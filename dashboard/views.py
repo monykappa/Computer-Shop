@@ -601,9 +601,9 @@ class UserListView(SuperuserRequiredMixin, LoginRequiredMixin, ListView):
         context['superusers'] = User.objects.filter(is_superuser=True)
         return context
 
-class UserUpdateView(SuperuserRequiredMixin, LoginRequiredMixin,  UpdateView):
+class UserUpdateView(SuperuserRequiredMixin, LoginRequiredMixin, UpdateView):
     model = User
-    form_class = UserForm
+    form_class = UserUpdateForm
     template_name = 'dashboard/user/user_form.html'
     context_object_name = 'user'
 

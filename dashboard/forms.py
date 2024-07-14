@@ -5,13 +5,12 @@ from django.forms import inlineformset_factory
 from delivery.models import *
 
 class UserForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     is_superuser = forms.BooleanField(label='Superuser', required=False)
     is_staff = forms.BooleanField(label='Staff', required=False)
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'is_superuser', 'is_staff']
+        fields = ['username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
@@ -20,6 +19,25 @@ class UserForm(forms.ModelForm):
             'is_superuser': forms.CheckboxInput(attrs={'class': 'form-check-input ml-5'}),
             'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input ml-5'}),
         }
+
+# forms.py (continued)
+class UserUpdateForm(forms.ModelForm):
+    is_superuser = forms.BooleanField(label='Superuser', required=False)
+    is_staff = forms.BooleanField(label='Staff', required=False)
+    
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_superuser': forms.CheckboxInput(attrs={'class': 'form-check-input ml-5'}),
+            'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input ml-5'}),
+        }
+
+
 
 class DeliveryStaffForm(forms.ModelForm):
     class Meta:
