@@ -1,0 +1,144 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Advertisements</h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+            <a href="{% url 'dashboard:advertisement_create' %}" class="btn btn-primary">Add Advertisement</a>
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Title</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Priority</th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Created At</th>
+                  <th class="text-secondary opacity-7">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ad in advertisements %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2 py-1">
+                      <div>
+                        <img src="{{ ad.image.url }}" class="avatar avatar-sm me-3 border-radius-lg" alt="{{ ad.title }}">
+                      </div>
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm">{{ ad.title }}</h6>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <p class="text-xs font-weight-bold mb-0">{{ ad.priority }}</p>
+                  </td>
+                  <td class="align-middle text-center">
+                    <span class="text-secondary text-xs font-weight-bold">{{ ad.created_at|date:"Y-m-d H:i" }}</span>
+                  </td>
+                  <td class="align-middle">
+                    <a href="{% url 'dashboard:advertisement_edit' ad.pk %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit advertisement">
+                      Edit
+                    </a>
+                    <a href="#" class="text-danger font-weight-bold text-xs ms-2 delete-ad" data-id="{{ ad.pk }}" data-toggle="tooltip" data-original-title="Delete advertisement">
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  {% if is_paginated %}
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+      {% endif %}
+      
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+        {% endif %}
+      {% endfor %}
+      
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-ad');
+        deleteButtons.forEach(button => {
+          button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const adId = this.dataset.id;
+            Swal.fire({
+              title: 'Are you sure?',
+              text: "You won't be able to revert this!",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                fetch(`/dashboard/advertisements/${adId}/delete/`, {
+                  method: 'POST',
+                  headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                  },
+                })
+                .then(response => {
+                  if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                  }
+                  return response.json();
+                })
+                .then(data => {
+                  if (data.success) {
+                    Swal.fire(
+                      'Deleted!',
+                      'The advertisement has been deleted.',
+                      'success'
+                    ).then(() => {
+                      location.reload();
+                    });
+                  } else {
+                    throw new Error('Delete operation failed');
+                  }
+                })
+                .catch(error => {
+                  console.error('Error:', error);
+                  Swal.fire(
+                    'Error!',
+                    'An error occurred while deleting the advertisement.',
+                    'error'
+                  );
+                });
+              }
+            });
+          });
+        });
+      });
+</script>
+{% endblock content %}

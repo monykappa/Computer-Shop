@@ -8,20 +8,19 @@ Order Detail - {{ order.id }}
 
 
 <style>
-
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         margin-top: 20px;
     }
-    
+
     .table {
         width: 100%;
         max-width: 100%;
         margin-bottom: 1rem;
         background-color: transparent;
     }
-    
+
     .table thead th {
         background-color: #f8f9fa;
         position: sticky;
@@ -29,26 +28,29 @@ Order Detail - {{ order.id }}
         z-index: 1;
         box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
     }
-    
-    .table td, .table th {
+
+    .table td,
+    .table th {
         padding: 8px;
         vertical-align: middle;
         border-top: 1px solid #dee2e6;
     }
-    
+
     .table img {
         max-width: 100px;
         height: auto;
     }
-    
+
     @media (max-width: 767px) {
         .table-responsive {
             -webkit-overflow-scrolling: touch;
             overflow-x: auto;
         }
     }
-    
 </style>
+
+
+
 <div class="container">
     <div class="row">
         <div class="col-md-6">
@@ -61,6 +63,14 @@ Order Detail - {{ order.id }}
             {% elif order.status == 'Cancelled' %}
             <p><strong>Status:</strong> <span style="color: red;">{{ order.status }}</span></p>
             {% endif %}
+            
+            {% if order.status == 'Completed' and delivery_staff %}
+            <h2>Delivery Information</h2>
+            <p><strong>Delivered by:</strong> {{ delivery_staff.user.username }}</p>
+            <p><strong>Phone Number:</strong> {{ delivery_staff.phone_number|default:"N/A" }}</p>
+            <p><strong>Assigned at:</strong> {{ delivery_assigned_at }}</p>
+            <p><strong>Completed at:</strong> {{ delivery_completed_at }}</p>
+            {% endif %}
         </div>
         <div class="col-md-6">
             {% if qr_code_url %}
@@ -68,7 +78,7 @@ Order Detail - {{ order.id }}
             {% endif %}
         </div>
     </div>
-   
+
 
 
     <h2>Products Ordered:</h2>
@@ -91,11 +101,11 @@ Order Detail - {{ order.id }}
                 <tr>
                     <td>
                         {% if item.product.images.all %}
-                            {% with first_image=item.product.images.first %}
-                                <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
-                            {% endwith %}
+                        {% with first_image=item.product.images.first %}
+                        <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
+                        {% endwith %}
                         {% else %}
-                            <p>No image</p>
+                        <p>No image</p>
                         {% endif %}
                     </td>
                     <td>{{ item.product.name }}</td>
@@ -109,8 +119,8 @@ Order Detail - {{ order.id }}
             </tbody>
         </table>
     </div>
-    
-    
+
+
     <h3 class="text-right text-danger"><strong class="text-dark">Total Price:</strong> ${{ order.total_price }}</h3>
 
 </div>

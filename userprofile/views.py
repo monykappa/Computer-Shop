@@ -33,8 +33,6 @@ from django.http import JsonResponse
 
 # Create your views here.
 
-
-# create sign in view for me
 class SignInView(View):
     def get(self, request):
         return render(request, "auth/sign_in.html")
@@ -46,9 +44,9 @@ class SignInView(View):
 
         if user is not None:
             login(request, user)
-            return redirect("home:home_auth")
+            return JsonResponse({"success": True})
         else:
-            return redirect(f"{reverse('userprofile:sign_in')}?error=1")
+            return JsonResponse({"success": False})
 
 
 def signup(request):

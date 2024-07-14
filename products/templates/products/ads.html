@@ -1,30 +1,37 @@
 <!-- Advertisement slideshow -->
-
-<div id="slideshow" class="carousel slide" data-ride="carousel">
+<div id="advertisementCarousel" class="carousel slide" data-ride="carousel">
     <div class="carousel-inner">
         <!-- Advertisement items will be populated here -->
     </div>
     <ol class="carousel-indicators">
         <!-- Indicators will be populated here -->
     </ol>
+    <a class="carousel-control-prev" href="#advertisementCarousel" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#advertisementCarousel" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
 </div>
 
 <style>
-    img.img-ads {
-        width: 100% !important;
+    .carousel-item img {
+        width: 100%;
         height: auto;
+        object-fit: cover;
     }
     @media (max-width: 768px) {
-        img.img-ads {
-            max-width: 100%;
-            max-height: 100%;
-            
+        .carousel-item img {
+            max-height: 300px;
         }
     }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cycle2/2.2.1/jquery.cycle2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 <script>
     $(document).ready(function () {
@@ -32,27 +39,29 @@
             url: '/api/advertisements/', // Replace with your API endpoint URL
             method: 'GET',
             success: function (data) {
-                // Create the slideshow container
-                var slideshow = $('#slideshow');
-                var carouselInner = slideshow.find('.carousel-inner');
-                var carouselIndicator = slideshow.find('.carousel-indicators');
-    
-                // Clear existing items (if any)
+                var carousel = $('#advertisementCarousel');
+                var carouselInner = carousel.find('.carousel-inner');
+                var carouselIndicators = carousel.find('.carousel-indicators');
+
                 carouselInner.empty();
-                carouselIndicator.empty();
-    
-                // Iterate through each advertisement item and append to the slideshow
+                carouselIndicators.empty();
+
                 data.forEach(function (advertisement, index) {
-                    var item = $('<div class="carousel-item ' + (index === 0 ? 'active' : '') + '"><img src="' + advertisement.image + '" alt="Advertisement Image" class="img-ads"></div>');
+                    var item = $(
+                        '<div class="carousel-item ' + (index === 0 ? 'active' : '') + '">' +
+                        '<img src="' + advertisement.image + '" class="d-block w-100" alt="' + advertisement.title + '">' +
+                        '<div class="carousel-caption d-none d-md-block">' +
+                        '</div>' +
+                        '</div>'
+                    );
                     carouselInner.append(item);
-                    var indicator = $('<li data-target="#slideshow" data-slide-to="' + index + '" ' + (index === 0 ? 'class="active"' : '') + '></li>');
-                    carouselIndicator.append(indicator);
+
+                    var indicator = $('<li data-target="#advertisementCarousel" data-slide-to="' + index + '"' + (index === 0 ? ' class="active"' : '') + '></li>');
+                    carouselIndicators.append(indicator);
                 });
-    
-                // Initialize the slideshow with Cycle2 plugin
-                slideshow.cycle({
-                    fx: 'fade', // Example effect, adjust as needed
-                    timeout: 3000 // Set the interval between slides
+
+                carousel.carousel({
+                    interval: 3000 // Change slide every 3 seconds
                 });
             },
             error: function (error) {
@@ -60,6 +69,4 @@
             }
         });
     });
-    
-    
 </script>

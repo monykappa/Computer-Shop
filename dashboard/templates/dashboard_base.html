@@ -4,7 +4,8 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="icon" href="{% static 'img/logo/dashboard_ico.png' %}" type="image/png">
   {% block meta %}
 
   {% endblock meta %}
@@ -27,7 +28,7 @@
   <title>{% block title %}Base{% endblock %}</title>
 
   <!--   Core JS Files   -->
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -35,6 +36,7 @@
   <script src="{% static 'js/bootstrap/popper.min.js' %}"></script>
   <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
   <script src="{% static 'js/plugins/perfect-scrollbar.min.js' %}"></script>
+  <script src="{% static 'js/dashboard/logout.js' %}"></script>
   <script src="{% static 'js/plugins/smooth-scrollbar.min.js' %}"></script>
 
 
@@ -167,6 +169,15 @@
           </a>
         </li>
 
+        <li class="nav-item">
+          <a class="nav-link text-white" href="{% url 'dashboard:advertisement_list' %}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="fa-solid fa-ad"></i>
+            </div>
+            <span class="nav-link-text ms-1">Advertisements</span>
+          </a>
+        </li>
+
         <!-- <li class="nav-item mt-3">
           <h6 class="ps-4 ms-2 text-uppercase text-xs text-white font-weight-bolder opacity-8">Account pages</h6>
         </li>
@@ -208,12 +219,13 @@
       </ul>
     </div>
 
-    <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+    <div class="sidenav-footer position-absolute w-100 bottom-0">
       <div class="mx-3">
         <!-- Logout -->
-        <a class="btn bg-gradient-primary w-100" href="{% url 'dashboard:logout' %}" type="button"><i
-            class="fa-solid fa-right-from-bracket"></i>Logout</a>
+        <a class="btn bg-gradient-primary w-100" id="logoutButton" type="button"><i
+            class="fa-solid fa-right-from-bracket"></i> Logout</a>
       </div>
+    </div>
 
     </div>
 
@@ -490,6 +502,22 @@
       }
       Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
     }
+    document.getElementById('logoutButton').addEventListener('click', function (event) {
+      event.preventDefault();
+      Swal.fire({
+          title: 'Are you sure you want to logout?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, logout!',
+          cancelButtonText: 'Cancel'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              window.location.href = "{% url 'dashboard:logout' %}";
+          }
+      });
+  });
   </script>
 
   <!-- Github buttons -->

@@ -54,7 +54,7 @@
                 <a class="nav-link user" href="{% url 'userprofile:profile' %}">{{ user.username }}</a>
             </li>
             <li class="nav-item menu">
-                <a class="nav-link" href="{% url 'userprofile:logout' %}">Logout</a>
+                <a class="nav-link" href="#" id="logoutLink">Logout</a>
             </li>
             {% else %}
             <li class="nav-item menu">
@@ -67,3 +67,22 @@
         </ul>
     </div>
 </nav>
+
+<script>
+    document.getElementById('logoutLink').addEventListener('click', function(event) {
+        event.preventDefault();
+        Swal.fire({
+            title: 'Are you sure you want to logout?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, logout!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{% url 'userprofile:logout' %}";
+            }
+        });
+    });
+</script>

@@ -20,6 +20,11 @@ urlpatterns = [
     path('dashboard/order/', views.OrderHistoryView.as_view(), name='order'),
     path('dashboard/order/<int:pk>/update_status/', views.OrderStatusUpdateView.as_view(), name='order_status_update'),
 
+    path('advertisements/', views.AdvertisementListView.as_view(), name='advertisement_list'),
+    path('advertisements/create/', views.AdvertisementCreateView.as_view(), name='advertisement_create'),
+    path('advertisements/<int:pk>/edit/', views.AdvertisementUpdateView.as_view(), name='advertisement_edit'),
+    path('dashboard/advertisements/<int:pk>/delete/', views.AdvertisementDeleteView.as_view(), name='advertisement_delete'),
+
     
     path('dashboard/products/', views.ProductListView.as_view(), name='product_list'),
     path('dashboard/products/add/', views.ProductCreateView.as_view(), name='product_add'),

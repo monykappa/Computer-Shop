@@ -1,105 +1,137 @@
 {% extends "dashboard_base.html" %}
+{% block title %}
+    Order Detail #{{ order.id }}
+{% endblock title %}
 
 {% block content %}
 <a href="{% url 'dashboard:order' %}" class="btn btn-secondary"><i class="fa fa-backward"></i></a>
-
-<div class="container">
-<h2>Order Detail</h2>
-<div class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <table class="table">
-                <tr>
-                    <th>Order ID</th>
-                    <td><span class="font-weight-bold">#{{ order.id }}</span></td>
-                </tr>
-                <tr>
-                    <th>Ordered Date</th>
-                    <td>{{ order.ordered_date }}</td>
-                </tr>
-                <tr>
-                    <th>Total Price</th>
-                    <td><span class="text-danger font-weight-bold">${{ order.total_price }}</span></td>
-                </tr>
-                <tr>
-                    <th>Status</th>
-                    <td>
-                        {% if order.status == 'Pending' %}
-                            <span class="badge bg-warning">{{ order.get_status_display }}</span>
-                        {% elif order.status == 'Completed' %}
-                            <span class="badge bg-success">{{ order.get_status_display }}</span>
-                        {% elif order.status == 'Cancelled' %}
-                            <span class="badge bg-danger">{{ order.get_status_display }}</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Ordered By</th>
-                    <td>{{ order.user.username }}</td>
-                </tr>
-            </table>
-        </div>
-        <div class="col-md-6">
-            <table class="table">
-                <tr>
-                    <th>Address</th>
-                    <td>
-                        {% with address=order.user.address_set.first %}
-                            {% if address %}
-                                Address 1: {{ address.address1 }}<br> 
-                                Address 2: {{ address.address2 }}<br> 
-                                City: {{ address.city }}<br>
-                                Province: {{ address.province }}<br>
-                                Phone number: {{ address.phone }}
-                            {% else %}
-                                N/A
+<div class="">
+    <h2>Order Detail</h2>
+    <div class="">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table">
+                    <tr>
+                        <th>Order ID</th>
+                        <td><span class="font-weight-bold">#{{ order.id }}</span></td>
+                    </tr>
+                    <tr>
+                        <th>Ordered Date</th>
+                        <td>{{ order.ordered_date }}</td>
+                    </tr>
+                    <tr>
+                        <th>Total Price</th>
+                        <td><span class="text-danger font-weight-bold">${{ order.total_price }}</span></td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>
+                            {% if order.status == 'Pending' %}
+                                <span class="badge bg-warning">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'Completed' %}
+                                <span class="badge bg-success">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'Cancelled' %}
+                                <span class="badge bg-danger">{{ order.get_status_display }}</span>
                             {% endif %}
-                        {% endwith %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>QR Code</th>
-                    <td>
-                        {% if order.qr_code %}
-                        <img src="{{ order.qr_code.url }}" alt="QR Code" width="100" height="100">
-                        {% else %}
-                        N/A
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Ordered By</th>
+                        <td>{{ order.user.username }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table">
+                    <tr>
+                        <th>Address</th>
+                        <td>
+                            {% with address=order.user.address_set.first %}
+                                {% if address %}
+                                    Address 1: {{ address.address1 }}<br> 
+                                    Address 2: {{ address.address2 }}<br> 
+                                    City: {{ address.city }}<br>
+                                    Province: {{ address.province }}<br>
+                                    Phone number: {{ address.phone }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>QR Code</th>
+                        <td>
+                            {% if order.qr_code %}
+                            <img src="{{ order.qr_code.url }}" alt="QR Code" width="100" height="100">
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
+
+        {% if order.status == 'Completed' and delivery_staff %}
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h3>Delivery Information</h3>
+                <table class="table">
+                    <tr>
+                        <th>Delivered by</th>
+                        <td>{{ delivery_staff.user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Phone Number</th>
+                        <td>{{ delivery_staff.phone_number|default:"N/A" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Assigned at</th>
+                        <td>{{ delivery_assigned_at }}</td>
+                    </tr>
+                    <tr>
+                        <th>Completed at</th>
+                        <td>{{ delivery_completed_at }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% endif %}
     </div>
+
+    <h3>Order Items</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Product</th>
+                <th>Image</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.orderhistoryitem_set.all %}
+            <tr>
+                <td>{{ item.product.id }}</td>
+                <td>{{ item.product.name }} {{ item.product.model }} {{ item.product.year }}</td>
+                <td>
+                    {% if item.product.images.all %}
+                        {% with first_image=item.product.images.first %}
+                        <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
+                        {% endwith %}
+                    {% else %}
+                        <p>no image</p>
+                    {% endif %}
+                </td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-
-
-<h3>Order Items</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th>Image</th>
-            <th>Quantity</th>
-            <th>Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in order.orderhistoryitem_set.all %}
-        <tr>
-            <td>{{ item.product.name }} {{ item.product.model }} {{ item.product.year }}</td>
-            <td> {% if item.product.images.all %}
-                {% with first_image=item.product.images.first %}
-                <img src="{{ first_image.image.url }}" alt="{{ item.product.name }}" width="120">
-                {% endwith %}
-                {% else %}
-               <p>no image</p>
-                {% endif %}</td>
-            <td>{{ item.quantity }}</td>
-            <td>${{ item.subtotal }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
 
 
 {% endblock %}

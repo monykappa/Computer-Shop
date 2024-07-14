@@ -23,6 +23,7 @@ from plotly.offline import plot # type: ignore
 import plotly.graph_objs as go # type: ignore
 from userprofile.models import *
 from .forms import *
+from advertisements.forms import * 
 from django.contrib import messages
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect, HttpResponseForbidden
@@ -36,6 +37,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import Http404
 from delivery.forms import *
 from django.db.models import Prefetch
+from advertisements.models import *
 # import
 from django.db.models import Prefetch
 from django.db import transaction
@@ -43,6 +45,9 @@ import datetime
 # import q
 from django.db.models import Q
 from django.db.models import Count
+from django.contrib.auth import authenticate, login
+from django.contrib.messages.views import SuccessMessageMixin
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -135,22 +140,81 @@ class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
 
         return context
     
+    
 class DashboardSignInView(LoginView):
     template_name = 'dashboard/sign_in.html'
     redirect_authenticated_user = True
 
+    def form_valid(self, form):
+        user = form.get_user()
+        login(self.request, user)
+        return JsonResponse({
+            'success': True,
+            'redirect_url': self.get_success_url()
+        })
+
+    def form_invalid(self, form):
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid username or password.'
+        }, status=400)
+
     def get_success_url(self):
         if self.request.user.is_authenticated:
             if hasattr(self.request.user, 'deliverystaff'): 
-                return reverse_lazy('delivery:delivery_guy_dashboard')  # Redirect delivery staff to dashboard/delivery/
+                return reverse_lazy('delivery:delivery_guy_dashboard')
             else:
-                return reverse_lazy('dashboard:dashboard')  # Redirect others to dashboard:dashboard
+                return reverse_lazy('dashboard:dashboard')
         return reverse_lazy('dashboard:login')
-
+    
+    
 class DashboardLogoutView(View):
     def get(self, request):
         logout(request)
         return redirect('dashboard:sign_in')
+
+
+class AdvertisementListView(ListView):
+    model = Advertisement
+    template_name = 'dashboard/ads/advertisement_list.html'
+    context_object_name = 'advertisements'
+    ordering = ['-priority', '-created_at']
+    paginate_by = 10  # Show 10 ads per page
+    
+
+
+class AdvertisementCreateView(CreateView):
+    model = Advertisement
+    form_class = AdvertisementForm
+    template_name = 'dashboard/ads/advertisement_create.html'  # Create this template
+    success_url = reverse_lazy('dashboard:advertisement_list')
+    
+    
+class AdvertisementUpdateView(SuccessMessageMixin, UpdateView):
+    model = Advertisement
+    form_class = AdvertisementForm
+    template_name = 'dashboard/ads/advertisement_form.html'
+    success_url = reverse_lazy('dashboard:advertisement_list')
+    success_message = "Advertisement updated successfully!"
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdvertisementDeleteView(DeleteView):
+    model = Advertisement
+    success_url = reverse_lazy('dashboard:advertisement_list')
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            self.object = self.get_object()
+            self.object.delete()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+    def post(self, request, *args, **kwargs):
+        return self.delete(request, *args, **kwargs)
+    
+    
+    
 
 class OrderHistoryView(SuperuserRequiredMixin, LoginRequiredMixin, ListView):
     model = OrderHistory
@@ -205,6 +269,19 @@ class OrderDetailView(LoginRequiredMixin, SuperuserRequiredMixin, DetailView):
     template_name = 'dashboard/order_detail.html'
     context_object_name = 'order'
     login_url = reverse_lazy('dashboard:sign_in')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order = self.object
+        if order.status == OrderStatus.COMPLETED:
+            try:
+                delivery_assignment = DeliveryAssignment.objects.get(order=order)
+                context['delivery_staff'] = delivery_assignment.delivery_staff
+                context['delivery_assigned_at'] = delivery_assignment.assigned_at
+                context['delivery_completed_at'] = delivery_assignment.completed_at
+            except DeliveryAssignment.DoesNotExist:
+                context['delivery_staff'] = None
+        return context
 
 
 class ProductListView(SuperuserRequiredMixin, ListView):

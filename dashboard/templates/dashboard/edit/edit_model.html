@@ -1,7 +1,7 @@
 {% extends 'dashboard_base.html' %}
 
 {% block title %}
-    Edit Item
+    Edit  {{ model_name }}
 {% endblock title %}
 
 {% block content %}
@@ -13,7 +13,7 @@
     }
 </style>
 <div class="container">
-    <h1>Edit Item</h1>
+    <h1>Edit {{ model_name }}</h1>
     <form method="post" class="mt-4">
         {% csrf_token %}
         <div class="form-group">
