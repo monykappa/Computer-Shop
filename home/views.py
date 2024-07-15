@@ -100,6 +100,7 @@ class NotificationView(LoginRequiredMixin, ListView):
     template_name = 'profile/notifications.html'
     context_object_name = 'notifications'
     login_url = reverse_lazy('userprofile:sign_in')
+    paginate_by = 10
 
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user).order_by('-created_at')

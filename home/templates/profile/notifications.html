@@ -69,9 +69,13 @@
                 <p class="text-center">You have no notifications.</p>
                 {% endfor %}
             </div>
+            {% if is_paginated %}
+            <button id="show-more" class="btn btn-secondary btn-block mt-3 w-50" style="margin:0 auto;">Show More</button>
+            {% endif %}
         </div>
     </div>
 </div>
+
 <script>
     $(document).ready(function () {
         function markAsRead(button) {
@@ -98,11 +102,11 @@
                 }
             });
         }
-
+    
         $('.mark-as-read').click(function () {
             markAsRead($(this));
         });
-
+    
         $('#mark-all-read').click(function () {
             var button = $(this);
             console.log("Marking all notifications as read");
@@ -130,6 +134,36 @@
                 }
             });
         });
+    
+        let page = 2;
+        $('#show-more').click(function () {
+            $.ajax({
+                url: '?page=' + page,
+                method: 'GET',
+                success: function (data) {
+                    const notifications = $(data).find('.notifications-list').html();
+                    if (notifications.trim() === "") {
+                        $('#show-more').remove();
+                    } else {
+                        $('.notifications-list').append(notifications);
+                        page += 1;
+                        if (!$(data).find('#show-more').length) {
+                            $('#show-more').remove();
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    if (xhr.status === 404) {
+                        console.log("No more notifications to load.");
+                        $('#show-more').remove();
+                    } else {
+                        console.error("Error loading more notifications:", error);
+                        console.log("Response:", xhr.responseText);
+                    }
+                }
+            });
+        });
     });
+    
 </script>
 {% endblock %}

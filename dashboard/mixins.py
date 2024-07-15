@@ -18,7 +18,7 @@ class SuperuserRequiredMixin(AccessMixin):
 #     Allows access to admin views and dashboard but no permission to edit or add.
 #     """
 #     def dispatch(self, request, *args, **kwargs):
-#         if not request.user.is_authenticated:
+#         if not request.user.is_authenticated: 
 #             return self.handle_no_permission()
 
 #         # Allow staff members (including superusers) to access

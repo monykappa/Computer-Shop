@@ -113,29 +113,30 @@
         right: 0;
         transform: skew(-45deg);
     }
+
     .recommend-product {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-}
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
 
-.recommend-product.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-#loading-animation {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-}
+    .recommend-product.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
 
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-}
+    #loading-animation {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
 
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
 </style>
 <div id="product-details-container"></div>
 
@@ -150,28 +151,28 @@
     async function fetchProductDetails() {
         const loadingAnimation = document.getElementById('loading-animation');
         const productContainer = document.getElementById('product-details-container');
-        
+
         loadingAnimation.style.display = 'block';
         productContainer.style.display = 'none';
-    
+
         const slug = "{{ laptop_spec.slug }}";
         try {
             const [productResponse, recommendedResponse] = await Promise.all([
                 fetch(`/api/public-laptop-specs/${slug}/`),
                 fetch(`/api/public-recommended-products/${slug}/`)
             ]);
-    
+
             const productDetails = await productResponse.json();
             const recommendedProducts = await recommendedResponse.json();
-    
+
             shuffleArray(recommendedProducts);
-    
+
             console.log('Product Details:', productDetails);
             console.log('Recommended Products:', recommendedProducts);
-    
+
             productDetails.recommended_products = recommendedProducts;
             renderProductDetails(productDetails);
-    
+
             loadingAnimation.style.display = 'none';
             productContainer.style.display = 'block';
         } catch (error) {
@@ -181,14 +182,14 @@
             productContainer.style.display = 'block';
         }
     }
-    
+
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
-    
+
     function renderProductDetails(details) {
         const container = document.getElementById('product-details-container');
         container.innerHTML = `
@@ -216,11 +217,11 @@
                     <p>
                     <span class="warranty-badge">
                         ${details.product.warranty_years > 0
-                    ? `${details.product.warranty_years} ${details.product.warranty_years === 1 ? 'year' : 'years'}`
-                    : details.product.warranty_months > 0
-                        ? `${details.product.warranty_months} ${details.product.warranty_months === 1 ? 'month' : 'months'}`
-                        : 'No warranty information available'
-                } warranty
+                ? `${details.product.warranty_years} ${details.product.warranty_years === 1 ? 'year' : 'years'}`
+                : details.product.warranty_months > 0
+                    ? `${details.product.warranty_months} ${details.product.warranty_months === 1 ? 'month' : 'months'}`
+                    : 'No warranty information available'
+            } warranty
                     </span>
                 </p>
                     <h1 class="text-danger">$${details.product.price}</h1>
@@ -237,27 +238,78 @@
             </div>
             <div class="row">
                 <div class="col-md-6 border" style="background:white !important; padding:1rem; border-radius:8px;">
-                    <h3 style="color:var(--fourth-color);">Specification</h3>
-                    <ul>
-                        <li><strong>CPU:</strong> ${details.cpu.cpu_brand.name} ${details.cpu.model} - ${details.cpu.cores} cores - ${details.cpu.threads} threads</li>
-                        <li><strong>Memory:</strong> ${details.memory.capacity}GB ${details.memory.type} - ${details.memory.speed}MHz - ${details.memory.memory_brand.name}</li>
-                        <li><strong>Storage:</strong> ${details.storage.capacity} ${details.storage.capacity_type} - ${details.storage.interface} - Read Speed: ${details.storage.read_speed} MB/s - Write Speed: ${details.storage.write_speed} MB/s - ${details.storage.form_factor} - ${details.storage.storage_brand.name}</li>
-                        <li><strong>GPU:</strong>
-                            ${details.gpu.length > 0 ? details.gpu.map(gpu => `<br>${gpu.gpu_brand.name} ${gpu.model} - ${gpu.vram} GB VRAM - ${gpu.vram_type}`).join('') : 'No GPU details available'}
-                        </li>
-                        <li><strong>Display:</strong> ${details.display.display} inches</li>
-                        <li><strong>Ports:</strong>
-                            ${details.port.length > 0 ? details.port.map(port => `<br>${port.port}`).join('') : 'No port details available'}
-                        </li>
-                        <li><strong>Wireless Connectivity:</strong>
-                            ${details.wireless_connectivity.length > 0 ? details.wireless_connectivity.map(wireless => `<br>${wireless.wireless_connectivity}`).join('') : 'No wireless connectivity details available'}
-                        </li>
-                        <li><strong>Webcam:</strong> ${details.webcam.webcam}</li>
-                        <li><strong>Battery:</strong> ${details.battery.battery} Kw</li>
-                        <li><strong>Operating System:</strong> ${details.operating_system.operating_system}</li>
-                        <li><strong>Weight:</strong> ${details.weight} kg</li>
-                    </ul>
-                </div>
+    <h3 style="color:var(--fourth-color);">Specification</h3>
+    <ul>
+        ${details.cpu && details.cpu.cpu_brand ? `
+        <li><strong>CPU:</strong> ${details.cpu.cpu_brand.name || ''} ${details.cpu.model || ''} 
+            ${details.cpu.cores ? `- ${details.cpu.cores} cores` : ''} 
+            ${details.cpu.threads ? `- ${details.cpu.threads} threads` : ''}
+        </li>
+        ` : ''}
+        
+        ${details.memory ? `
+        <li><strong>Memory:</strong> 
+            ${details.memory.capacity ? `${details.memory.capacity}GB` : ''} 
+            ${details.memory.type || ''} 
+            ${details.memory.speed ? `- ${details.memory.speed}MHz` : ''} 
+            ${details.memory.memory_brand ? `- ${details.memory.memory_brand.name}` : ''}
+        </li>
+        ` : ''}
+        
+        ${details.storage ? `
+        <li><strong>Storage:</strong> 
+            ${details.storage.capacity ? `${details.storage.capacity} ${details.storage.capacity_type || ''}` : ''} 
+            ${details.storage.interface ? `- ${details.storage.interface}` : ''} 
+            ${details.storage.read_speed ? `- Read Speed: ${details.storage.read_speed} MB/s` : ''} 
+            ${details.storage.write_speed ? `- Write Speed: ${details.storage.write_speed} MB/s` : ''} 
+            ${details.storage.form_factor ? `- ${details.storage.form_factor}` : ''} 
+            ${details.storage.storage_brand ? `- ${details.storage.storage_brand.name}` : ''}
+        </li>
+        ` : ''}
+        
+        ${details.gpu && details.gpu.length > 0 ? `
+        <li><strong>GPU:</strong>
+            ${details.gpu.map(gpu => `
+                ${gpu.gpu_brand ? gpu.gpu_brand.name : ''} ${gpu.model || ''} 
+                ${gpu.vram ? `- ${gpu.vram} GB VRAM` : ''} 
+                ${gpu.vram_type ? `- ${gpu.vram_type}` : ''}
+            `).join('')}
+        </li>
+        ` : ''}
+        
+        ${details.display && details.display.display ? `
+        <li><strong>Display:</strong> ${details.display.display} inches</li>
+        ` : ''}
+        
+        ${details.port && details.port.length > 0 ? `
+        <li><strong>Ports:</strong>
+            ${details.port.map(port => `<br>${port.port}`).join('')}
+        </li>
+        ` : ''}
+        
+        ${details.wireless_connectivity && details.wireless_connectivity.length > 0 ? `
+        <li><strong>Wireless Connectivity:</strong>
+            ${details.wireless_connectivity.map(wireless => `<br>${wireless.wireless_connectivity}`).join('')}
+        </li>
+        ` : ''}
+        
+        ${details.webcam && details.webcam.webcam ? `
+        <li><strong>Webcam:</strong> ${details.webcam.webcam}</li>
+        ` : ''}
+        
+        ${details.battery && details.battery.battery ? `
+        <li><strong>Battery:</strong> ${details.battery.battery} Kw</li>
+        ` : ''}
+        
+        ${details.operating_system && details.operating_system.operating_system ? `
+        <li><strong>Operating System:</strong> ${details.operating_system.operating_system}</li>
+        ` : ''}
+        
+        ${details.weight ? `
+        <li><strong>Weight:</strong> ${details.weight} kg</li>
+        ` : ''}
+    </ul>
+</div>
                 <div class="col-md-6">
                     <h4 class="card-title">Recommended Products</h4>
                     ${Array.isArray(details.recommended_products) && details.recommended_products.length > 0 ? details.recommended_products.map(rp => `
@@ -266,8 +318,8 @@
                                <div class="row">
                                    <div class="col-4">
                                        ${rp.product.images.length > 0
-                                           ? `<img class="card-img-top img-fluid" src="${rp.product.images[0].image}" alt="${rp.product.name}">`
-                                           : `<img class="card-img-top img-fluid" src="{% static 'placeholder_image.jpg' %}" alt="No image">`}
+                    ? `<img class="card-img-top img-fluid" src="${rp.product.images[0].image}" alt="${rp.product.name}">`
+                    : `<img class="card-img-top img-fluid" src="{% static 'placeholder_image.jpg' %}" alt="No image">`}
                                    </div>
                                    <div class="col-8">
                                        <h5 class="card-title">${rp.product.name} ${rp.cpu.cpu_brand.name} ${rp.cpu.model} / ${rp.gpu.length > 0 ? rp.gpu[0].gpu_brand.name + ' ' + rp.gpu[0].model : 'No GPU'} / ${rp.storage.capacity} ${rp.storage.capacity_type} / ${rp.memory.capacity}GB</h5>
@@ -275,11 +327,11 @@
                                        <p class="card-text text-danger"><b>$${rp.product.price}</b></p>
                                        <span class="warranty-badge">
                                            ${rp.product.warranty_years > 0
-                                           ? `${rp.product.warranty_years} ${rp.product.warranty_years === 1 ? 'year' : 'years'}`
-                                           : rp.product.warranty_months > 0
-                                               ? `${rp.product.warranty_months} ${rp.product.warranty_months === 1 ? 'month' : 'months'}`
-                                               : 'No warranty information available'
-                                       } warranty
+                    ? `${rp.product.warranty_years} ${rp.product.warranty_years === 1 ? 'year' : 'years'}`
+                    : rp.product.warranty_months > 0
+                        ? `${rp.product.warranty_months} ${rp.product.warranty_months === 1 ? 'month' : 'months'}`
+                        : 'No warranty information available'
+                } warranty
                                        </span>
                                        <a href="/products/${rp.slug}/" class="btn btn-primary"><i class="fa-solid fa-eye"></i></a>
                                    </div>
@@ -294,11 +346,11 @@
                 <img class="modal-content" id="modalImage">
             </div>
         `;
-    
+
         // Zoom functionality
         const zoomWrapper = container.querySelector('.zoom-wrapper');
         const img = zoomWrapper.querySelector('img');
-    
+
         zoomWrapper.addEventListener('mousemove', (e) => {
             const rect = zoomWrapper.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -307,51 +359,51 @@
             const yPercent = (y / rect.height) * 100;
             img.style.transformOrigin = `${xPercent}% ${yPercent}%`;
         });
-    
+
         zoomWrapper.addEventListener('mouseleave', () => {
             img.style.transformOrigin = 'center center';
         });
-    
+
         // Full-screen preview functionality
         const modal = document.getElementById('imageModal');
         const modalImg = document.getElementById('modalImage');
         const closeBtn = document.getElementsByClassName('close')[0];
-    
+
         function openModal(imgSrc) {
             modal.style.display = "block";
             modalImg.src = imgSrc;
         }
-    
+
         img.onclick = function () {
             openModal(this.src);
         }
-    
+
         const smallImages = container.querySelectorAll('.small-image');
         smallImages.forEach(smallImg => {
             smallImg.onclick = function () {
                 openModal(this.src);
             }
         });
-    
+
         closeBtn.onclick = function () {
             modal.style.display = "none";
         }
-    
+
         modal.onclick = function (event) {
             if (event.target === modal) {
                 modal.style.display = "none";
             }
         }
-    
+
         document.getElementById('add-to-cart-form').addEventListener('submit', function (event) {
             event.preventDefault();
-        
+
             const form = this;
             const url = form.action;
             const data = new FormData(form);
-        
+
             $.ajaxSetup({
-                beforeSend: function(xhr, settings) {
+                beforeSend: function (xhr, settings) {
                     if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
                         xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
                     }
@@ -372,7 +424,7 @@
                 }
                 return cookieValue;
             }
-        
+
             // Check if the user is logged in
             $.ajax({
                 type: 'GET',
@@ -441,7 +493,7 @@
             }, 50 * index);
         });
     }
-    
+
     document.addEventListener('DOMContentLoaded', fetchProductDetails);
-    
+
 </script>
