@@ -13,7 +13,7 @@ from products.models import *
 from orders.models import *
 from datetime import date, timedelta
 from django.views.generic import ListView, DetailView
-from .mixins import SuperuserRequiredMixin
+from .mixins import SuperuserRequiredMixin, UserPermission
 from django.db.models import Sum
 from django.http import HttpResponse
 import io
@@ -49,9 +49,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.decorators.csrf import csrf_exempt
 
-
-
-class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
+class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
     login_url = reverse_lazy('dashboard:sign_in')
 
@@ -77,8 +75,11 @@ class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
         # Count orders assigned to delivery (exclude completed deliveries)
         context['assigned_to_delivery'] = DeliveryAssignment.objects.filter(completed_at__isnull=True).count()
 
-        # Get top 5 most ordered products with their models and year
+        # Get top 5 most ordered products with their models, year, and count
         top_products = OrderHistoryItem.objects.values('product__name', 'product__model', 'product__description', 'product__year').annotate(total_ordered=Sum('quantity')).order_by('-total_ordered')[:5]
+
+        # Reverse the order for displaying top 1 at the top
+        top_products = list(top_products)[::-1]
 
         product_info = [f"{item['product__name']} - {item['product__model']} - {item['product__description']} ({item['product__year']})" for item in top_products]
         quantities = [item['total_ordered'] for item in top_products]
@@ -87,28 +88,29 @@ class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
         colors = ['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#9467BD']  # Example colors
         data = [
             go.Bar(
-                x=product_info,
-                y=quantities,
+                x=quantities,  # Use quantities as x-axis (count)
+                y=[f'Top {i+1}' for i in range(len(top_products))][::-1],  # Reverse order for y-axis labels
                 marker=dict(color=colors),
-                hoverinfo='text',
-                text=product_info,
-                textposition='auto'
+                orientation='h',  # Horizontal bar chart
+                hoverinfo='x+text',  # Show count and text (product details) on hover
+                text=product_info,  # Display product details (name, model, description, year)
+                textposition='inside',  # Display text inside the bar
+                textfont=dict(color='white')  # Text color
             )
         ]
 
         layout = go.Layout(
             title='Top 5 Most Ordered Products',
-            yaxis=dict(title='Quantity Ordered'),
-            xaxis=dict(title='Product Information'),
-            margin=dict(b=150)  # Adjust bottom margin to accommodate longer product names
+            xaxis=dict(title='Quantity Ordered'),
+            yaxis=dict(title='Top Products', automargin=True),
+            margin=dict(l=150)  # Adjust left margin to accommodate longer product names
         )
 
         chart = plot({'data': data, 'layout': layout}, output_type='div', include_plotlyjs=False)
 
         # Indent text under the chart due to its length
         text_under_chart = """
-            This bar chart displays the top 5 most ordered products with their models and years. 
-            Each bar represents the quantity ordered for each product.
+            This bar chart displays the top 5 most ordered products with their models, years, and the quantity ordered for each product.
             """
 
         context['chart'] = chart
@@ -118,14 +120,15 @@ class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
         user_counts = User.objects.aggregate(
             super_admin_count=Count('id', filter=Q(is_superuser=True)),
             customer_user_count=Count('id', filter=Q(is_superuser=False, deliverystaff__isnull=True)),
-            delivery_staff_count=Count('deliverystaff')
+            delivery_staff_count=Count('id', filter=Q(deliverystaff__isnull=False)),
+            staff_user_count=Count('id', filter=Q(is_staff=True, is_superuser=False, deliverystaff__isnull=True))
         )
 
         user_data = [
             go.Bar(
-                x=['Super Admin', 'Customer User', 'Delivery Staff'],
-                y=[user_counts['super_admin_count'], user_counts['customer_user_count'], user_counts['delivery_staff_count']],
-                marker=dict(color=['#FF9999', '#66B2FF', '#99FF99'])
+                x=['Super Admin', 'Customer', 'Delivery', 'Staff'],
+                y=[user_counts['super_admin_count'], user_counts['customer_user_count'], user_counts['delivery_staff_count'], user_counts['staff_user_count']],
+                marker=dict(color=['#FF9999', '#66B2FF', '#99FF99', '#FFCC99'])
             )
         ]
 
@@ -139,7 +142,6 @@ class DashboardView(LoginRequiredMixin, SuperuserRequiredMixin, TemplateView):
         context['user_chart'] = user_chart
 
         return context
-    
     
 class DashboardSignInView(LoginView):
     template_name = 'dashboard/sign_in.html'
@@ -168,13 +170,13 @@ class DashboardSignInView(LoginView):
         return reverse_lazy('dashboard:login')
     
     
-class DashboardLogoutView(View):
+class DashboardLogoutView(UserPermission, View):
     def get(self, request):
         logout(request)
         return redirect('dashboard:sign_in')
 
 
-class AdvertisementListView(ListView):
+class AdvertisementListView(UserPermission, ListView):
     model = Advertisement
     template_name = 'dashboard/ads/advertisement_list.html'
     context_object_name = 'advertisements'
@@ -183,14 +185,14 @@ class AdvertisementListView(ListView):
     
 
 
-class AdvertisementCreateView(CreateView):
+class AdvertisementCreateView(UserPermission, CreateView):
     model = Advertisement
     form_class = AdvertisementForm
     template_name = 'dashboard/ads/advertisement_create.html'  # Create this template
     success_url = reverse_lazy('dashboard:advertisement_list')
     
     
-class AdvertisementUpdateView(SuccessMessageMixin, UpdateView):
+class AdvertisementUpdateView(UserPermission, SuccessMessageMixin, UpdateView):
     model = Advertisement
     form_class = AdvertisementForm
     template_name = 'dashboard/ads/advertisement_form.html'
@@ -198,7 +200,7 @@ class AdvertisementUpdateView(SuccessMessageMixin, UpdateView):
     success_message = "Advertisement updated successfully!"
 
 @method_decorator(csrf_exempt, name='dispatch')
-class AdvertisementDeleteView(DeleteView):
+class AdvertisementDeleteView(UserPermission, DeleteView):
     model = Advertisement
     success_url = reverse_lazy('dashboard:advertisement_list')
 
@@ -216,7 +218,7 @@ class AdvertisementDeleteView(DeleteView):
     
     
 
-class OrderHistoryView(SuperuserRequiredMixin, LoginRequiredMixin, ListView):
+class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
     model = OrderHistory
     template_name = 'dashboard/orders.html'
     context_object_name = 'order_histories'
@@ -242,7 +244,7 @@ class OrderHistoryView(SuperuserRequiredMixin, LoginRequiredMixin, ListView):
                 
         return context
 
-class OrderStatusUpdateView(LoginRequiredMixin, SuperuserRequiredMixin, View):
+class OrderStatusUpdateView(LoginRequiredMixin, UserPermission, View):
     def post(self, request, pk):
         order_history = get_object_or_404(OrderHistory, pk=pk)
         new_status = request.POST.get('status')
@@ -264,7 +266,7 @@ class OrderStatusUpdateView(LoginRequiredMixin, SuperuserRequiredMixin, View):
         return redirect('dashboard:order')
 
 
-class OrderDetailView(LoginRequiredMixin, SuperuserRequiredMixin, DetailView):
+class OrderDetailView(LoginRequiredMixin, UserPermission, DetailView):
     model = OrderHistory
     template_name = 'dashboard/order_detail.html'
     context_object_name = 'order'
@@ -284,7 +286,7 @@ class OrderDetailView(LoginRequiredMixin, SuperuserRequiredMixin, DetailView):
         return context
 
 
-class ProductListView(SuperuserRequiredMixin, ListView):
+class ProductListView(UserPermission, ListView):
     model = Product
     template_name = 'dashboard/product_list.html'
     context_object_name = 'products'
@@ -420,7 +422,7 @@ class GenericModelFormView(SuperuserRequiredMixin, CreateView, UpdateView):
         context['model_name'] = self.model_name.capitalize()
         return context
 
-class DisplayTablesView(TemplateView):
+class DisplayTablesView(UserPermission, TemplateView):
     template_name = 'dashboard/table/tables.html'
 
     def get_context_data(self, **kwargs):
@@ -524,7 +526,7 @@ class EditModelView(SuperuserRequiredMixin, UpdateView):
         context['model_name'] = self.kwargs.get('model').replace('_', ' ').title()
         return context
 
-class AssignOrderView(SuperuserRequiredMixin, LoginRequiredMixin, UserPassesTestMixin, FormView):
+class AssignOrderView(UserPermission, LoginRequiredMixin, FormView):
     template_name = 'dashboard/delivery/assign_order.html'
     form_class = AssignOrderForm
     success_url = reverse_lazy('dashboard:assign_order')
@@ -576,7 +578,7 @@ class AssignOrderView(SuperuserRequiredMixin, LoginRequiredMixin, UserPassesTest
     
     
     
-class DeliveryStaffCreateView(SuperuserRequiredMixin, LoginRequiredMixin, CreateView):
+class DeliveryStaffCreateView(UserPermission, LoginRequiredMixin, CreateView):
     model = DeliveryStaff
     form_class = DeliveryStaffCreationForm
     template_name = 'delivery/create_delivery_staff.html'
@@ -586,7 +588,7 @@ class DeliveryStaffCreateView(SuperuserRequiredMixin, LoginRequiredMixin, Create
         # Perform any additional actions if needed
         return super().form_valid(form)
 
-class UserListView(SuperuserRequiredMixin, LoginRequiredMixin, ListView):
+class UserListView(UserPermission, LoginRequiredMixin, ListView):
     model = User
     template_name = 'dashboard/user/user_list.html'
     context_object_name = 'users'
@@ -601,7 +603,7 @@ class UserListView(SuperuserRequiredMixin, LoginRequiredMixin, ListView):
         context['superusers'] = User.objects.filter(is_superuser=True)
         return context
 
-class UserUpdateView(SuperuserRequiredMixin, LoginRequiredMixin, UpdateView):
+class UserUpdateView(UserPermission, LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserUpdateForm
     template_name = 'dashboard/user/user_form.html'
@@ -610,7 +612,21 @@ class UserUpdateView(SuperuserRequiredMixin, LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('dashboard:user_list')
 
-class DeliveryStaffUpdateView(SuperuserRequiredMixin, LoginRequiredMixin, UpdateView):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+
+        # Retrieve the user being edited
+        self.object = self.get_object()
+
+        # Only allow superuser to modify superuser status
+        if not request.user.is_superuser:
+            if self.object.is_superuser:
+                return render(request, 'dashboard/auth/access_denied.html', status=403)
+        
+        return super().dispatch(request, *args, **kwargs)
+
+class DeliveryStaffUpdateView(UserPermission, LoginRequiredMixin, UpdateView):
     model = DeliveryStaff
     form_class = DeliveryStaffUserForm
     template_name = 'dashboard/user/staff_form.html'

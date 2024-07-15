@@ -27,6 +27,12 @@ def menu_items(request):
         "unread_notification_count": unread_notification_count
     }
 
+
+def footer_processor(request):
+    footer = Footer.objects.first()
+    return {'footer': footer}
+
+
 # def footer_info(request):
 #     try:
 #         social_links = SocialMediaLink.objects.all()

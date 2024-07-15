@@ -1,6 +1,17 @@
 from django.contrib.auth.mixins import AccessMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.shortcuts import render
+
+class UserPermission(AccessMixin):
+    """Verify that the current user is authenticated and either a superuser or staff."""
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        if not (request.user.is_superuser or request.user.is_staff):
+            return redirect(reverse_lazy('home:home')) 
+        return super().dispatch(request, *args, **kwargs)
 
 class SuperuserRequiredMixin(AccessMixin):
     """Verify that the current user is authenticated and is a superuser."""
@@ -8,7 +19,7 @@ class SuperuserRequiredMixin(AccessMixin):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
         if not request.user.is_superuser:
-            return redirect(reverse_lazy('home:home')) 
+            return render(request, 'dashboard/auth/access_denied.html')  # Render a custom template for denied access
         return super().dispatch(request, *args, **kwargs)
 
 

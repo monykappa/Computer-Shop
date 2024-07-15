@@ -52,3 +52,28 @@ class AboutUs(models.Model):
 
     class Meta:
         verbose_name_plural = "About Us"
+
+
+from django.db import models
+
+class Footer(models.Model):
+    phone_number = models.CharField(max_length=20)
+    copyright_text = models.CharField(max_length=200)
+
+    def __str__(self):
+        return "Footer Information"
+
+    class Meta:
+        verbose_name_plural = "Footer"
+
+class SocialMedia(models.Model):
+    footer = models.ForeignKey(Footer, on_delete=models.CASCADE, related_name='social_media')
+    platform = models.CharField(max_length=50)
+    url = models.URLField()
+    icon_class = models.CharField(max_length=50, help_text="Font Awesome icon class")
+
+    def __str__(self):
+        return f"{self.platform} for {self.footer}"
+
+    class Meta:
+        verbose_name_plural = "Social Media Links"

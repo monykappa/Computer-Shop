@@ -67,6 +67,32 @@ class ContactUsAdmin(admin.ModelAdmin):
         return False
     
     
+
+class SocialMediaInline(admin.TabularInline):
+    model = SocialMedia
+    extra = 1
+    fields = ('platform', 'url', 'icon_class')
+
+@admin.register(Footer)
+class FooterAdmin(admin.ModelAdmin):
+    list_display = ('id', 'phone_number', 'copyright_text')
+    fields = ('phone_number', 'copyright_text')
+    inlines = [SocialMediaInline]
+
+    def has_add_permission(self, request):
+        # Check if any Footer object already exists
+        if Footer.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+@admin.register(SocialMedia)
+class SocialMediaAdmin(admin.ModelAdmin):
+    list_display = ('platform', 'url', 'footer')
+    list_filter = ('platform', 'footer')
+    search_fields = ('platform', 'url')
+    
+    
+    
     
 admin.site.register(MenuItem, MenuItemAdmin)
 
