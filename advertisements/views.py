@@ -9,3 +9,4 @@ from .serializers import AdvertisementSerializer
 class AdvertisementViewSet(generics.ListAPIView):
     queryset = Advertisement.objects.all().order_by('-priority', '-created_at')
     serializer_class = AdvertisementSerializer
+    permission_classes = []  

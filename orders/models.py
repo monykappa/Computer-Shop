@@ -13,6 +13,21 @@ from django.utils import timezone
 
 # Create your models here.
 
+class OrderAddress(models.Model):
+    address1 = models.CharField(max_length=100)
+    address2 = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=50)
+    province = models.CharField(max_length=50, choices=CAMBODIAN_PROVINCES)
+    phone = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"{self.address1}, {self.city}, {self.province}"
+
+    class Meta:
+        verbose_name_plural = "Order Addresses"
+        
+        
+        
 class OrderStatus(models.TextChoices):
     PENDING = 'Pending', 'Pending'
     COMPLETED = 'Completed', 'Completed'
@@ -23,6 +38,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)
+    order_address = models.ForeignKey(OrderAddress, on_delete=models.SET_NULL, null=True, related_name='orders')
 
     def calculate_total_price(self):
         # Calculate total price based on cart items
@@ -50,9 +66,12 @@ class CartItem(models.Model):
         order_items = self.order.cartitem_set.all()
         self.order.total_price = sum(item.subtotal for item in order_items)
         self.order.save()
+
+
         
 class OrderHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order_address = models.ForeignKey(OrderAddress, on_delete=models.SET_NULL, null=True)
     ordered_date = models.DateTimeField(default=timezone.now)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)
@@ -106,8 +125,7 @@ class OrderHistory(models.Model):
         
         @property
         def address(self):
-            address = Address.objects.filter(user=self.user).last()
-            return address
+            return self.order_address
 
 
 class OrderHistoryItem(models.Model):

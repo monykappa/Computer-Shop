@@ -53,7 +53,7 @@ Dashboard | Order
             <th>Ordered Date</th>
             <th>Total Price</th>
             <th>By</th>
-            <th>From</th>
+            <th>From</th>  <!-- Display Order Address details -->
             <th>Status</th>
             <th>QR Code</th>
             {% if order_histories and order_histories.0.status == "Pending" %}
@@ -63,27 +63,31 @@ Dashboard | Order
     </thead>
     <tbody>
         {% if order_histories %}
-        {% for order in order_histories %}
-        <tr class="clickable-row" data-href="{% url 'dashboard:order_detail' order.id %}">
-            <td>#{{ order.id }}</td>
-            <td>{{ order.ordered_date }}</td>
-            <td>${{ order.total_price }}</td>
-            <td>{{ order.user }}</td>
-            <td>{{ order.province }}</td>
-            <td>{{ order.get_status_display }}</td>
+        {% for order_history in order_histories %}
+        <tr class="clickable-row" data-href="{% url 'dashboard:order_detail' order_history.id %}">
+            <td>#{{ order_history.id }}</td>
+            <td>{{ order_history.ordered_date }}</td>
+            <td>${{ order_history.total_price }}</td>
+            <td>{{ order_history.user }}</td>
+            {% if order_history.order_address %}
+                <td>{{ order_history.order_address.province }}</td>  <!-- Display Order Address province -->
+            {% else %}
+                <td>N/A</td>  <!-- Handle case where OrderAddress is not available -->
+            {% endif %}
+            <td>{{ order_history.get_status_display }}</td>
             <td>
-                {% if order.qr_code %}
-                <img src="{{ order.qr_code.url }}" alt="QR Code" width="60" class="img-fluid">
+                {% if order_history.qr_code %}
+                <img src="{{ order_history.qr_code.url }}" alt="QR Code" width="60" class="img-fluid">
                 {% endif %}
             </td>
-            {% if order.status == "Pending" %}
+            {% if order_history.status == "Pending" %}
             <td>
-                <form method="post" action="{% url 'dashboard:order_status_update' order.pk %}" style="display:inline;">
+                <form method="post" action="{% url 'dashboard:order_status_update' order_history.pk %}" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="status" value="Completed">
                     <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
                 </form>
-                <form method="post" action="{% url 'dashboard:order_status_update' order.pk %}" style="display:inline;">
+                <form method="post" action="{% url 'dashboard:order_status_update' order_history.pk %}" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="status" value="Cancelled">
                     <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
@@ -94,11 +98,15 @@ Dashboard | Order
         {% endfor %}
         {% else %}
         <tr>
-            <td colspan="6">No orders found.</td>
+            <td colspan="7">No orders found.</td>
         </tr>
         {% endif %}
     </tbody>
 </table>
+
+
+
+
 
 
 {% endblock content %}

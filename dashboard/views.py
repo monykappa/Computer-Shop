@@ -141,6 +141,37 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
 
         context['user_chart'] = user_chart
 
+        top_provinces = Address.objects.values('province').annotate(
+            order_count=Count('user__orderhistory')
+        ).order_by('-order_count')[:5]
+
+        province_names = [province['province'] for province in top_provinces]
+        province_counts = [province['order_count'] for province in top_provinces]
+
+        province_data = [
+            go.Scatter(
+                x=province_names,
+                y=province_counts,
+                mode='lines+markers',
+                line=dict(color='#66B2FF', width=2),
+                marker=dict(size=8, symbol='circle', color='#FF9999', 
+                            line=dict(color='#66B2FF', width=2)),
+                hoverinfo='x+y',
+                name='Orders'
+            )
+        ]
+
+        province_layout = go.Layout(
+            title='Top 5 Provinces by Order Count',
+            xaxis=dict(title='Province', tickangle=45),
+            yaxis=dict(title='Number of Orders'),
+            hovermode='closest'
+        )
+
+        province_chart = plot({'data': province_data, 'layout': province_layout}, output_type='div', include_plotlyjs=False)
+
+        context['province_chart'] = province_chart
+
         return context
     
 class DashboardSignInView(LoginView):
@@ -199,6 +230,8 @@ class AdvertisementUpdateView(UserPermission, SuccessMessageMixin, UpdateView):
     success_url = reverse_lazy('dashboard:advertisement_list')
     success_message = "Advertisement updated successfully!"
 
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class AdvertisementDeleteView(UserPermission, DeleteView):
     model = Advertisement
@@ -222,10 +255,9 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
     model = OrderHistory
     template_name = 'dashboard/orders.html'
     context_object_name = 'order_histories'
-    paginate_by = 10  
+    paginate_by = 10
 
     def get_queryset(self):
-        # Filter the order history by status
         status = self.request.GET.get('status', OrderStatus.PENDING)
         queryset = OrderHistory.objects.filter(status=status).order_by('-ordered_date')
         return queryset
@@ -233,15 +265,22 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['status_filter'] = self.request.GET.get('status', OrderStatus.PENDING)
-        
-        # Add address data for each order
-        for order in context['order_histories']:
-            address = Address.objects.filter(user=order.user).first()
-            if address:
-                order.province = address.province
-            else:
-                order.province = 'N/A'
+
+        # Enhance context with additional data
+        for order_history in context['order_histories']:
+            try:
+                # Get the OrderAddress instance
+                order_address_instance = OrderAddress.objects.get(id=order_history.order_address_id)
+                order_history.order_address = order_address_instance
                 
+                # Find the related Order
+                order = Order.objects.filter(order_address=order_address_instance).first()
+                order_history.order = order
+                
+            except OrderAddress.DoesNotExist:
+                order_history.order_address = None
+                order_history.order = None
+
         return context
 
 class OrderStatusUpdateView(LoginRequiredMixin, UserPermission, View):
@@ -594,37 +633,16 @@ class UserListView(UserPermission, LoginRequiredMixin, ListView):
     context_object_name = 'users'
 
     def get_queryset(self):
-        # Exclude superusers and delivery staff from the customers' table
-        return User.objects.filter(is_superuser=False, deliverystaff__isnull=True)
+        # Exclude superusers, staff, and delivery staff from the customers' table
+        return User.objects.filter(is_superuser=False, is_staff=False, deliverystaff__isnull=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['staff'] = DeliveryStaff.objects.select_related('user').all()
+        context['staff_users'] = User.objects.filter(is_staff=True, is_superuser=False, deliverystaff__isnull=True)
         context['superusers'] = User.objects.filter(is_superuser=True)
         return context
 
-class UserUpdateView(UserPermission, LoginRequiredMixin, UpdateView):
-    model = User
-    form_class = UserUpdateForm
-    template_name = 'dashboard/user/user_form.html'
-    context_object_name = 'user'
-
-    def get_success_url(self):
-        return reverse_lazy('dashboard:user_list')
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return self.handle_no_permission()
-
-        # Retrieve the user being edited
-        self.object = self.get_object()
-
-        # Only allow superuser to modify superuser status
-        if not request.user.is_superuser:
-            if self.object.is_superuser:
-                return render(request, 'dashboard/auth/access_denied.html', status=403)
-        
-        return super().dispatch(request, *args, **kwargs)
 
 class DeliveryStaffUpdateView(UserPermission, LoginRequiredMixin, UpdateView):
     model = DeliveryStaff
@@ -641,16 +659,37 @@ class DeliveryStaffUpdateView(UserPermission, LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('dashboard:user_list')
 
+class UserUpdateView(UserPermission, LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserUpdateForm
+    template_name = 'dashboard/user/user_form.html'
+    context_object_name = 'user'
+
+    def get_success_url(self):
+        return reverse_lazy('dashboard:user_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+
+        self.object = self.get_object()
+
+        if not request.user.is_superuser:
+            if self.object.is_superuser:
+                return render(request, 'dashboard/auth/access_denied.html', status=403)
+        
+        return super().dispatch(request, *args, **kwargs)
+
+
 class AddSuperuserView(SuperuserRequiredMixin, LoginRequiredMixin, CreateView):
     model = User
-    form_class = UserForm
-    template_name = 'dashboard/user/add_user.html'  # Ensure this matches your actual template path
-    success_url = reverse_lazy('dashboard:user_list')  # Replace with your success URL
+    form_class = UserAddForm
+    template_name = 'dashboard/user/add_user.html'
+    success_url = reverse_lazy('dashboard:user_list')
 
     def form_valid(self, form):
         user = form.save(commit=False)
-        password = form.cleaned_data['password']
-        user.set_password(password)
+        user.set_password(form.cleaned_data['password'])
         user.is_superuser = form.cleaned_data['is_superuser']
         user.is_staff = form.cleaned_data['is_staff']
         user.save()

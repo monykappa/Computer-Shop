@@ -37,6 +37,43 @@ import logging
 
 
 
+def create_order(user, items, total_price):
+    # Get the user's current address
+    current_address = Address.objects.filter(user=user).last()
+
+    if current_address:
+        # Create a new OrderAddress based on the current address
+        order_address = OrderAddress.objects.create(
+            address1=current_address.address1,
+            address2=current_address.address2,
+            city=current_address.city,
+            province=current_address.province,
+            phone=current_address.phone
+        )
+
+        # Create the order
+        order = OrderHistory.objects.create(
+            user=user,
+            order_address=order_address,
+            total_price=total_price,
+            status=OrderStatus.PENDING
+        )
+
+        # Create OrderHistoryItems
+        for item in items:
+            OrderHistoryItem.objects.create(
+                order=order,
+                product=item['product'],
+                quantity=item['quantity'],
+                price=item['price']
+            )
+
+        return order
+    else:
+        # Handle the case where the user doesn't have an address
+        raise ValueError("User does not have a valid address")
+    
+    
 # Check if user logged-in, in order to add product to cart
 class CheckLoginStatusView(View):
     def get(self, request, *args, **kwargs):
@@ -265,14 +302,15 @@ def pay_with_paypal(request):
     # Get the user's order and the associated cart items
     try:
         order = Order.objects.get(user=request.user, created_at__isnull=False)
+        if not order.order_address:
+            return redirect("orders:confirm_address")
+
         cart_items = order.cartitem_set.all()
-        order.calculate_total_price()  # Recalculate total price
+        order.calculate_total_price()
         total_price = order.total_price
     except Order.DoesNotExist:
-        cart_items = []
-        total_price = Decimal(0)
+        return redirect("orders:cart_detail")
 
-    # Render the PayPal payment view for the user
     response = render(
         request,
         "payment/pay_with_paypal.html",
@@ -286,35 +324,44 @@ def pay_with_paypal(request):
     return response
 
 
-
 @login_required
 def confirm_address(request):
-    # Check if the user has items in their cart
     try:
         order = Order.objects.get(user=request.user, created_at__isnull=False)
         cart_items = order.cartitem_set.all()
         if not cart_items:
-            # Redirect the user to the cart if it's empty
-            return redirect(
-                "orders:cart_detail"
-            )  # Replace with the actual URL or URL name for the cart
+            return redirect("orders:cart_detail")
     except Order.DoesNotExist:
-        pass  # Handle the case where the order doesn't exist if needed
+        return redirect("orders:cart_detail")
 
-    user_profile, created = Address.objects.get_or_create(user=request.user)
+    user_address, created = Address.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        form = AddressForm(request.POST, instance=user_profile)
+        form = AddressForm(request.POST, instance=user_address)
         if form.is_valid():
-            user_profile = form.save(commit=False)
+            user_address = form.save()
+            
+            # Create OrderAddress if it doesn't exist
+            order_address, created = OrderAddress.objects.get_or_create(
+                address1=user_address.address1,
+                address2=user_address.address2,
+                city=user_address.city,
+                province=user_address.province,
+                phone=user_address.phone
+            )
+            
+            # Associate OrderAddress with Order
+            order.order_address = order_address
+            order.save()
+            
+            # Mark address as confirmed
+            user_profile = get_object_or_404(Address, user=request.user)
             user_profile.address_confirmed = True
             user_profile.save()
-            # Redirect the user to the PayPal payment view
-            return redirect(
-                "orders:pay_with_paypal"
-            )  # Replace with the actual URL or URL name
+            
+            return redirect("orders:pay_with_paypal")
     else:
-        form = AddressForm(instance=user_profile)
+        form = AddressForm(instance=user_address)
 
     return render(request, "confirm/confirm_address.html", {"form": form})
 
@@ -333,7 +380,7 @@ class ClearCartView(View):
             user=request.user, total_price=total
         )
 
-        # Save items
+        # Save items to OrderHistoryItem
         for item in cart_items:
             OrderHistoryItem.objects.create(
                 order_history=order_history,
@@ -344,6 +391,20 @@ class ClearCartView(View):
 
         # Clear cart
         CartItem.objects.filter(order__user=request.user).delete()
+
+        # Create or get OrderAddress instance from user's profile
+        user_profile = get_object_or_404(Address, user=request.user)
+        order_address_instance, created = OrderAddress.objects.get_or_create(
+            address1=user_profile.address1,
+            address2=user_profile.address2,
+            city=user_profile.city,
+            province=user_profile.province,
+            phone=user_profile.phone
+        )
+
+        # Associate OrderAddress with OrderHistory
+        order_history.order_address = order_address_instance
+        order_history.save()
 
         # Redirect
         return redirect("orders:payment_complete")
