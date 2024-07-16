@@ -48,6 +48,8 @@ from django.db.models import Count
 from django.contrib.auth import authenticate, login
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.timezone import make_aware
+from datetime import datetime, timedelta
 
 class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
@@ -250,9 +252,10 @@ class AdvertisementDeleteView(UserPermission, DeleteView):
     def post(self, request, *args, **kwargs):
         return self.delete(request, *args, **kwargs)
     
-    
-    
 
+from django.utils.http import urlencode
+
+    
 class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
     model = OrderHistory
     template_name = 'dashboard/orders.html'
@@ -260,31 +263,64 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        status = self.request.GET.get('status', OrderStatus.PENDING)
-        queryset = OrderHistory.objects.filter(status=status).order_by('-ordered_date')
+        queryset = OrderHistory.objects.all()
+        
+        self.status = self.clean_param('status')
+        self.search = self.clean_param('search')
+        self.start_date = self.clean_param('start_date')
+        self.end_date = self.clean_param('end_date')
+        self.sort_by = self.clean_param('sort_by')
+
+        if self.status:
+            queryset = queryset.filter(status=self.status)
+        if self.search:
+            queryset = queryset.filter(
+                Q(user__username__icontains=self.search) |
+                Q(id__icontains=self.search) |
+                Q(total_price__icontains=self.search) |
+                Q(order_address__address1__icontains=self.search) |
+                Q(order_address__address2__icontains=self.search) |
+                Q(order_address__city__icontains=self.search) |
+                Q(order_address__province__icontains=self.search) |
+                Q(order_address__phone__icontains=self.search)
+            )
+        if self.start_date:
+            try:
+                start_date = datetime.strptime(self.start_date, '%Y-%m-%d').date()
+                queryset = queryset.filter(ordered_date__gte=start_date)
+            except ValueError:
+                pass  # Invalid date format, ignore this filter
+        if self.end_date:
+            try:
+                end_date = datetime.strptime(self.end_date, '%Y-%m-%d').date()
+                queryset = queryset.filter(ordered_date__lte=end_date)
+            except ValueError:
+                pass  # Invalid date format, ignore this filter
+        if self.sort_by:
+            queryset = queryset.order_by(self.sort_by)
+        
         return queryset
+
+    def get_paginate_by(self, queryset):
+        if self.status or self.search or self.start_date or self.end_date or self.sort_by:
+            return None  # Show all results without pagination
+        return self.paginate_by  # Use default pagination (10 per page)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['status_filter'] = self.request.GET.get('status', OrderStatus.PENDING)
-
-        # Enhance context with additional data
-        for order_history in context['order_histories']:
-            try:
-                # Get the OrderAddress instance
-                order_address_instance = OrderAddress.objects.get(id=order_history.order_address_id)
-                order_history.order_address = order_address_instance
-                
-                # Find the related Order
-                order = Order.objects.filter(order_address=order_address_instance).first()
-                order_history.order = order
-                
-            except OrderAddress.DoesNotExist:
-                order_history.order_address = None
-                order_history.order = None
-
+        context['status'] = self.status
+        context['search'] = self.search
+        context['start_date'] = self.start_date
+        context['end_date'] = self.end_date
+        context['sort_by'] = self.sort_by
         return context
 
+    def clean_param(self, param_name):
+        value = self.request.GET.get(param_name, '')
+        if value.startswith("['") and value.endswith("']"):
+            # Remove the list representation
+            value = value[2:-2]
+        return value.strip()
 class OrderStatusUpdateView(LoginRequiredMixin, UserPermission, View):
     def post(self, request, pk):
         order_history = get_object_or_404(OrderHistory, pk=pk)

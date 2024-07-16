@@ -18,34 +18,77 @@ Dashboard | Order
             class="btn {% if status_filter == 'Cancelled' %}btn-danger{% else %}btn-secondary{% endif %}">Cancelled</a>
     </div>
 </div>
-
-<!-- Order history table -->
-<div class="">
+{% if not status and not search and not start_date and not end_date %}
     {% if is_paginated %}
-    <div class="pagination">
-        <span class="step-links">
-            {% if page_obj.has_previous %}
-            <a href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}"
-                class="btn btn-primary">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}"
-                class="btn btn-primary">previous</a>
-            {% endif %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ query_params }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
 
-            <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-            </span>
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><a class="page-link" href="?page={{ num }}&{{ query_params }}">{{ num }}</a></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}&{{ query_params }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
 
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}"
-                class="btn btn-primary">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}"
-                class="btn btn-primary">last &raquo;</a>
-            {% endif %}
-        </span>
-    </div>
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ query_params }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
     {% endif %}
-</div>
+{% endif %}
 
+
+<form method="get" class="mb-3">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Search by user, ID, price, or address" value="{{ search }}">
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-control">
+                <option value="">All Statuses</option>
+                {% for status in OrderStatus %}
+                    <option value="{{ status }}" {% if status == status_filter %}selected{% endif %}>
+                        {{ status.label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select name="sort_by" class="form-control">
+                <option value="">Default Sorting</option>
+                <option value="-ordered_date" {% if sort_by == '-ordered_date' %}selected{% endif %}>Latest First</option>
+                <option value="ordered_date" {% if sort_by == 'ordered_date' %}selected{% endif %}>Oldest First</option>
+                <option value="total_price" {% if sort_by == 'total_price' %}selected{% endif %}>Price Low to High</option>
+                <option value="-total_price" {% if sort_by == '-total_price' %}selected{% endif %}>Price High to Low</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+        </div>
+        <div class="col-md-4">
+            <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{% url 'dashboard:order' %}" class="btn btn-secondary">Clear</a>
+        </div>
+    </div>
+</form>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -53,7 +96,7 @@ Dashboard | Order
             <th>Ordered Date</th>
             <th>Total Price</th>
             <th>By</th>
-            <th>From</th>  <!-- Display Order Address details -->
+            <th>From</th>
             <th>Status</th>
             <th>QR Code</th>
             {% if order_histories and order_histories.0.status == "Pending" %}
@@ -65,15 +108,22 @@ Dashboard | Order
         {% if order_histories %}
         {% for order_history in order_histories %}
         <tr class="clickable-row" data-href="{% url 'dashboard:order_detail' order_history.id %}">
-            <td>#{{ order_history.id }}</td>
+            <td class="font-weight-bold text-danger">#{{ order_history.id }}</td>
             <td>{{ order_history.ordered_date }}</td>
             <td>${{ order_history.total_price }}</td>
             <td>{{ order_history.user }}</td>
-            {% if order_history.order_address %}
-                <td>{{ order_history.order_address.province }}</td>  <!-- Display Order Address province -->
-            {% else %}
-                <td>N/A</td>  <!-- Handle case where OrderAddress is not available -->
-            {% endif %}
+            <td>
+                {% if order_history.order_address %}
+                    {{ order_history.order_address.address1 }}, 
+                    {% if order_history.order_address.address2 %}
+                        {{ order_history.order_address.address2 }},
+                    {% endif %}
+                    {{ order_history.order_address.city }}, 
+                    {{ order_history.order_address.province }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
             <td>{{ order_history.get_status_display }}</td>
             <td>
                 {% if order_history.qr_code %}
@@ -98,16 +148,43 @@ Dashboard | Order
         {% endfor %}
         {% else %}
         <tr>
-            <td colspan="7">No orders found.</td>
+            <td colspan="8">No orders found.</td>
         </tr>
         {% endif %}
     </tbody>
 </table>
 
+{% if not search and not status and not start_date and not end_date and not sort_by %}
+    {% if is_paginated %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
 
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
 
-
-
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% endif %}
 
 {% endblock content %}
 
