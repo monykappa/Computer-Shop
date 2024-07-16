@@ -25,7 +25,7 @@
                         <tr>
                             <td>{{ assignment.order.id }}</td>
                             <td>{{ assignment.order.user.username }}</td>
-                            <td>{{ assignment.order.address }}</td>
+                            <td>{{ assignment.order.order_address.address1 }}, {{ assignment.order.order_address.city }}, {{ assignment.order.order_address.province }}</td>
                             <td>{{ assignment.delivery_staff.user.username }}</td>
                             <td>{{ assignment.assigned_at|date:"Y-m-d H:i" }}</td>
                         </tr>
@@ -36,6 +36,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                
             </div>
         </div>
 

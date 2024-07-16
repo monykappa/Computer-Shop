@@ -4,6 +4,7 @@
 {% endblock title %}
 
 {% block content %}
+
 <a href="{% url 'dashboard:order' %}" class="btn btn-secondary"><i class="fa fa-backward"></i></a>
 <div class="">
     <h2>Order Detail</h2>
@@ -43,33 +44,33 @@
             </div>
             <div class="col-md-6">
                 <table class="table">
-                    <tr>
-                        <th>Address</th>
-                        <td>
-                            {% with address=order.user.address_set.first %}
-                                {% if address %}
-                                    Address 1: {{ address.address1 }}<br> 
-                                    Address 2: {{ address.address2 }}<br> 
-                                    City: {{ address.city }}<br>
-                                    Province: {{ address.province }}<br>
-                                    Phone number: {{ address.phone }}
-                                {% else %}
-                                    N/A
-                                {% endif %}
-                            {% endwith %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>QR Code</th>
-                        <td>
-                            {% if order.qr_code %}
-                            <img src="{{ order.qr_code.url }}" alt="QR Code" width="100" height="100">
-                            {% else %}
-                            N/A
-                            {% endif %}
-                        </td>
-                    </tr>
-                </table>
+    <tr>
+        <th>Address</th>
+        <td>
+            {% if order.order_address %}
+                Address 1: {{ order.order_address.address1 }}<br> 
+                {% if order.order_address.address2 %}
+                    Address 2: {{ order.order_address.address2 }}<br> 
+                {% endif %}
+                City: {{ order.order_address.city }}<br>
+                Province: {{ order.order_address.province }}<br>
+                Phone number: {{ order.order_address.phone }}
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>QR Code</th>
+        <td>
+            {% if order.qr_code %}
+            <img src="{{ order.qr_code.url }}" alt="QR Code" width="100" height="100">
+            {% else %}
+            N/A
+            {% endif %}
+        </td>
+    </tr>
+</table>
             </div>
         </div>
 

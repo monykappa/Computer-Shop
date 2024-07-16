@@ -20,17 +20,11 @@ class DeliveryGuyDashboardView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return (
             DeliveryAssignment.objects.filter(
-                delivery_staff__user=self.request.user, 
+                delivery_staff__user=self.request.user,
                 order__status=OrderStatus.PENDING
             )
             .select_related("order", "order__user")
-            .prefetch_related(
-                Prefetch(
-                    "order__user__address_set",
-                    queryset=Address.objects.all(),
-                    to_attr="addresses",
-                )
-            )
+            .prefetch_related("order__user__address_set")
         )
 
 

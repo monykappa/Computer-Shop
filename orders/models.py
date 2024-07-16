@@ -13,6 +13,14 @@ from django.utils import timezone
 
 # Create your models here.
 
+
+        
+class OrderStatus(models.TextChoices):
+    PENDING = 'Pending', 'Pending'
+    COMPLETED = 'Completed', 'Completed'
+    CANCELLED = 'Cancelled', 'Cancelled'
+
+
 class OrderAddress(models.Model):
     address1 = models.CharField(max_length=100)
     address2 = models.CharField(max_length=100, blank=True, null=True)
@@ -28,11 +36,7 @@ class OrderAddress(models.Model):
         
         
         
-class OrderStatus(models.TextChoices):
-    PENDING = 'Pending', 'Pending'
-    COMPLETED = 'Completed', 'Completed'
-    CANCELLED = 'Cancelled', 'Cancelled'
-
+        
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -77,6 +81,11 @@ class OrderHistory(models.Model):
     status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING)
     qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)
 
+    @property
+    def address(self):
+        return self.order_address
+    
+    
     def address(self):
         # Get the most recent address for the user
         address = Address.objects.filter(user=self.user).last()
@@ -85,14 +94,10 @@ class OrderHistory(models.Model):
         return 'No address found'
     
     def __str__(self):
-        # Get the most recent address for the user
-        address = Address.objects.filter(user=self.user).last()
-        
-        if address:
-            address_str = f"{address.address1}, {address.city}, {address.province} , {address.phone}"
+        if self.order_address:
+            address_str = f"{self.order_address.address1}, {self.order_address.city}, {self.order_address.province}, {self.order_address.phone}"
         else:
             address_str = 'No address found'
-        
         return f"Order ID #{self.id} - Date: {self.ordered_date.strftime('%Y-%m-%d %H:%M')} - Address: {address_str} - Total: ${self.total_price:.2f}"
 
     def update_status(self, new_status):
@@ -123,9 +128,6 @@ class OrderHistory(models.Model):
         file_name = f'order_{self.id}_qr.png'
         self.qr_code.save(file_name, File(buffer), save=True)
         
-        @property
-        def address(self):
-            return self.order_address
 
 
 class OrderHistoryItem(models.Model):

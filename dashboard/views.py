@@ -140,37 +140,39 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
         user_chart = plot({'data': user_data, 'layout': user_layout}, output_type='div', include_plotlyjs=False)
 
         context['user_chart'] = user_chart
+        
+        top_provinces = OrderHistory.objects.values('order_address__province') \
+            .annotate(order_count=Count('id')) \
+            .order_by('-order_count')[:5]
 
-        top_provinces = Address.objects.values('province').annotate(
-            order_count=Count('user__orderhistory')
-        ).order_by('-order_count')[:5]
+        provinces = [item['order_address__province'] for item in top_provinces]
+        order_counts = [item['order_count'] for item in top_provinces]
 
-        province_names = [province['province'] for province in top_provinces]
-        province_counts = [province['order_count'] for province in top_provinces]
-
+        # Create Plotly line chart for top 5 provinces
         province_data = [
             go.Scatter(
-                x=province_names,
-                y=province_counts,
+                x=provinces,
+                y=order_counts,
                 mode='lines+markers',
-                line=dict(color='#66B2FF', width=2),
-                marker=dict(size=8, symbol='circle', color='#FF9999', 
-                            line=dict(color='#66B2FF', width=2)),
-                hoverinfo='x+y',
-                name='Orders'
+                name='Order Count',
+                line=dict(color='#17BECF', width=2),
+                marker=dict(color='#17BECF', size=8)
             )
         ]
 
         province_layout = go.Layout(
             title='Top 5 Provinces by Order Count',
-            xaxis=dict(title='Province', tickangle=45),
+            xaxis=dict(title='Province'),
             yaxis=dict(title='Number of Orders'),
-            hovermode='closest'
+            margin=dict(l=50, r=50, b=100, t=100, pad=4)
         )
 
         province_chart = plot({'data': province_data, 'layout': province_layout}, output_type='div', include_plotlyjs=False)
 
         context['province_chart'] = province_chart
+
+        return context
+
 
         return context
     
@@ -582,7 +584,8 @@ class AssignOrderView(UserPermission, LoginRequiredMixin, FormView):
         return context
 
     def test_func(self):
-        return self.request.user.is_superuser
+        return self.request.user.is_superuser or self.request.user.is_staff
+
 
     @method_decorator(transaction.atomic)
     def form_valid(self, form):
