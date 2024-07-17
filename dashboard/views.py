@@ -254,8 +254,6 @@ class AdvertisementDeleteView(UserPermission, DeleteView):
     
 
 from django.utils.http import urlencode
-
-    
 class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
     model = OrderHistory
     template_name = 'dashboard/orders.html'
@@ -271,8 +269,11 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
         self.end_date = self.clean_param('end_date')
         self.sort_by = self.clean_param('sort_by')
 
+        self.filters_applied = False  # Add this line
+
         if self.status:
-            queryset = queryset.filter(status=self.status)
+            queryset = queryset.filter(status__iexact=self.status)
+            self.filters_applied = True  # Set flag when filter is applied
         if self.search:
             queryset = queryset.filter(
                 Q(user__username__icontains=self.search) |
@@ -284,27 +285,30 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
                 Q(order_address__province__icontains=self.search) |
                 Q(order_address__phone__icontains=self.search)
             )
+            self.filters_applied = True  # Set flag when filter is applied
+
         if self.start_date:
             try:
                 start_date = datetime.strptime(self.start_date, '%Y-%m-%d').date()
                 queryset = queryset.filter(ordered_date__gte=start_date)
+                self.filters_applied = True  # Set flag when filter is applied
             except ValueError:
-                pass  # Invalid date format, ignore this filter
+                pass
         if self.end_date:
             try:
                 end_date = datetime.strptime(self.end_date, '%Y-%m-%d').date()
                 queryset = queryset.filter(ordered_date__lte=end_date)
+                self.filters_applied = True  # Set flag when filter is applied
             except ValueError:
-                pass  # Invalid date format, ignore this filter
+                pass
+        
         if self.sort_by:
             queryset = queryset.order_by(self.sort_by)
+            self.filters_applied = True  # Set flag when sorting is applied
+        else:
+            queryset = queryset.order_by('-id')
         
         return queryset
-
-    def get_paginate_by(self, queryset):
-        if self.status or self.search or self.start_date or self.end_date or self.sort_by:
-            return None  # Show all results without pagination
-        return self.paginate_by  # Use default pagination (10 per page)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -313,14 +317,24 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
         context['start_date'] = self.start_date
         context['end_date'] = self.end_date
         context['sort_by'] = self.sort_by
+        context['filters_applied'] = self.filters_applied  # Add this line
+        
+        context['pending_orders_count'] = OrderHistory.objects.filter(status=OrderStatus.PENDING).count()
+        context['order_status_choices'] = OrderStatus.choices
+        
         return context
+
+    def get_paginate_by(self, queryset):
+        # Disable pagination if filters are applied
+        return None if self.filters_applied else self.paginate_by
 
     def clean_param(self, param_name):
         value = self.request.GET.get(param_name, '')
-        if value.startswith("['") and value.endswith("']"):
-            # Remove the list representation
-            value = value[2:-2]
+        if isinstance(value, list):
+            value = value[0] if value else ''
         return value.strip()
+    
+    
 class OrderStatusUpdateView(LoginRequiredMixin, UserPermission, View):
     def post(self, request, pk):
         order_history = get_object_or_404(OrderHistory, pk=pk)
