@@ -69,7 +69,7 @@ async function fetchData() {
                                     <p class="product-specs">${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB | ${spec.product.color.name}</p>
                                     <div class="product-footer">
                                         <h3 class="product-price">$${formatPrice(spec.product.price)}</h3>
-                                        <a href="/products/${spec.slug}/" class="btn btn-primary see-more-btn"><i class="fa-solid fa-eye"></i></a>
+                                        <a href="/products/${spec.slug}/" class="btn see-more-btn" style="background-color: var(--fourth-color);"><i class="fa-solid fa-eye text-light"></i></a>
                                     </div>
                                 </div>
                             </div>

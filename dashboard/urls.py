@@ -51,8 +51,11 @@ urlpatterns = [
     path('dashboard/create/', views.DeliveryStaffCreateView.as_view(), name='create_delivery_staff'),   
     
     
-    path('assign/', views.AssignOrderView.as_view(), name='assign_order'),
+    path('dashboard/assign/', views.AssignOrderView.as_view(), name='assign_order'),
+    path('dashboard/assign-order-history/', views.AssignOrderHistoryListView.as_view(), name='assign_order_history'),
     
+    
+    path('mark_order_as_read/', views.mark_order_as_read, name='mark_order_as_read'),
     
 ]
 

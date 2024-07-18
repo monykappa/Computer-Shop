@@ -50,6 +50,25 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import make_aware
 from datetime import datetime, timedelta
+from django.utils.dateparse import parse_date
+# import
+from django.views.decorators.http import require_POST
+
+
+
+
+@login_required
+@require_POST
+def mark_order_as_read(request):
+    order_id = request.POST.get('order_id')
+    try:
+        order = OrderHistory.objects.get(id=order_id)
+        order.read = True
+        order.save()
+        print(f"Order {order_id} marked as read")  # Add this for debugging
+        return JsonResponse({'success': True})
+    except OrderHistory.DoesNotExist:
+        return JsonResponse({'success': False}, status=404)
 
 class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard.html'
@@ -384,7 +403,53 @@ class ProductListView(UserPermission, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Product.objects.all()
+        queryset = Product.objects.all()
+        
+        # Filtering
+        self.search = self.request.GET.get('search', '')
+        self.sort_by = self.request.GET.get('sort_by', '-id')
+        self.color = self.request.GET.get('color', '')
+        self.brand = self.request.GET.get('brand', '')
+
+        if self.search:
+            queryset = queryset.filter(
+                Q(name__icontains=self.search) |
+                Q(model__icontains=self.search) |
+                Q(brand__name__icontains=self.search)
+            )
+
+        if self.color:
+            queryset = queryset.filter(color__name=self.color)
+
+        if self.brand:
+            queryset = queryset.filter(brand__name=self.brand)
+
+        # Sorting
+        if self.sort_by:
+            queryset = queryset.order_by(self.sort_by)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search'] = self.search
+        context['sort_by'] = self.sort_by
+        context['color'] = self.color
+        context['brand'] = self.brand
+        
+        context['colors'] = Color.objects.all()
+        context['brands'] = Brand.objects.all()
+        
+        # Preserve query parameters for pagination
+        query_params = self.request.GET.copy()
+        if 'page' in query_params:
+            del query_params['page']
+        context['query_params'] = query_params.urlencode()
+
+        # Add clear filter URL
+        context['clear_filter_url'] = reverse('dashboard:product_list')
+
+        return context
 
 
 class ProductCreateView(SuperuserRequiredMixin, CreateView):
@@ -668,7 +733,69 @@ class AssignOrderView(UserPermission, LoginRequiredMixin, FormView):
         messages.error(self.request, "There was an error in assigning the orders. Please try again.")
         return super().form_invalid(form)
     
-    
+
+class AssignOrderHistoryListView(UserPermission, LoginRequiredMixin, ListView):
+    model = DeliveryAssignment
+    template_name = 'dashboard/delivery/assign_order_history.html'
+    context_object_name = 'assignments'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = DeliveryAssignment.objects.select_related(
+            'order__user', 
+            'order__order_address', 
+            'delivery_staff__user'
+        )
+
+        # Search functionality
+        search_query = self.request.GET.get('search', '')
+        if search_query:
+            queryset = queryset.filter(
+                Q(order__id__icontains=search_query) |
+                Q(order__user__username__icontains=search_query) |
+                Q(delivery_staff__user__username__icontains=search_query)
+            )
+
+        # Filter by status
+        status = self.request.GET.get('status', '')
+        if status == 'completed':
+            queryset = queryset.filter(completed_at__isnull=False)
+        elif status == 'pending':
+            queryset = queryset.filter(completed_at__isnull=True)
+
+        # Filter by date range
+        start_date = self.request.GET.get('start_date', '')
+        end_date = self.request.GET.get('end_date', '')
+        if start_date:
+            start_date = parse_date(start_date)
+            if start_date:
+                queryset = queryset.filter(assigned_at__gte=start_date)
+        if end_date:
+            end_date = parse_date(end_date)
+            if end_date:
+                queryset = queryset.filter(assigned_at__lte=end_date)
+
+        return queryset.order_by('-assigned_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['status'] = self.request.GET.get('status', '')
+        context['start_date'] = self.request.GET.get('start_date', '')
+        context['end_date'] = self.request.GET.get('end_date', '')
+
+        # Check if search or filters are applied to decide pagination
+        if context['search_query'] or context['status'] or context['start_date'] or context['end_date']:
+            context['is_paginated'] = False
+            context['paginate_by'] = None  # Disable pagination
+        else:
+            context['is_paginated'] = True
+            context['paginate_by'] = self.paginate_by
+
+        return context
+
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user.is_staff
     
 class DeliveryStaffCreateView(UserPermission, LoginRequiredMixin, CreateView):
     model = DeliveryStaff

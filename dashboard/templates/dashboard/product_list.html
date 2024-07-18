@@ -11,9 +11,47 @@
 </style>
 <div class="">
     <h2>Product List</h2>
-    <a href="{% url 'dashboard:product_add' %}" class="btn btn-primary"><i class="fa fa-add"></i></a>
+    <a href="{% url 'dashboard:product_add' %}" class="btn btn-primary"><i class="fa fa-add"></i> Add Product</a>
 </div>
 <div class="">
+    <form method="get" class="mb-4">
+        <div class="row">
+            <div class="col-md-3 mb-2">
+                <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ search }}">
+            </div>
+            <div class="col-md-2 mb-2">
+                <select name="sort_by" class="form-select">
+                    <option value="-id" {% if sort_by == '-id' %}selected{% endif %}>Newest</option>
+                    <option value="id" {% if sort_by == 'id' %}selected{% endif %}>Oldest</option>
+                    <option value="price" {% if sort_by == 'price' %}selected{% endif %}>Price Low to High</option>
+                    <option value="-price" {% if sort_by == '-price' %}selected{% endif %}>Price High to Low</option>
+                    <option value="year" {% if sort_by == 'year' %}selected{% endif %}>Year</option>
+                    <option value="color__name" {% if sort_by == 'color__name' %}selected{% endif %}>Color</option>
+                    <option value="brand__name" {% if sort_by == 'brand__name' %}selected{% endif %}>Brand</option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-2">
+                <select name="color" class="form-select">
+                    <option value="">All Colors</option>
+                    {% for color in colors %}
+                        <option value="{{ color.name }}" {% if color.name == color %}selected{% endif %}>{{ color.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 mb-2">
+                <select name="brand" class="form-select">
+                    <option value="">All Brands</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand.name }}" {% if brand.name == brand %}selected{% endif %}>{{ brand.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mb-2">
+                <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
+                <a href="{{ clear_filter_url }}" class="btn btn-secondary">Clear Filters</a>
+            </div>
+        </div>
+    </form>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -70,23 +108,45 @@
     </table>
 </div>
 
+{% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query_params %}&{{ query_params }}{% endif %}" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query_params %}&{{ query_params }}{% endif %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query_params %}&{{ query_params }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query_params %}&{{ query_params }}{% endif %}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query_params %}&{{ query_params }}{% endif %}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 
 
-<div class="pagination">
-    <span class="step-links">
-        {% if products.has_previous %}
-        <a href="?page=1">&laquo; first</a>
-        <a href="?page={{ products.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ products.number }} of {{ products.paginator.num_pages }}.
-        </span>
-
-        {% if products.has_next %}
-        <a href="?page={{ products.next_page_number }}">next</a>
-        <a href="?page={{ products.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-    </span>
-</div>
 {% endblock %}

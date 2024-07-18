@@ -3,11 +3,76 @@ table.container {
     border-collapse: collapse;
 }
 
-table.container th, table.container td {
+table.container th,
+table.container td {
     border: 1px solid #ddd;
     padding: 8px;
 }
 
+.notification-container {
+    position: relative;
+    display: inline-block;
+}
+
+.notification-box {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    z-index: 1;
+    display: none;
+}
+
+
+.notification-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    border: 2px solid #fff; /* Optional: adds a white border around the dot */
+    transform: translate(25%, -25%); /* Adjusts the position to overlap the icon */
+  }
+  
+  .has-pending-orders .notification-dot {
+    display: block;
+  }
+  
+
+.status-span {
+    padding: 0.2rem;
+    color: #fff;
+    border-radius: 5px;
+}
+.status-pending { background-color: orange; }
+.status-completed { background-color: green; }
+.status-cancelled { background-color: red; }
+
+
+.modal-dialog-right {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    width: 30%; /* Adjust width as needed */
+    max-width: 100%;
+}
+.modal-body {
+    max-height: 70vh; /* Adjust max-height as needed */
+    overflow-y: auto;
+}
+.modal-content {
+    height: 100%;
+    border-radius: 0;
+}
+.modal-backdrop {
+    opacity: 0.5; /* Adjust backdrop opacity if needed */
+}
 table.container th {
     padding-top: 12px;
     padding-bottom: 12px;
@@ -15,15 +80,18 @@ table.container th {
     background-color: #f2f2f2;
     color: black;
 }
+
 .clickable-row {
-    cursor: pointer; /* Change cursor to pointer */
+    cursor: pointer;
+    /* Change cursor to pointer */
 }
 
 .clickable-row:hover {
-    background-color: #f1f1f1; /* Change background color on hover */
+    background-color: #f1f1f1;
+    /* Change background color on hover */
 }
 
 
-i{
+i {
     font-size: 14px !important;
 }

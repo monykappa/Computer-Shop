@@ -140,6 +140,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'home.context_processors.menu_items',
                 'home.context_processors.footer_processor',
+                'dashboard.context_processors.pending_order_count',
+                'dashboard.context_processors.order_history_processor',
                 
             ],
         },

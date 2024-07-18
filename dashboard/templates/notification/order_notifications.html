@@ -1,0 +1,50 @@
+
+{% load static %}
+<!-- order_notifications.html -->
+<li class="nav-item dropdown pe-2 d-flex align-items-center">
+    <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        <i class="fa fa-bell cursor-pointer"></i>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton">
+        {% for order in order_history_notifications %}
+        <li class="mb-2">
+            <a class="dropdown-item border-radius-md" href="javascript:;">
+                <div class="d-flex py-1">
+                    <div class="my-auto">
+                        {% if order.qr_code %}
+                        <img src="{{ order.qr_code.url }}" class="avatar avatar-sm me-3">
+                        {% else %}
+                        <img src="{% static 'path/to/default/image.jpg' %}" class="avatar avatar-sm me-3">
+                        {% endif %}
+                    </div>
+                    <div class="d-flex flex-column justify-content-center">
+                        <h6 class="text-sm font-weight-normal mb-1">
+                            <span class="font-weight-bold">{{ order.status }}</span> order
+                        </h6>
+                        <p class="text-xs text-secondary mb-0">
+                            <i class="fa fa-clock me-1"></i>
+                            {{ order.ordered_date|timesince }} ago
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </li>
+        {% empty %}
+        <li class="mb-2">
+            <a class="dropdown-item border-radius-md" href="javascript:;">
+                <div class="d-flex py-1">
+                    <div class="my-auto">
+                        <img src="{% static 'path/to/default/image.jpg' %}" class="avatar avatar-sm me-3">
+                    </div>
+                    <div class="d-flex flex-column justify-content-center">
+                        <h6 class="text-sm font-weight-normal mb-1">
+                            <span class="font-weight-bold">No orders</span> found
+                        </h6>
+                    </div>
+                </div>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</li>
