@@ -1,8 +1,4 @@
-from django.shortcuts import render
-# import
-from rest_framework import generics
-from .models import *
-from .serializers import AdvertisementSerializer
+from shared_imports import *
 
 
 # Create your views here.

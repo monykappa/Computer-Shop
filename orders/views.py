@@ -1,39 +1,4 @@
-from multiprocessing import AuthenticationError
-from django.views.generic import TemplateView, View, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.views.generic import View
-from django.http import HttpResponseForbidden, HttpResponse, JsonResponse
-from django.contrib.auth import logout
-from django.views.generic import ListView
-from products.models import *
-from django.shortcuts import render, get_object_or_404
-from orders.models import *
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
-from django.views.generic import DetailView
-from userprofile.models import *
-from userprofile.forms import *
-from django.http import HttpResponse
-from PIL import Image, ImageDraw, ImageFont
-from io import BytesIO
-from django.utils import timezone
-import pytz
-from django.urls import reverse_lazy
-from decimal import Decimal
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import *
-# import
-from products.permissions import IsSuperAdmin
-
-
-# Create your views here.
-
-
-import logging
+from shared_imports import *
 
 
 

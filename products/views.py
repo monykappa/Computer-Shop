@@ -1,15 +1,4 @@
-from django.shortcuts import render
-from .models import *
-from django.views.generic import ListView, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, get_object_or_404
-import random
-from .serializers import *
-from rest_framework import generics
-from django.views.generic import TemplateView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .permissions import IsSuperAdmin 
+from shared_imports import *
 
 class ProductListView(TemplateView):
     template_name = 'products/products.html'

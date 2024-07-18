@@ -1,15 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import *
-from orders.models import OrderStatus
-from .forms import *
-from userprofile.models import *
-from django.views.generic import ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
-
-from django.db.models import Prefetch
-
+from shared_imports import *
 
 
 class DeliveryGuyDashboardView(LoginRequiredMixin, ListView):

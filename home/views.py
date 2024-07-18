@@ -1,32 +1,4 @@
-
-from multiprocessing import AuthenticationError
-from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.views.generic import View
-from django.http import HttpResponse, JsonResponse
-from django.contrib.auth import logout
-from django.views.generic import ListView
-from products.models import *
-from django.shortcuts import render, get_object_or_404
-from orders.models import *
-from django.contrib.auth.decorators import login_required
-from django.views.generic import DetailView
-from rest_framework.views import APIView  # type: ignore
-from rest_framework.response import Response # type: ignore
-from rest_framework import status # type: ignore
-from rest_framework.pagination import LimitOffsetPagination # type: ignore
-from rest_framework.filters import SearchFilter # type: ignore
-from products.serializers import *
-from .serializers import *
-from .models import *
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_protect
-from django.urls import reverse_lazy
-from django.db.models import Count
-from django.db.models import Sum
-from django.db.models import Prefetch
+from shared_imports import *
 
 
 

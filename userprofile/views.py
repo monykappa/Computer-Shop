@@ -1,34 +1,6 @@
-from multiprocessing import AuthenticationError
+# myapp/views.py
+from shared_imports import *
 
-from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.views.generic import View
-from django.http import HttpResponse, JsonResponse
-from django.contrib.auth import logout
-from django.views.generic import ListView
-from products.models import *
-from django.shortcuts import render, get_object_or_404
-from orders.models import *
-from .models import *
-from django.contrib.auth.decorators import login_required
-from django.views.generic import *
-from django.contrib.auth.hashers import make_password
-from django.contrib import messages
-from .forms import *
-from django.urls import reverse_lazy
-from django.contrib.auth.views import (
-    PasswordResetView,
-    PasswordResetDoneView,
-    PasswordResetConfirmView,
-    PasswordResetCompleteView,
-)
-from django.contrib.auth.models import User
-from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
-import json
-from django.http import JsonResponse
 
 
 # Create your views here.
