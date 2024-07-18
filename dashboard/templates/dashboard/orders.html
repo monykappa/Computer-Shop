@@ -40,6 +40,10 @@ Dashboard | Order
     .btn-filter {
         position: relative;
     }
+    .clickable-cell:hover {
+        background-color: #e9ecef;
+        cursor: pointer;
+    }
     
 </style>
 
@@ -124,46 +128,46 @@ Dashboard | Order
         </thead>
         <tbody>
             {% if order_histories %}
-                {% for order_history in order_histories %}
-                    <tr class="clickable-row" data-href="{% url 'dashboard:order_detail' order_history.id %}">
-                        <td class="fw-bold text-danger">#{{ order_history.id }}</td>
-                        <td>{{ order_history.ordered_date|date:"M d, Y" }}</td>
-                        <td>${{ order_history.total_price|floatformat:2 }}</td>
-                        <td>{{ order_history.user }}</td>
-                        <td>
-                            {% if order_history.order_address %}
-                                <div style="white-space: normal; max-width: 200px;">
-                                    <div>{{ order_history.order_address.address1 }}</div>
-                                    {% if order_history.order_address.address2 %}
-                                        <div>{{ order_history.order_address.address2 }}</div>
-                                    {% endif %}
-                                    <div>{{ order_history.order_address.city }}, {{ order_history.order_address.province }}</div>
-                                </div>
-                            {% else %}
-                                N/A
+            {% for order_history in order_histories %}
+            <tr>
+                <td class="clickable-cell" data-href="{% url 'dashboard:order_detail' order_history.id %}">{{ order_history.id }}</td>
+                <td class="clickable-cell" data-href="{% url 'dashboard:order_detail' order_history.id %}">{{ order_history.ordered_date|date:"M d, Y" }}</td>
+                <td class="clickable-cell" data-href="{% url 'dashboard:order_detail' order_history.id %}">${{ order_history.total_price|floatformat:2 }}</td>
+                <td class="clickable-cell" data-href="{% url 'dashboard:order_detail' order_history.id %}">{{ order_history.user }}</td>
+                <td class="clickable-cell" data-href="{% url 'dashboard:order_detail' order_history.id %}">
+                    {% if order_history.order_address %}
+                        <div style="white-space: normal; max-width: 200px;">
+                            <div>{{ order_history.order_address.address1 }}</div>
+                            {% if order_history.order_address.address2 %}
+                                <div>{{ order_history.order_address.address2 }}</div>
                             {% endif %}
-                        </td>
-                        <td>
-                            <span class="status-badge bg-{% if order_history.status == 'Pending' %}warning{% elif order_history.status == 'Completed' %}success{% else %}danger{% endif %} text-white">
-                                {{ order_history.get_status_display }}
-                            </span>
-                        </td>
-                        {% if order_history.status == "Pending" %}
-                            <td>
-                                <form method="post" action="{% url 'dashboard:order_status_update' order_history.pk %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="status" value="Completed">
-                                    <button type="submit" class="btn btn-success btn-sm" title="Mark as Completed"><i class="fas fa-check"></i></button>
-                                </form>
-                                <form method="post" action="{% url 'dashboard:order_status_update' order_history.pk %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="status" value="Cancelled">
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Cancel Order"><i class="fas fa-times"></i></button>
-                                </form>
-                            </td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
+                            <div>{{ order_history.order_address.city }}, {{ order_history.order_address.province }}</div>
+                        </div>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td class="clickable-cell" data-href="{% url 'dashboard:order_detail' order_history.id %}">
+                    <span class="status-badge bg-{% if order_history.status == 'Pending' %}warning{% elif order_history.status == 'Completed' %}success{% else %}danger{% endif %} text-white">
+                        {{ order_history.get_status_display }}
+                    </span>
+                </td>
+                {% if order_history.status == "Pending" %}
+                    <td>
+                        <form method="post" action="{% url 'dashboard:order_status_update' order_history.pk %}" class="d-inline complete-order-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="Completed">
+                            <button type="submit" class="btn btn-success btn-sm complete-order-btn" title="Mark as Completed"><i class="fas fa-check"></i></button>
+                        </form>
+                        <form method="post" action="{% url 'dashboard:order_status_update' order_history.pk %}" class="d-inline cancel-order-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="Cancelled">
+                            <button type="submit" class="btn btn-danger btn-sm cancel-order-btn" title="Cancel Order"><i class="fas fa-times"></i></button>
+                        </form>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
             {% else %}
                 <tr>
                     <td colspan="8" class="text-center">No orders found.</td>
@@ -207,6 +211,7 @@ Dashboard | Order
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -214,6 +219,59 @@ Dashboard | Order
             rows.forEach(row => {
                 row.addEventListener('click', function() {
                     window.location.href = this.dataset.href;
+                });
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const clickableCells = document.querySelectorAll('.clickable-cell');
+            const cancelForms = document.querySelectorAll('.cancel-order-form');
+            const completeForms = document.querySelectorAll('.complete-order-form');
+        
+            clickableCells.forEach(cell => {
+                cell.addEventListener('click', function() {
+                    window.location.href = this.dataset.href;
+                });
+            });
+        
+            cancelForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+        
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You are about to cancel this order. This action cannot be undone!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, cancel it!',
+                        cancelButtonText: 'No, keep it'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        
+            completeForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+        
+                    Swal.fire({
+                        title: 'Mark as Completed?',
+                        text: "Are you sure you want to mark this order as completed?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#28a745',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, complete it!',
+                        cancelButtonText: 'No, not yet'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
                 });
             });
         });
