@@ -1,8 +1,36 @@
-<!-- templates/delivery/delivery_history_report.html -->
 {% extends "delivery_base.html" %}
 {% block content %}
 <div class="container mt-5">
     <h2 class="mb-4">Delivery History Report</h2>
+    
+    <!-- Search and Filters Form -->
+    <form method="get" class="mb-4">
+        <div class="form-row">
+            <div class="col-md-3 mb-2">
+                <input type="text" class="form-control" name="order_id" placeholder="Search by Order ID" value="{{ request.GET.order_id }}">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="date" class="form-control" name="start_date" placeholder="Start Date" value="{{ request.GET.start_date }}">
+            </div>
+            <div class="col-md-3 mb-2">
+                <input type="date" class="form-control" name="end_date" placeholder="End Date" value="{{ request.GET.end_date }}">
+            </div>
+            <div class="col-md-3 mb-2">
+                <select class="form-control" name="sort_by">
+                    <option value="new" {% if request.GET.sort_by == 'new' %}selected{% endif %}>Newest</option>
+                    <option value="old" {% if request.GET.sort_by == 'old' %}selected{% endif %}>Oldest</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+        <!-- make the clear filter btton to clear  -->
+
+        <button type="button" class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+      
+    </form>
+    
+    
+    <!-- Table of Delivery Histories -->
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
@@ -18,8 +46,21 @@
                 <td>{{ history.assigned_at }}</td>
                 <td>{{ history.completed_at }}</td>
             </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No records found.</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+    function clearFilters() {
+        document.querySelector('input[name="order_id"]').value = '';
+        document.querySelector('input[name="start_date"]').value = '';
+        document.querySelector('input[name="end_date"]').value = '';
+        document.querySelector('select[name="sort_by"]').selectedIndex = 0;
+    }
+</script>
 {% endblock %}
