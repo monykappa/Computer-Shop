@@ -26,7 +26,6 @@
         <!-- make the clear filter btton to clear  -->
 
         <button type="button" class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
-      
     </form>
     
     
@@ -57,10 +56,14 @@
 
 <script>
     function clearFilters() {
+
         document.querySelector('input[name="order_id"]').value = '';
         document.querySelector('input[name="start_date"]').value = '';
         document.querySelector('input[name="end_date"]').value = '';
         document.querySelector('select[name="sort_by"]').selectedIndex = 0;
+
+        // Submit the form to refresh the table  
+        document.querySelector('form').submit();
     }
 </script>
 {% endblock %}

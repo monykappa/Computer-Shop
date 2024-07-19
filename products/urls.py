@@ -21,6 +21,7 @@ urlpatterns = [
     path('api/public-laptop-specs/<slug:slug>/', views.PublicLaptopSpecDetailAPIView.as_view(), name='public-laptop-spec-detail'),
     path('api/recommended-products/<slug:slug>/', views.RecommendedProductsAPIView.as_view(), name='recommended-products'),
     path('api/public-recommended-products/<slug:slug>/', views.PublicRecommendedProductsAPIView.as_view(), name='public-recommended-products'),
+    
 ]
 
 if settings.DEBUG:

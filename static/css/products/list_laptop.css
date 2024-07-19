@@ -190,6 +190,7 @@
 @media (max-width: 767px) {
     .product-image {
         height: 150px;
+        margin:0 auto;
     }
 
     #products-container {
