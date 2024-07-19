@@ -1,8 +1,27 @@
+.brand-ctn {
+    animation: borderPulse 2s infinite ease-in-out;
+}
+
+@keyframes borderPulse {
+    0%, 100% {
+        border: 2px solid var(--fourth-color);
+        box-shadow: 0 0 5px var(--fourth-color);
+    }
+
+    50% {
+        border: 2px solid transparent;
+        box-shadow: 0 0 15px var(--fourth-color);
+    }
+}
+
+
+
 
 #products-container {
     width: 80%;
     margin: 0 auto;
 }
+
 
 .product-card {
     position: relative;
@@ -13,20 +32,22 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.3s ease;
-    height: 100%; /* Ensure the card takes full height of the flex container */
+    height: 100%;
+    /* Ensure the card takes full height of the flex container */
 }
 
 .warranty-badge {
     position: absolute;
     top: 15px;
     right: -0px;
-    background-color: #4CAF50 !important; /* Green background */
+    background-color: #4CAF50 !important;
+    /* Green background */
     color: white;
     padding: 5px 10px;
     font-size: 0.8rem;
     font-weight: bold;
     z-index: 2;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     border-radius: 3px;
     transform: rotate(15deg);
 }
@@ -38,7 +59,8 @@
     left: 0;
     width: 10px;
     height: 5px;
-    background-color: #45a049; /* Slightly darker green for the "fold" */
+    background-color: #45a049;
+    /* Slightly darker green for the "fold" */
     transform: skew(45deg);
 }
 
@@ -49,9 +71,11 @@
     right: 0;
     width: 10px;
     height: 5px;
-    background-color: #45a049; /* Slightly darker green for the "fold" */
+    background-color: #45a049;
+    /* Slightly darker green for the "fold" */
     transform: skew(-45deg);
 }
+
 .product-card {
     opacity: 0;
     transform: translateY(20px);
@@ -141,27 +165,33 @@
     }
 }
 
-@media (max-width: 430px){
-    .product-image img{
+@media (max-width: 430px) {
+    .product-image img {
         width: 100%;
         height: 100%;
         display: block;
         margin-left: auto;
         margin-right: auto;
     }
-    .product-card{
-        width:100%;
-        padding:0;
-        margin:0;
+
+    .product-card {
+        width: 100%;
+        padding: 0;
+        margin: 0;
     }
-    .col-6, .col-md-4, .col-lg-3{
-        padding:0;
+
+    .col-6,
+    .col-md-4,
+    .col-lg-3 {
+        padding: 0;
     }
 }
+
 @media (max-width: 767px) {
     .product-image {
         height: 150px;
     }
+
     #products-container {
         width: 95% !important;
         margin: 0 auto;
@@ -174,7 +204,9 @@
     flex-wrap: wrap;
 }
 
-.col-6, .col-md-4, .col-lg-3 {
+.col-6,
+.col-md-4,
+.col-lg-3 {
     display: flex;
     flex-direction: column;
 }

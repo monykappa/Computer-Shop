@@ -139,8 +139,6 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
 
         return context
 
-
-        return context
     
 class DashboardSignInView(LoginView):
     template_name = 'dashboard/sign_in.html'
@@ -169,7 +167,7 @@ class DashboardSignInView(LoginView):
         return reverse_lazy('dashboard:login')
     
     
-class DashboardLogoutView(UserPermission, View):
+class DashboardLogoutView(View):
     def get(self, request):
         logout(request)
         return redirect('dashboard:sign_in')
@@ -217,7 +215,6 @@ class AdvertisementDeleteView(UserPermission, DeleteView):
         return self.delete(request, *args, **kwargs)
     
 
-from django.utils.http import urlencode
 class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
     model = OrderHistory
     template_name = 'dashboard/orders.html'
@@ -241,13 +238,13 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
         if self.search:
             queryset = queryset.filter(
                 Q(user__username__icontains=self.search) |
-                Q(id__icontains=self.search) |
-                Q(total_price__icontains=self.search) |
-                Q(order_address__address1__icontains=self.search) |
-                Q(order_address__address2__icontains=self.search) |
-                Q(order_address__city__icontains=self.search) |
-                Q(order_address__province__icontains=self.search) |
-                Q(order_address__phone__icontains=self.search)
+                Q(id__icontains(self.search)) |
+                Q(total_price__icontains(self.search)) |
+                Q(order_address__address1__icontains(self.search)) |
+                Q(order_address__address2__icontains(self.search)) |
+                Q(order_address__city__icontains(self.search)) |
+                Q(order_address__province__icontains(self.search)) |
+                Q(order_address__phone__icontains(self.search))
             )
             self.filters_applied = True  # Set flag when filter is applied
 
@@ -260,7 +257,8 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
                 pass
         if self.end_date:
             try:
-                end_date = datetime.strptime(self.end_date, '%Y-%m-%d').date()
+                end_date = datetime.strptime(self.end_date, '%Y-%m-%d')
+                end_date = end_date + timedelta(days=1) - timedelta(seconds=1)  # Adjust to 23:59:59
                 queryset = queryset.filter(ordered_date__lte=end_date)
                 self.filters_applied = True  # Set flag when filter is applied
             except ValueError:
@@ -758,16 +756,69 @@ class UserListView(UserPermission, LoginRequiredMixin, ListView):
     context_object_name = 'users'
 
     def get_queryset(self):
-        # Exclude superusers, staff, and delivery staff from the customers' table
-        return User.objects.filter(is_superuser=False, is_staff=False, deliverystaff__isnull=True)
+        user_type = self.request.GET.get('user_type', 'customers')
+        
+        if user_type == 'customers':
+            queryset = User.objects.filter(is_superuser=False, is_staff=False, deliverystaff__isnull=True)
+        elif user_type == 'delivery_staff':
+            queryset = DeliveryStaff.objects.select_related('user').all()
+        elif user_type == 'staff_users':
+            queryset = User.objects.filter(is_staff=True, is_superuser=False, deliverystaff__isnull=True)
+        elif user_type == 'superusers':
+            queryset = User.objects.filter(is_superuser=True)
+        else:
+            queryset = User.objects.all()
+
+        return self.apply_filters(queryset, user_type)
+
+    def apply_filters(self, queryset, user_type):
+        search_query = self.request.GET.get('search')
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        sort_by = self.request.GET.get('sort_by', 'username')
+        sort_order = self.request.GET.get('sort_order', 'asc')
+
+        if search_query:
+            if user_type == 'delivery_staff':
+                queryset = queryset.filter(
+                    Q(user__username__icontains=search_query) |
+                    Q(user__email__icontains=search_query) |
+                    Q(user__first_name__icontains=search_query) |
+                    Q(user__last_name__icontains=search_query) |
+                    Q(phone_number__icontains=search_query)
+                )
+            else:
+                queryset = queryset.filter(
+                    Q(username__icontains=search_query) |
+                    Q(email__icontains=search_query) |
+                    Q(first_name__icontains=search_query) |
+                    Q(last_name__icontains=search_query)
+                )
+
+        if start_date and end_date:
+            date_field = 'user__date_joined' if user_type == 'delivery_staff' else 'date_joined'
+            queryset = queryset.filter(**{f'{date_field}__range': [start_date, end_date]})
+
+        if sort_by in ['username', 'email', 'first_name', 'last_name', 'date_joined']:
+            if user_type == 'delivery_staff':
+                sort_by = f'user__{sort_by}'
+            if sort_order == 'desc':
+                sort_by = f'-{sort_by}'
+            queryset = queryset.order_by(sort_by)
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['staff'] = DeliveryStaff.objects.select_related('user').all()
-        context['staff_users'] = User.objects.filter(is_staff=True, is_superuser=False, deliverystaff__isnull=True)
-        context['superusers'] = User.objects.filter(is_superuser=True)
+        user_type = self.request.GET.get('user_type', 'customers')
+        context['users'] = self.get_queryset()
+        context['user_type'] = user_type
+        context['search_query'] = self.request.GET.get('search', '')
+        context['sort_by'] = self.request.GET.get('sort_by', 'username')
+        context['sort_order'] = self.request.GET.get('sort_order', 'asc')
+        context['start_date'] = self.request.GET.get('start_date', '')
+        context['end_date'] = self.request.GET.get('end_date', '')
         return context
-
 
 class DeliveryStaffUpdateView(UserPermission, LoginRequiredMixin, UpdateView):
     model = DeliveryStaff

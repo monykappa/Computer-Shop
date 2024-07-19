@@ -32,7 +32,7 @@ async function fetchData() {
             let brandSection = document.createElement('div');
             brandSection.id = brand.slug;
             brandSection.innerHTML = `
-                    <div class="text-center mt-5 mb-3 bg-light p-3 border rounded">
+                    <div class="text-center mt-5 mb-3 bg-light p-3 border rounded brand-ctn">
                         <img src="${brand.logo}" width="120" class="img-fluid" alt="${brand.name} logo" />
                     </div>
                     <div class="row" id="${brand.slug}-products" data-brand-id="${brand.id}"></div>

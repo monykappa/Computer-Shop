@@ -44,13 +44,27 @@ Dashboard | Order
         background-color: #e9ecef;
         cursor: pointer;
     }
+    #filter-container {
+        position: sticky;
+        top: 20px; /* Adjust this value to set the distance from the top of the viewport */
+        max-height: calc(100vh - 40px); /* Adjust this value to ensure it doesn't overflow the viewport */
+        overflow-y: auto;
+    }
+
+    @media (max-width: 991px) {
+        #filter-container {
+            position: static;
+            max-height: none;
+            overflow-y: visible;
+        }
+    }
     
 </style>
 
 <div class="container-fluid py-4">
         <div class="row">
             <div class="col-lg-3 mb-4">
-                <div class="card">
+                <div class="card" id="filter-container">
                     <div class="card-body">
                         <h5 class="card-title mb-4">Filter Orders</h5>
                         <form method="get">

@@ -4,19 +4,60 @@ Dashboard | Users List
 {% endblock title %}
 
 {% block content %}
-<h1 class="mb-4">Users and Delivery Staff</h1>
+
+
+<h1 class="mb-4">Users</h1>
 
 <!-- Buttons to toggle views -->
 <div class="mb-4">
-    <button class="btn btn-primary" onclick="showCustomers()">Show Customers</button>
-    <button class="btn btn-secondary" onclick="showDeliveryStaff()">Show Delivery Staff</button>
-    <button class="btn btn-info" onclick="showStaffUsers()">Show Staff Users</button>
-    <button class="btn btn-warning" onclick="showSuperusers()">Show Superusers</button>
+    <a href="?user_type=customers" class="btn btn-primary">Customers</a>
+    <a href="?user_type=delivery_staff" class="btn btn-secondary">Delivery Staff</a>
+    <a href="?user_type=staff_users" class="btn btn-info">Staff Users</a>
+    <a href="?user_type=superusers" class="btn btn-warning">Superusers</a>
 </div>
 
-<!-- Customers Table -->
-<div id="customers-table">
-    <h2 class="mb-3">Customers</h2>
+
+<form id="userFilterForm" method="get" class="mb-4">
+    <input type="hidden" name="user_type" value="{{ user_type }}">
+    <div class="row g-3 align-items-center">
+        <div class="col-auto">
+            <input type="text" name="search" id="search" class="form-control" placeholder="Search users" value="{{ search_query }}">
+        </div>
+        <div class="col-auto">
+            <select name="sort_by" id="sort_by" class="form-select">
+                <option value="username" {% if sort_by == 'username' %}selected{% endif %}>Username</option>
+                <option value="email" {% if sort_by == 'email' %}selected{% endif %}>Email</option>
+                <option value="first_name" {% if sort_by == 'first_name' %}selected{% endif %}>First Name</option>
+                <option value="last_name" {% if sort_by == 'last_name' %}selected{% endif %}>Last Name</option>
+                <option value="date_joined" {% if sort_by == 'date_joined' %}selected{% endif %}>Date Joined</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <select name="sort_order" id="sort_order" class="form-select">
+                <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+                <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" id="date-range" name="date_range" class="form-control" placeholder="Select date range" value="{{ start_date }} to {{ end_date }}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Apply</button>
+        </div>
+        <div class="col-auto">
+            <button type="button" id="clearButton" class="btn btn-secondary">Clear</button>
+        </div>
+    </div>
+</form>
+
+<div id="users-table">
+    <h2 class="mb-3">
+        {% if user_type == 'customers' %}Customers
+        {% elif user_type == 'delivery_staff' %}Delivery Staff
+        {% elif user_type == 'staff_users' %}Staff Users
+        {% elif user_type == 'superusers' %}Superusers
+        {% else %}All Users{% endif %}
+    </h2>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -24,16 +65,26 @@ Dashboard | Users List
                 <th>Email</th>
                 <th>First Name</th>
                 <th>Last Name</th>
+                {% if user_type == 'delivery_staff' %}
+                <th>Phone Number</th>
+                <th>Availability</th>
+                {% endif %}
+                <th>Date Joined</th>
                 <th>Edit</th>
             </tr>
         </thead>
         <tbody>
             {% for user in users %}
             <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }}</td>
+                <td>{% if user_type == 'delivery_staff' %}{{ user.user.username }}{% else %}{{ user.username }}{% endif %}</td>
+                <td>{% if user_type == 'delivery_staff' %}{{ user.user.email }}{% else %}{{ user.email }}{% endif %}</td>
+                <td>{% if user_type == 'delivery_staff' %}{{ user.user.first_name }}{% else %}{{ user.first_name }}{% endif %}</td>
+                <td>{% if user_type == 'delivery_staff' %}{{ user.user.last_name }}{% else %}{{ user.last_name }}{% endif %}</td>
+                {% if user_type == 'delivery_staff' %}
+                <td>{{ user.phone_number }}</td>
+                <td>{{ user.is_available|yesno:"Yes,No" }}</td>
+                {% endif %}
+                <td>{% if user_type == 'delivery_staff' %}{{ user.user.date_joined|date:"Y-m-d H:i" }}{% else %}{{ user.date_joined|date:"Y-m-d H:i" }}{% endif %}</td>
                 <td>
                     <a class="btn btn-sm btn-warning" href="{% url 'dashboard:user_update' user.pk %}">Edit</a>
                 </td>
@@ -42,94 +93,6 @@ Dashboard | Users List
         </tbody>
     </table>
 </div>
-
-<!-- Delivery Staff Table -->
-<div id="delivery-staff-table" style="display:none;">
-    <h2 class="mb-3">Delivery Staff</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Phone Number</th>
-                <th>Availability</th>
-                <th>Edit</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for staff in staff %}
-            <tr>
-                <td>{{ staff.user.username }}</td>
-                <td>{{ staff.phone_number }}</td>
-                <td>{{ staff.is_available|yesno:"Yes,No" }}</td>
-                <td><a class="btn btn-sm btn-warning" href="{% url 'dashboard:staff_update' staff.user.pk %}">Edit</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<!-- Staff Users Table -->
-<div id="staff-users-table" style="display:none;">
-    <h2 class="mb-3">Staff Users</h2>
-    <a class="btn btn-success mb-3" href="{% url 'dashboard:add_superuser' %}">Add Staff</a>
-
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Edit</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in staff_users %}
-            <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }}</td>
-                <td>
-                    <a class="btn btn-sm btn-warning" href="{% url 'dashboard:user_update' user.pk %}">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<!-- Superusers Table -->
-<div id="superusers-table" style="display:none;">
-    <h2 class="mb-3">Superusers</h2>
-    <a class="btn btn-success mb-3" href="{% url 'dashboard:add_superuser' %}">Add Superuser</a>
-
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Edit</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in superusers %}
-            <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }}</td>
-                <td>
-                    <a class="btn btn-sm btn-warning" href="{% url 'dashboard:user_update' user.pk %}">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
 <script>
     function showCustomers() {
         document.getElementById('customers-table').style.display = 'block';
@@ -158,5 +121,107 @@ Dashboard | Users List
         document.getElementById('staff-users-table').style.display = 'none';
         document.getElementById('superusers-table').style.display = 'block';
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('userFilterForm');
+        const clearButton = document.getElementById('clearButton');
+    
+        clearButton.addEventListener('click', function() {
+            // Clear all input fields except the hidden user_type
+            const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
+            inputs.forEach(input => {
+                if (input.type === 'date' || input.type === 'text') {
+                    input.value = '';
+                } else if (input.type === 'select-one') {
+                    input.selectedIndex = 0;
+                }
+            });
+    
+            // Submit the form to refresh the page with cleared filters
+            form.submit();
+        });
+    
+        // Improve date inputs
+        const startDate = document.getElementById('start_date');
+        const endDate = document.getElementById('end_date');
+    
+        // Set min date for end_date based on start_date
+        startDate.addEventListener('change', function() {
+            endDate.min = this.value;
+        });
+    
+        // Set max date for start_date based on end_date
+        endDate.addEventListener('change', function() {
+            startDate.max = this.value;
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('userFilterForm');
+        const clearButton = document.getElementById('clearButton');
+        const dateRangeInput = document.getElementById('date-range');
+    
+        // Initialize Flatpickr
+        const fp = flatpickr(dateRangeInput, {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "F j, Y",
+            rangeSeparator: " to ",
+            showMonths: 2,
+            static: true,
+            onChange: function(selectedDates, dateStr, instance) {
+                console.log('Selected dates:', selectedDates);
+            }
+        });
+    
+        clearButton.addEventListener('click', function() {
+            // Clear all input fields except the hidden user_type
+            const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
+            inputs.forEach(input => {
+                if (input.type === 'text' || input.type === 'select-one') {
+                    input.value = '';
+                }
+            });
+    
+            // Clear Flatpickr
+            fp.clear();
+    
+            // Submit the form to refresh the page with cleared filters
+            form.submit();
+        });
+    
+        // Update hidden inputs before form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const selectedDates = fp.selectedDates;
+            if (selectedDates.length === 2) {
+                // Adjust start date to 00:00:00 and end date to 23:59:59
+                const startDate = new Date(selectedDates[0].getTime() - selectedDates[0].getTimezoneOffset() * 60000).toISOString().split('T')[0] + 'T00:00:00';
+                const endDate = new Date(selectedDates[1].getTime() - selectedDates[1].getTimezoneOffset() * 60000).toISOString().split('T')[0] + 'T23:59:59';
+    
+                console.log('Start Date:', startDate);
+                console.log('End Date:', endDate);
+    
+                // Create hidden inputs for start_date and end_date
+                const startDateInput = document.createElement('input');
+                startDateInput.type = 'hidden';
+                startDateInput.name = 'start_date';
+                startDateInput.value = startDate;
+    
+                const endDateInput = document.createElement('input');
+                endDateInput.type = 'hidden';
+                endDateInput.name = 'end_date';
+                endDateInput.value = endDate;
+    
+                // Append hidden inputs to the form
+                form.appendChild(startDateInput);
+                form.appendChild(endDateInput);
+            }
+    
+            // Submit the form
+            form.submit();
+        });
+    });
+    
 </script>
 {% endblock content %}

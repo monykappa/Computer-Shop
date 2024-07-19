@@ -1,8 +1,48 @@
 from shared_imports import *
 
 
+@login_required
+def dashboard(request):
+    try:
+        delivery_staff = request.user.deliverystaff
+    except DeliveryStaff.DoesNotExist:
+        return render(request, 'delivery/not_delivery_staff.html')
+
+    # Total completed deliveries
+    total_completed = DeliveryAssignmentHistory.objects.filter(delivery_staff=delivery_staff).count()
+
+    # Pending deliveries
+    pending_deliveries = DeliveryAssignment.objects.filter(
+        delivery_staff=delivery_staff,
+        completed_at__isnull=True
+    ).select_related('order')
+
+    # Completed deliveries (last 7 days)
+    seven_days_ago = timezone.now() - timezone.timedelta(days=7)
+    completed_deliveries = DeliveryAssignmentHistory.objects.filter(
+        delivery_staff=delivery_staff,
+        completed_at__gte=seven_days_ago
+    ).select_related('order')
+
+    # Daily completed deliveries (last 7 days)
+    daily_completed = DeliveryAssignmentHistory.objects.filter(
+        delivery_staff=delivery_staff,
+        completed_at__gte=seven_days_ago
+    ).values('completed_at__date').annotate(count=Count('id')).order_by('completed_at__date')
+
+    context = {
+        'delivery_staff': delivery_staff,
+        'total_completed': total_completed,
+        'pending_deliveries': pending_deliveries,
+        'completed_deliveries': completed_deliveries,
+        'daily_completed': daily_completed,
+    }
+
+    return render(request, 'delivery/dashboard.html', context)
+
+
 class DeliveryGuyDashboardView(LoginRequiredMixin, ListView):
-    template_name = "delivery/dashboard.html"
+    template_name = "delivery/delivery_order.html"
     context_object_name = "assignments"
     login_url = "dashboard:sign_in"
 
