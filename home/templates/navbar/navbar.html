@@ -53,6 +53,20 @@
             <li class="nav-item menu">
                 <a class="nav-link user" href="{% url 'userprofile:profile' %}">{{ user.username }}</a>
             </li>
+            <!-- base.html -->
+            {% if user.is_authenticated %}
+            {% if user.is_staff or user.is_superuser %}
+            <li class="nav-item menu">
+                <a href="{% url 'dashboard:dashboard' %}" class="nav-link">Dashboard</a>
+            </li>
+            {% elif user.deliverystaff %}
+            <li class="nav-item menu">
+                <a href="{% url 'delivery:dashboard' %}" class="nav-link">Dashboard</a>
+
+            </li>
+            {% endif %}
+            {% endif %}
+
             <li class="nav-item menu">
                 <a class="nav-link" href="#" id="logoutLink">Logout</a>
             </li>
@@ -69,7 +83,7 @@
 </nav>
 
 <script>
-    document.getElementById('logoutLink').addEventListener('click', function(event) {
+    document.getElementById('logoutLink').addEventListener('click', function (event) {
         event.preventDefault();
         Swal.fire({
             title: 'Are you sure you want to logout?',

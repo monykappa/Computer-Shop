@@ -161,7 +161,7 @@ class DashboardSignInView(LoginView):
     def get_success_url(self):
         if self.request.user.is_authenticated:
             if hasattr(self.request.user, 'deliverystaff'): 
-                return reverse_lazy('delivery:delivery_guy_dashboard')
+                return reverse_lazy('delivery:dashboard')
             else:
                 return reverse_lazy('dashboard:dashboard')
         return reverse_lazy('dashboard:login')
