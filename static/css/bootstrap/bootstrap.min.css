@@ -2334,9 +2334,9 @@ pre code {
 .form-control:focus {
     color: #495057;
     background-color: #fff;
-    border-color: #80bdff;
+    border-color: var(--third-color);
     outline: 0;
-    box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25)
+    box-shadow: 0 0 0 .2rem var(--third-color)
 }
 
 .form-control::-webkit-input-placeholder {
@@ -2869,6 +2869,24 @@ textarea.form-control.is-invalid {
 .btn.disabled,
 .btn:disabled {
     opacity: .65
+}
+
+.btn-sign-in{
+    background-color:var(--fourth-color);
+    color:#fff;
+}
+.btn-sign-in:hover{
+    background-color:#0c5168d1;
+    color:#fff;
+}
+
+.btn-sign-up{
+    background-color:var(--fourth-color);
+    color:#fff;
+}
+.btn-sign-up:hover{
+    background-color:#0c5168d1;
+    color:#fff;
 }
 
 .btn:not(:disabled):not(.disabled) {

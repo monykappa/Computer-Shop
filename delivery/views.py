@@ -22,7 +22,7 @@ def dashboard(request):
     completed_deliveries = DeliveryAssignmentHistory.objects.filter(
         delivery_staff=delivery_staff,
         completed_at__gte=seven_days_ago
-    ).select_related('order')
+    ).select_related('order').order_by('-completed_at')
 
     # Daily completed deliveries (last 7 days)
     daily_completed = DeliveryAssignmentHistory.objects.filter(
@@ -39,6 +39,7 @@ def dashboard(request):
     }
 
     return render(request, 'delivery/dashboard.html', context)
+
 
 
 class DeliveryGuyDashboardView(LoginRequiredMixin, ListView):

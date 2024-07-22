@@ -1,12 +1,6 @@
 {% extends 'delivery_base.html' %}
 {% load static %}
-
-
-
-
-
 {% block content %}
-
 
 <style>
     .card-hover:hover {
@@ -16,7 +10,7 @@
 </style>
 <div class="">
     <h1 class="mb-4">Dashboard</h1>
-    
+
     <div class="row g-4 mb-5">
         <div class="col-md-4">
             <div class="card h-100 card-hover">
@@ -79,7 +73,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-6">
             <div class="card card-hover">
                 <div class="card-header bg-success text-white">
@@ -111,47 +105,47 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="card card-hover mt-4">
-        <div class="card-header bg-info text-white">
-            <h5 class="card-title mb-0">Daily Completed Deliveries (Last 7 Days)</h5>
-        </div>
-        <div class="card-body">
-            <canvas id="dailyCompletedChart" style="height: 300px;"></canvas>
-        </div>
-    </div>
 
-<script>
-    var ctx = document.getElementById('dailyCompletedChart').getContext('2d');
-    var chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [{% for item in daily_completed %}'{{ item.completed_at__date|date:"M d" }}',{% endfor %}],
+        <div class="card card-hover mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Daily Completed Deliveries (Last 7 Days)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="dailyCompletedChart" style="height: 300px;"></canvas>
+            </div>
+        </div>
+
+        <script>
+            var ctx = document.getElementById('dailyCompletedChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [{% for item in daily_completed %}'{{ item.completed_at__date|date:"M d" }}',{% endfor %}],
             datasets: [{
                 label: 'Completed Deliveries',
-                data: [{% for item in daily_completed %}{{ item.count }},{% endfor %}],
+                data: [{% for item in daily_completed %}{{ item.count }}, {% endfor %}],
                 backgroundColor: 'rgba(0, 123, 255, 0.5)',
-                borderColor: 'rgba(0, 123, 255, 1)',
-                borderWidth: 1
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                        borderWidth: 1
             }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    precision: 0
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
+            options: {
+                responsive: true,
+                    maintainAspectRatio: false,
+                        scales: {
+                    y: {
+                        beginAtZero: true,
+                            precision: 0
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
                 }
             }
-        }
     });
 
-</script>
-{% endblock %}  
+        </script>
+        {% endblock %}

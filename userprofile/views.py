@@ -163,3 +163,35 @@ class EditAddressView(UpdateView):
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'error': form.errors}, status=400)
         return super().form_invalid(form)
+
+class EditProfilePictureView(UpdateView):
+    model = UserProfile
+    form_class = ProfilePictureForm
+    template_name = 'edit/edit_profile_picture.html'
+    success_url = reverse_lazy('userprofile:my_info')
+
+    def get_object(self):
+        return UserProfile.objects.get_or_create(user=self.request.user)[0]
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'pfp_url': self.object.pfp.url if self.object.pfp else None})
+        return response
+
+    def form_invalid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'error': form.errors}, status=400)
+        return super().form_invalid(form)
+
+@require_POST
+def clear_profile_picture(request):
+    if request.user.is_authenticated:
+        profile = request.user.userprofile
+        profile.pfp = None  # Or however you store the absence of a profile picture
+        profile.save()
+        
+        default_pfp_url = "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+        return JsonResponse({'success': True, 'default_pfp_url': default_pfp_url})
+    else:
+        return JsonResponse({'error': 'User not authenticated'}, status=403)

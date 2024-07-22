@@ -109,7 +109,7 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
         
         top_provinces = OrderHistory.objects.values('order_address__province') \
             .annotate(order_count=Count('id')) \
-            .order_by('-order_count')[:5]
+            .order_by('-order_count')[:6]
 
         provinces = [item['order_address__province'] for item in top_provinces]
         order_counts = [item['order_count'] for item in top_provinces]

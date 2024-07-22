@@ -22,3 +22,7 @@ class AddressForm(forms.ModelForm):
         return cleaned_data
 
 
+class ProfilePictureForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['pfp']

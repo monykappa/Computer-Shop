@@ -4,6 +4,23 @@
 {% block title %}Profile{% endblock title %}
 
 {% block content %}
+<style>
+    .profile-picture-container {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto 1rem;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-picture {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+</style>
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
@@ -11,16 +28,22 @@
                 <div class="card-body text-center">
                     <h1 class="card-title mb-4">Profile</h1>
                     
-                    {% if user.socialaccount_set.all %}
-                        <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}" class="rounded-circle img-thumbnail mb-3" width="150" height="150" alt="Social Account Profile Picture">
-                        <h2 class="h4 mb-3">{{ user.socialaccount_set.all.0.extra_data.name }}</h2>
-                    {% elif user.userprofile.profile_picture %}
-                        <img src="{{ user.userprofile.profile_picture.url }}" class="rounded-circle img-thumbnail mb-3" width="150" height="150" alt="User Profile Picture">
-                        <h2 class="h4 mb-3">{{ user.get_full_name }}</h2>
-                    {% else %}
-                    <img src="https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg" alt="Default Profile Picture" class="rounded-circle img-fluid"> 
-                        <h2 class="h4 mb-5 mt-5">{{ user.get_full_name }}</h2>
-                    {% endif %}
+                    <div class="profile-picture-container">
+                        {% if user.socialaccount_set.exists %}
+                            <img src="{{ user.socialaccount_set.all.0.get_avatar_url }}" class="profile-picture rounded-circle img-thumbnail mb-3" width="150" height="150" alt="Social Account Profile Picture">
+                            <h2 class="h4 mb-3">{{ user.socialaccount_set.all.0.extra_data.name }}</h2>
+                        {% elif user.userprofile.pfp %}
+                        <img src="{{ user.userprofile.pfp.url }}" class="profile-picture" alt="User Profile Picture"
+                        id="profilePicture">
+                        {% else %}
+                        <img src="https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                        class="profile-picture rounded-circle img-thumbnail mb-3"
+                        width="150" height="150">
+                            <h2 class="h4 mb-5 mt-5">{{ user.get_full_name }}</h2>
+                        {% endif %}
+                    </div>
+                    <h2 class="h4 mb-3">{{ user.get_full_name }}</h2>
+
                     
                     <div class="d-grid gap-2 col-lg-8 mx-auto">
                         <a href="{% url 'userprofile:my_info' %}" class="btn btn-outline-primary">My Info</a>
@@ -31,4 +54,5 @@
         </div>
     </div>
 </div>
+
 {% endblock content %}

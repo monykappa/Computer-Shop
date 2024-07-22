@@ -27,6 +27,8 @@ urlpatterns = [
     path('edit-username/', views.EditUsernameView.as_view(), name='edit_username'),
     path('edit-full-name/', views.EditFullNameView.as_view(), name='edit_full_name'),
     path('edit-address/', views.EditAddressView.as_view(), name='edit_address'),
+    path('edit-profile-picture/', views.EditProfilePictureView.as_view(), name='edit_profile_picture'),
+    
     
     # logout
     path("logout/", views.LogoutView.as_view(), name="logout"),

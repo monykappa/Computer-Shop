@@ -1,5 +1,9 @@
-{% extends 'base.html' %} {% load socialaccount %} {% load static %}
-{% block title %}Sign Up{% endblock title %} {% block extra_head %}
+{% extends 'base.html' %}
+{% load socialaccount %}
+{% load static %}
+{% block title %}Sign Up{% endblock title %}
+
+{% block extra_head %}
 <style>
     .card {
         max-width: 500px;
@@ -29,12 +33,12 @@
 
     .img-thumbnail {
         max-width: 100px;
-        /* Adjust the maximum width as needed */
         max-height: 100px;
-        /* Adjust the maximum height as needed */
     }
 </style>
-{% endblock extra_head %} {% block content %}
+{% endblock extra_head %}
+
+{% block content %}
 <div class="container">
     <div class="row justify-content-center align-items-center min-vh-50">
         <div class="col-md-8 col-lg-6">
@@ -68,8 +72,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="pfp" class="form-label">Profile Picture</label>
-                            <input type="file" class="form-control" id="pfp" name="pfp" style="display: none"
-                                onchange="previewFileName()" />
+                            <input type="file" class="form-control" id="pfp" name="pfp" accept=".png, .jpg, .jpeg, .webp"
+                                style="display: none" onchange="previewFileName()" />
                             <label for="pfp" class="btn btn-outline-secondary w-100">Browse</label>
                             <div id="file-name" class="mt-2"></div>
                             <img id="image-preview" src="" alt="Preview Image" class="img-thumbnail mt-3"
@@ -88,9 +92,7 @@
                             <i class="fa-solid fa-eye password-toggle" id="togglePassword2"></i>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                Sign Up
-                            </button>
+                            <button type="submit" class="btn btn-sign-up btn-lg">Sign Up</button>
                         </div>
                     </form>
                     <hr class="my-4" />
@@ -116,16 +118,26 @@
         </div>
     </div>
 </div>
+{% endblock content %}
 
-{% endblock content %} {% block js %}
+{% block js %}
 <script src="{% static 'js/auth/signUp.js' %}"></script>
 <script>
     function previewFileName() {
         const fileInput = document.getElementById("pfp");
         const fileNameDiv = document.getElementById("file-name");
         const imagePreview = document.getElementById("image-preview");
+        const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
 
         if (fileInput.files && fileInput.files[0]) {
+            if (!allowedExtensions.exec(fileInput.files[0].name)) {
+                alert('Invalid file type. Please upload a file with one of the following extensions: .jpg, .jpeg, .png, .webp');
+                fileInput.value = '';
+                fileNameDiv.textContent = '';
+                imagePreview.style.display = 'none';
+                return;
+            }
+
             fileNameDiv.textContent = `Selected file: ${fileInput.files[0].name}`;
 
             const reader = new FileReader();
