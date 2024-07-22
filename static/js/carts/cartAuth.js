@@ -13,6 +13,24 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function toggleLoadingScreen(show) {
+    if (show) {
+        $('body').append(`
+            <div id="loading-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: black; background: white; padding: 20px; border-radius: 5px;">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        `);
+    } else {
+        // Add a delay before hiding the loading screen
+        setTimeout(function() {
+            $('#loading-overlay').remove();
+        }, 100); // Delay of 100 milliseconds
+    }
+}
+
+
 function debounce(func, delay) {
     let debounceTimer;
     return function () {
@@ -26,6 +44,8 @@ function debounce(func, delay) {
 function updateQuantity(itemId, newQuantity) {
     const updateUrl = `/cart/update_cart_quantity/${itemId}/`;
     const csrftoken = getCookie('csrftoken');
+
+    toggleLoadingScreen(true); // Show loading screen
 
     $.ajax({
         url: updateUrl,
@@ -43,16 +63,19 @@ function updateQuantity(itemId, newQuantity) {
             $('input[data-item-id="' + response.item_id + '"]').val(response.quantity);
             // Update the item count
             $('#item-count').text('(' + response.item_count + ')');
+            toggleLoadingScreen(false); // Hide loading screen
         },
         error: function (response) {
             console.error('Error updating cart:', response);
+            toggleLoadingScreen(false); // Hide loading screen even if there's an error
         }
     });
 }
-
 function removeCartItem(itemId) {
     const removeUrl = `/cart/remove/${itemId}/`;
     const csrftoken = getCookie('csrftoken');
+
+    toggleLoadingScreen(true); // Show loading screen
 
     $.ajax({
         url: removeUrl,
@@ -66,10 +89,10 @@ function removeCartItem(itemId) {
         },
         error: function (response) {
             console.error('Error removing item from cart:', response);
+            toggleLoadingScreen(false); // Hide loading screen if there's an error
         }
     });
 }
-
 
 
 function attachEventListeners() {

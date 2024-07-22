@@ -1,6 +1,6 @@
 {% load static %}
 <style>
-    ul li {
+    ul.list-specs li {
         margin-top: 1rem;
         text-align: left;
         margin-left: 1rem;
@@ -239,7 +239,7 @@
             <div class="row">
                 <div class="col-md-6 border" style="background:white !important; padding:1rem; border-radius:8px;">
     <h3 style="color:var(--fourth-color);">Specification</h3>
-    <ul>
+    <ul class="list-specs">
         ${details.cpu && details.cpu.cpu_brand ? `
         <li><strong>CPU:</strong> ${details.cpu.cpu_brand.name || ''} ${details.cpu.model || ''} 
             ${details.cpu.cores ? `- ${details.cpu.cores} cores` : ''} 
