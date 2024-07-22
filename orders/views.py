@@ -331,32 +331,61 @@ def confirm_address(request):
     return render(request, "confirm/confirm_address.html", {"form": form})
 
 
+def send_order_confirmation_email(user_email, order_id, total_price, order_address, order_items):
+    subject = 'Order Confirmation'
+    
+    context = {
+        'order_id': order_id,
+        'total_price': total_price,
+        'order_address': order_address,
+        'order_items': order_items,
+    }
+    
+    html_message = render_to_string('order/order_confirmation_email.html', context)
+    
+    try:
+        email = EmailMessage(
+            subject,
+            html_message,
+            from_email=settings.EMAIL_HOST_USER,
+            to=[user_email]
+        )
+        email.content_subtype = 'html'
+        email.send()
+        logger.info(f"Order confirmation email sent to {user_email}")
+    except Exception as e:
+        logger.error(f"Failed to send email: {e}")
+
+
+    
+
 @method_decorator(login_required, name="dispatch")
 class ClearCartView(View):
     def post(self, request, *args, **kwargs):
         # Get cart items
         cart_items = CartItem.objects.filter(order__user=request.user)
-
+        
         # Calculate total
         total = sum(item.subtotal for item in cart_items)
-
+        
         # Create OrderHistory
         order_history = OrderHistory.objects.create(
-            user=request.user, total_price=total
+            user=request.user,
+            total_price=total
         )
-
+        
         # Save items to OrderHistoryItem
         for item in cart_items:
             OrderHistoryItem.objects.create(
                 order_history=order_history,
                 product=item.product,
                 quantity=item.quantity,
-                subtotal=item.subtotal,
+                subtotal=item.subtotal
             )
-
+        
         # Clear cart
         CartItem.objects.filter(order__user=request.user).delete()
-
+        
         # Create or get OrderAddress instance from user's profile
         user_profile = get_object_or_404(Address, user=request.user)
         order_address_instance, created = OrderAddress.objects.get_or_create(
@@ -366,13 +395,36 @@ class ClearCartView(View):
             province=user_profile.province,
             phone=user_profile.phone
         )
-
+        
         # Associate OrderAddress with OrderHistory
         order_history.order_address = order_address_instance
         order_history.save()
-
-        # Redirect
+        
+        # Prepare the email
+        order_items_details = [
+            {
+                'product_name': item.product.name,
+                'product_model': item.product.model,
+                'product_year': item.product.year,
+                'quantity': item.quantity,
+                'subtotal': item.subtotal
+            }
+            for item in cart_items
+        ]
+        
+        send_order_confirmation_email(
+            user_email=request.user.email,
+            order_id=order_history.id,
+            total_price=order_history.total_price,
+            order_address=f"{order_address_instance.address1}, {order_address_instance.city}, {order_address_instance.province}",
+            order_items=order_items_details
+        )
+        
+        # Redirect to success page
         return redirect("orders:payment_complete")
+
+
+
 
 
 @method_decorator(login_required, name="dispatch")

@@ -180,3 +180,7 @@ from django.utils.http import urlencode
 from django.db.models.functions import TruncDate
 from django.utils.dateparse import parse_datetime
 from django.contrib.auth.decorators import user_passes_test
+from django.core.mail import send_mail
+from django.conf import settings
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string

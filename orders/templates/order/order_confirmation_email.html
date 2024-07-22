@@ -1,0 +1,116 @@
+
+
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <style>
+        /* Basic styles for email clients */
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eaeaea;
+        }
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+        .header h1 {
+            margin: 10px 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .content h2 {
+            font-size: 18px;
+            margin-top: 0;
+            color: #333;
+        }
+        .content p {
+            margin: 10px 0;
+        }
+        .order-items table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .order-items th, .order-items td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .order-items th {
+            background-color: #f8f8f8;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Khmer Empire Shop</h1>
+        </div>
+        <div class="content">
+            <h2>Order Confirmation</h2>
+            <p>Dear Customer,</p>
+            <p>Thank you for your purchase!</p>
+            <p><strong>Order ID:</strong> #{{ order_id }}</p>
+            <p><strong>Total:</strong> ${{ total_price|floatformat:2 }}</p>
+            <p><strong>Shipping Address:</strong></p>
+            <p>{{ order_address }}</p>
+        </div>
+        <div class="order-items">
+            <h2>Order Items</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr>
+                        <td>{{ item.product_name }}</td>
+                        <td>{{ item.product_model }}</td>
+                        <td>{{ item.product_year }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.subtotal|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="footer">
+            <p>We appreciate your business and hope you enjoy your purchase.</p>
+            <p>Best Regards,<br>Khmer Empire Shop</p>
+        </div>
+    </div>
+</body>
+</html>
