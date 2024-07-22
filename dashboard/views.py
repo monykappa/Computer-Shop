@@ -691,30 +691,30 @@ class AssignOrderHistoryListView(UserPermission, LoginRequiredMixin, ListView):
         )
 
         # Search functionality
-        search_query = self.request.GET.get('search', '')
-        if search_query:
+        self.search_query = self.request.GET.get('search', '')
+        if self.search_query:
             queryset = queryset.filter(
-                Q(order__id__icontains=search_query) |
-                Q(order__user__username__icontains=search_query) |
-                Q(delivery_staff__user__username__icontains=search_query)
+                Q(order__id__icontains=self.search_query) |
+                Q(order__user__username__icontains=self.search_query) |
+                Q(delivery_staff__user__username__icontains=self.search_query)
             )
 
         # Filter by status
-        status = self.request.GET.get('status', '')
-        if status == 'completed':
+        self.status = self.request.GET.get('status', '')
+        if self.status == 'completed':
             queryset = queryset.filter(completed_at__isnull=False)
-        elif status == 'pending':
+        elif self.status == 'pending':
             queryset = queryset.filter(completed_at__isnull=True)
 
         # Filter by date range
-        start_date = self.request.GET.get('start_date', '')
-        end_date = self.request.GET.get('end_date', '')
-        if start_date:
-            start_date = parse_date(start_date)
+        self.start_date = self.request.GET.get('start_date', '')
+        self.end_date = self.request.GET.get('end_date', '')
+        if self.start_date:
+            start_date = parse_date(self.start_date)
             if start_date:
                 queryset = queryset.filter(assigned_at__gte=start_date)
-        if end_date:
-            end_date = parse_date(end_date)
+        if self.end_date:
+            end_date = parse_date(self.end_date)
             if end_date:
                 queryset = queryset.filter(assigned_at__lte=end_date)
 
@@ -722,20 +722,25 @@ class AssignOrderHistoryListView(UserPermission, LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['search_query'] = self.request.GET.get('search', '')
-        context['status'] = self.request.GET.get('status', '')
-        context['start_date'] = self.request.GET.get('start_date', '')
-        context['end_date'] = self.request.GET.get('end_date', '')
+        context['search_query'] = self.search_query
+        context['status'] = self.status
+        context['start_date'] = self.start_date
+        context['end_date'] = self.end_date
 
-        # Check if search or filters are applied to decide pagination
-        if context['search_query'] or context['status'] or context['start_date'] or context['end_date']:
-            context['is_paginated'] = False
-            context['paginate_by'] = None  # Disable pagination
+        # Check if search or filters are applied
+        if self.search_query or self.status or self.start_date or self.end_date:
+            context['is_search_or_filter_applied'] = True
+            context['assignments'] = self.get_queryset()  # Get all results without pagination
         else:
-            context['is_paginated'] = True
-            context['paginate_by'] = self.paginate_by
+            context['is_search_or_filter_applied'] = False
 
         return context
+
+    def get_paginate_by(self, queryset):
+        # Disable pagination if search or filters are applied
+        if self.search_query or self.status or self.start_date or self.end_date:
+            return None
+        return self.paginate_by
 
     def test_func(self):
         return self.request.user.is_superuser or self.request.user.is_staff

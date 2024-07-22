@@ -179,3 +179,4 @@ from advertisements.serializers import AdvertisementSerializer
 from django.utils.http import urlencode
 from django.db.models.functions import TruncDate
 from django.utils.dateparse import parse_datetime
+from django.contrib.auth.decorators import user_passes_test
