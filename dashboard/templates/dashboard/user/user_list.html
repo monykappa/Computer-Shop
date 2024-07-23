@@ -50,6 +50,9 @@ Dashboard | Users List
     </div>
 </form>
 
+<a class="btn btn-success mb-3" href="{% url 'dashboard:add_superuser' %}">Add user</a>
+
+
 <div id="users-table">
     <h2 class="mb-3">
         {% if user_type == 'customers' %}Customers
