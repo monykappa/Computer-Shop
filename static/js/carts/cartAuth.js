@@ -40,7 +40,6 @@ function debounce(func, delay) {
         debounceTimer = setTimeout(() => func.apply(context, args), delay);
     };
 }
-
 function updateQuantity(itemId, newQuantity) {
     const updateUrl = `/cart/update_cart_quantity/${itemId}/`;
     const csrftoken = getCookie('csrftoken');
@@ -65,9 +64,30 @@ function updateQuantity(itemId, newQuantity) {
             $('#item-count').text('(' + response.item_count + ')');
             toggleLoadingScreen(false); // Hide loading screen
         },
-        error: function (response) {
-            console.error('Error updating cart:', response);
-            toggleLoadingScreen(false); // Hide loading screen even if there's an error
+        error: function (xhr) {
+            try {
+                // Extract error message from response
+                let errorMessage = 'An unexpected error occurred.';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+
+                // Show SweetAlert message
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Quantity Error',
+                    text: errorMessage,
+                });
+            } catch (e) {
+                // Handle any additional errors
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Quantity Error',
+                    text: 'An unexpected error occurred.',
+                });
+            } finally {
+                toggleLoadingScreen(false); // Hide loading screen even if there's an error
+            }
         }
     });
 }
@@ -75,24 +95,40 @@ function removeCartItem(itemId) {
     const removeUrl = `/cart/remove/${itemId}/`;
     const csrftoken = getCookie('csrftoken');
 
-    toggleLoadingScreen(true); // Show loading screen
-
     $.ajax({
         url: removeUrl,
-        type: 'POST',
-        data: {
-            'csrfmiddlewaretoken': csrftoken,
+        type: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrftoken
         },
         success: function (response) {
-            // Refresh the page after successfully removing the item
-            location.reload();
+            // Show success notification
+            Swal.fire({
+                icon: 'success',
+                title: 'Removed!',
+                text: 'The item has been successfully removed from the cart.',
+                timer: 2000, // Timer for 2 seconds
+                timerProgressBar: true,
+                willClose: () => {
+                    // Refresh the page after the timer ends
+                    location.reload();
+                }
+            });
         },
         error: function (response) {
             console.error('Error removing item from cart:', response);
-            toggleLoadingScreen(false); // Hide loading screen if there's an error
+            // Show error notification
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'There was an error removing the item from the cart.',
+                timer: 2000, // Timer for 2 seconds
+                timerProgressBar: true,
+            });
         }
     });
 }
+
 
 
 function attachEventListeners() {
@@ -139,6 +175,7 @@ function attachEventListeners() {
     });
 }
 
+
 $(document).ready(function () {
     attachEventListeners();
     fetchCart();
@@ -160,23 +197,30 @@ async function fetchCart() {
         $('#cart-message').html('<p class="text-danger">Error loading cart. Please try again later.</p>');
     }
 }
-
 function displayCart(cartData, laptopSpecs) {
     let cartItemsHtml = '';
     if (cartData.cart_items.length > 0) {
         cartData.cart_items.forEach(function (item) {
+            // Find the spec for the product
             const spec = laptopSpecs.find(spec => spec.product.id === item.product);
             if (!spec) {
                 console.warn(`No spec found for product ${item.product}`);
                 return;
             }
 
+            // Set image URL
             const imageUrl = spec.product.images.length > 0
                 ? spec.product.images[0].image
                 : '/static/images/placeholder.jpg';
 
+            // Set GPU details
             const gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
 
+            // Ensure subtotal and total price are numbers and format them
+            const subtotal = parseFloat(item.subtotal);
+            const formattedSubtotal = subtotal.toFixed(2);
+
+            // Append the cart item HTML
             cartItemsHtml += `
             <div class="cart-item col-md-4 col-sm-6" id="cart-item-${item.id}">
                 <div class="card">
@@ -189,24 +233,24 @@ function displayCart(cartData, laptopSpecs) {
                             <input type="number" class="quantity-input form-control" data-item-id="${item.id}" value="${item.quantity}" min="1">
                             <button class="btn border increase-btn mr-1" data-item-id="${item.id}" data-url="/orders/update_cart_quantity/${item.id}/">+</button>
                         </div>
-                        <p class="card-text mt-3">$<span id="subtotal-${item.id}">${item.subtotal}</span></p>
+                        <p class="card-text mt-3">$<span id="subtotal-${item.id}">${formattedSubtotal}</span></p>
                         <button type="button" class="btn btn-danger remove-btn" data-item-id="${item.id}"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             </div>
         `;
-        
         });
         $('#cart-items').html(cartItemsHtml);
-        $('#total-price').text(cartData.total_price);
+        $('#total-price').text(parseFloat(cartData.total_price).toFixed(2));
         $('#cart-total').show();
     } else {
         $('#cart-items').html('<div class="col-12"><p>Your cart is empty.</p></div>');
         $('#cart-total').hide();
     }
-
+    
     attachEventListeners();
 }
+
 
 $(document).ready(function () {
     fetchCart();

@@ -51,7 +51,6 @@ class CheckLoginStatusView(View):
 
 logger = logging.getLogger(__name__)
 
-from django.db import transaction
 
 @method_decorator(login_required, name='dispatch')
 class AddToCartView(View):
@@ -60,30 +59,47 @@ class AddToCartView(View):
         logger.info(f"User: {request.user}")
         try:
             product = get_object_or_404(Product, slug=slug)
-            logger.info(f"Product found: {product}")
+            stock = get_object_or_404(Stock, product=product)
+            logger.info(f"Product found: {product}, Stock: {stock}")
+
+            quantity = int(request.POST.get("quantity", 1))
+            logger.info(f"Requested Quantity: {quantity}")
+
+            # Check if the requested quantity exceeds available stock
+            if quantity > stock.quantity:
+                return JsonResponse({'error': f'Only {stock.quantity} units available in stock.'}, status=400)
 
             with transaction.atomic():
+                # Get or create an order
                 order, created = Order.objects.get_or_create(
                     user=request.user,
                     status=OrderStatus.PENDING
                 )
                 logger.info(f"Order found or created: {order}, created: {created}")
 
-                quantity = int(request.POST.get("quantity", 1))
-                logger.info(f"Quantity: {quantity}")
-
+                # Get or create a cart item
                 cart_item, created = CartItem.objects.get_or_create(
                     order=order,
                     product=product,
-                    defaults={'quantity': quantity}
                 )
                 if created:
+                    cart_item.quantity = quantity
                     logger.info(f"CartItem created: {cart_item}")
                 else:
                     cart_item.quantity += quantity
-                    cart_item.save()
                     logger.info(f"CartItem updated: {cart_item}")
 
+                cart_item.save()
+
+                # Deduct stock after ensuring the cart item was correctly updated
+                if quantity <= stock.quantity:
+                    stock.quantity -= quantity
+                    stock.save()
+                    logger.info(f"Stock updated: {stock}")
+                else:
+                    return JsonResponse({'error': f'Insufficient stock. Only {stock.quantity} units available.'}, status=400)
+
+                # Recalculate the total price of the order
                 order.calculate_total_price()
                 logger.info(f"Order total price calculated: {order.total_price}")
 
@@ -92,9 +108,9 @@ class AddToCartView(View):
         except Exception as e:
             logger.error(f"Error adding product to cart: {e}")
             return JsonResponse({'error': str(e)}, status=400)
+
+
         
-        
-from django.db.models import Prefetch 
 
 class CartDetailView(TemplateView):
     template_name = "cart/cart_auth.html"
@@ -106,6 +122,7 @@ class CartDetailView(TemplateView):
 
 
 logger = logging.getLogger(__name__)
+
 class PublicCartAPIView(APIView):
     permission_classes = []  # No specific permissions required
 
@@ -168,6 +185,38 @@ class PublicCartAPIView(APIView):
                 "message": "Failed to fetch cart data.",
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def post(self, request, item_id):
+        try:
+            item = get_object_or_404(CartItem, id=item_id)
+            new_quantity = request.data.get('quantity')
+            if new_quantity > item.product.stock:
+                return Response({
+                    "error": f"Cannot increase quantity beyond available stock ({item.product.stock})"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Update item quantity
+            item.quantity = new_quantity
+            item.save()
+            # Calculate the new subtotal and total
+            subtotal = item.quantity * item.product.price
+            total_price = sum([i.quantity * i.product.price for i in item.order.cartitem_set.all()])
+            item_count = item.order.cartitem_set.count()
+
+            return Response({
+                "item_id": item_id,
+                "quantity": new_quantity,
+                "subtotal": subtotal,
+                "total_price": total_price,
+                "item_count": item_count
+            })
+        except Exception as e:
+            logger.error("Error updating cart item: %s", str(e), exc_info=True)
+            return Response({
+                "error": str(e),
+                "message": "Failed to update cart item."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 class CartAPIView(APIView):
@@ -218,10 +267,11 @@ class RemoveFromCartView(DeleteView):
         order = self.object.order
         item_id = self.object.id
         self.object.delete()
-        
+
         # Recalculate the total price after removing the item
         order_items = order.cartitem_set.all()
-        order.total_price = sum(item.subtotal for item in order_items)
+        total_price = sum(item.subtotal for item in order_items)
+        order.total_price = total_price
         order.save()
 
         # Calculate the remaining item count
@@ -229,16 +279,25 @@ class RemoveFromCartView(DeleteView):
 
         return JsonResponse({
             'item_id': item_id,
-            'total_price': order.total_price,
+            'total_price': float(total_price),
             'item_count': item_count,
         })
-
+        
+        
 class UpdateCartQuantityView(View):
     def post(self, request, item_id):
         print(f"Received request to update item_id: {item_id}")
         cart_item = get_object_or_404(CartItem, id=item_id)
         quantity = int(request.POST.get('quantity', 1))
         print(f"Updating quantity to: {quantity}")
+
+        # Fetch the related stock
+        stock = cart_item.product.stock
+
+        # Check if quantity exceeds available stock
+        if quantity > stock.quantity:
+            return JsonResponse({'error': f'Cannot exceed stock quantity of {stock.quantity}'}, status=400)
+        
         if quantity > 0:
             cart_item.quantity = quantity
             cart_item.save()
@@ -254,6 +313,7 @@ class UpdateCartQuantityView(View):
             })
         else:
             return JsonResponse({'error': 'Invalid quantity'}, status=400)
+
 
 @login_required
 def pay_with_paypal(request):

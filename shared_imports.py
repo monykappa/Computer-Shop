@@ -187,3 +187,5 @@ from django.template.loader import render_to_string
 from plotly.express import bar
 import plotly.express as px
 import pandas as pd
+from django.db.models import Prefetch 
+from django.db import transaction

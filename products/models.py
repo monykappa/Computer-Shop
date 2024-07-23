@@ -71,7 +71,7 @@ class Product(SlugMixin):
 
     def __str__(self):
         price_str = f"{self.price:.2f}".rstrip('0').rstrip('.')
-        return f"{self.name} - ${price_str} - {self.year}"
+        return f"{self.name} - {self.model} -  ${price_str} - {self.year}"
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
@@ -298,3 +298,6 @@ class Stock(models.Model):
 
     def total_price_with_dollar(self):
         return f"${self.total_price():.2f}"
+
+    def is_available(self):
+        return self.quantity > 0

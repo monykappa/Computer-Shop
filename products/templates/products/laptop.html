@@ -225,14 +225,15 @@
                     </span>
                 </p>
                     <h1 class="text-danger">$${details.product.price}</h1>
-                    <form id="add-to-cart-form" action="{% url 'orders:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="quantity">Quantity:</label>
-                            <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn add-to-cart text-white" style="background:var(--fourth-color);"><i class="fa-solid fa-cart-plus text-white"></i> Add to cart</button>
-                    </form>
+                   <form id="add-to-cart-form" action="{% url 'orders:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn add-to-cart text-white" style="background:var(--fourth-color);"><i class="fa-solid fa-cart-plus text-white"></i> Add to cart</button>
+                </form>
+
                     <p id="cart-message"></p>
                 </div>
             </div>
@@ -400,25 +401,18 @@
 
         document.getElementById('add-to-cart-form').addEventListener('submit', function (event) {
             event.preventDefault();
-
+        
             const form = this;
             const url = form.action;
             const data = new FormData(form);
-
-            $.ajaxSetup({
-                beforeSend: function (xhr, settings) {
-                    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                    }
-                }
-            });
-
+        
+            // Function to get CSRF token
             function getCookie(name) {
-                var cookieValue = null;
+                let cookieValue = null;
                 if (document.cookie && document.cookie !== '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = jQuery.trim(cookies[i]);
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        let cookie = cookies[i].trim();
                         if (cookie.substring(0, name.length + 1) === (name + '=')) {
                             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                             break;
@@ -427,7 +421,16 @@
                 }
                 return cookieValue;
             }
-
+        
+            // Configure AJAX settings for CSRF token
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                    }
+                }
+            });
+        
             // Check if the user is logged in
             $.ajax({
                 type: 'GET',
@@ -451,11 +454,16 @@
                                     confirmButtonText: 'OK'
                                 });
                             },
-                            error: function (response) {
-                                console.log('Add to cart error', response);
+                            error: function (xhr) {
+                                console.log('Add to cart error', xhr.responseText);
+                                let errorMsg = 'There was a problem adding the product to the cart.';
+                                if (xhr.status === 400) {
+                                    const response = JSON.parse(xhr.responseText);
+                                    errorMsg = response.error || errorMsg;
+                                }
                                 Swal.fire({
                                     title: 'Error',
-                                    text: 'There was a problem adding the product to the cart.',
+                                    text: errorMsg,
                                     icon: 'error',
                                     confirmButtonText: 'OK'
                                 });
@@ -488,6 +496,8 @@
                 }
             });
         });
+        
+        
         // Apply smooth transition to recommended products
         const recommendedProducts = container.querySelectorAll('.recommend-product');
         recommendedProducts.forEach((product, index) => {

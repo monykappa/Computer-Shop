@@ -47,6 +47,7 @@ admin.site.register(WirelessConnectivity)
 admin.site.register(WebcamSpec)
 admin.site.register(BatterySpec)
 admin.site.register(OperatingSystem)
+admin.site.register(Stock)
 
 
 
