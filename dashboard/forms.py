@@ -79,7 +79,7 @@ class LaptopSpecForm(forms.ModelForm):
     class Meta:
         model = LaptopSpec
         fields = [
-            'cpu', 'gpu', 'memory', 'storage', 'display', 'webcam',
+            'cpu', 'gpu', 'memory', 'storage', 'display', 'refresh_rate', 'webcam',
             'battery', 'weight', 'operating_system', 'port', 'wireless_connectivity'
         ]
         widgets = {
@@ -88,6 +88,7 @@ class LaptopSpecForm(forms.ModelForm):
             'memory': forms.Select(attrs={'class': 'form-control'}),
             'storage': forms.Select(attrs={'class': 'form-control'}),
             'display': forms.Select(attrs={'class': 'form-control'}),
+            'refresh_rate': forms.Select(attrs={'class': 'form-control'}),
             'webcam': forms.Select(attrs={'class': 'form-control'}),
             'battery': forms.Select(attrs={'class': 'form-control'}),
             'weight': forms.TextInput(attrs={'class': 'form-control'}),
@@ -102,7 +103,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        exclude = ['slug', 'cpu', 'gpu', 'memory', 'storage', 'display', 'port', 'wireless_connectivity', 'webcam', 'battery', 'operating_system']
+        exclude = ['slug', 'cpu', 'gpu', 'memory', 'storage', 'display', 'refresh_rate','port', 'wireless_connectivity', 'webcam', 'battery', 'operating_system']
 
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
@@ -190,6 +191,11 @@ class DisplaySpecForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = DisplaySpec
         fields = ['display', 'display_detail']
+
+class RefreshRateForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = RefreshRate
+        fields = ['rate']
 
 class PortSpecForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:

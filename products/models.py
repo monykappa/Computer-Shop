@@ -250,6 +250,12 @@ class OperatingSystem(SlugMixin):
 
     def __str__(self):
         return f"{self.operating_system}" if self.operating_system else "Unassociated Operating System Specifications"    
+
+class RefreshRate(models.Model):
+    rate = models.CharField(max_length=50, unique=True)  # Store refresh rate, e.g., "60Hz", "144Hz"
+
+    def __str__(self):
+        return self.rate
     
 class LaptopSpec(SlugMixin):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, null=True, blank=True, related_name='laptop_spec')
@@ -258,6 +264,7 @@ class LaptopSpec(SlugMixin):
     storage = models.ForeignKey(StorageSpec, on_delete=models.CASCADE, null=True, blank=True)
     gpu = models.ManyToManyField(GpuSpec, blank=True) 
     display = models.ForeignKey(DisplaySpec, on_delete=models.CASCADE, null=True, blank=True)
+    refresh_rate = models.ForeignKey(RefreshRate, on_delete=models.CASCADE, null=True, blank=True)
     port = models.ManyToManyField(PortSpec, blank=True)
     wireless_connectivity = models.ManyToManyField(WirelessConnectivity, blank=True)
     webcam = models.ForeignKey(WebcamSpec, on_delete=models.CASCADE, null=True, blank=True)

@@ -1,0 +1,16 @@
+<h2>Refresh Rate</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for refreshrate in refreshrates %}
+    <tr>
+        <td>{{ refreshrate.rate }}hz</td>
+        <td>
+            <a href="{% url 'dashboard:edit_model' model='refresh_rate' pk=refreshrate.pk %}">Edit</a> |
+            <a href="{% url 'dashboard:model_delete' model_name='refreshrate' pk=refreshrate.pk %}" class="delete-link">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>

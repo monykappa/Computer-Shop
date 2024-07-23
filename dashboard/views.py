@@ -467,14 +467,14 @@ class ProductImageDeleteView(SuperuserRequiredMixin, View):
         
 
 
-class ProductDeleteView(SuperuserRequiredMixin, DeleteView):
+class ProductDeleteView(DeleteView):
     model = Product
     success_url = reverse_lazy('dashboard:product_list')
 
-    def post(self, request, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.object.delete()
-        return HttpResponseRedirect(self.success_url)
+        return JsonResponse({'message': 'Product deleted'}, status=200)
 
 class GenericModelFormView(SuperuserRequiredMixin, CreateView, UpdateView):
     template_name = 'dashboard/add/generic_form.html'
@@ -492,6 +492,7 @@ class GenericModelFormView(SuperuserRequiredMixin, CreateView, UpdateView):
         'storagebrand': (StorageBrand, StorageBrandForm),
         'storagespec': (StorageSpec, StorageSpecForm),
         'displayspec': (DisplaySpec, DisplaySpecForm),
+        'refreshrate': (RefreshRate, RefreshRateForm),
         'portspec': (PortSpec, PortSpecForm),
         'wirelessconnectivity': (WirelessConnectivity, WirelessConnectivityForm),
         'webcamspec': (WebcamSpec, WebcamSpecForm),
@@ -539,6 +540,7 @@ class DisplayTablesView(UserPermission, TemplateView):
         context['storage_brands'] = StorageBrand.objects.all()
         context['storage_specs'] = StorageSpec.objects.all()
         context['display_specs'] = DisplaySpec.objects.all()
+        context['refreshrates'] = RefreshRate.objects.all() 
         context['port_specs'] = PortSpec.objects.all()
         context['wireless_connectivities'] = WirelessConnectivity.objects.all()
         context['webcam_specs'] = WebcamSpec.objects.all()
@@ -561,6 +563,7 @@ class GenericDeleteView(SuperuserRequiredMixin, View):
         'storagebrand': StorageBrand,
         'storagespec': StorageSpec,
         'displayspec': DisplaySpec,
+        'refreshrate': RefreshRate,
         'portspec': PortSpec,
         'wirelessconnectivity': WirelessConnectivity,
         'webcamspec': WebcamSpec,
@@ -601,6 +604,7 @@ class EditModelView(SuperuserRequiredMixin, UpdateView):
         'storage_brand': (StorageBrand, StorageBrandForm),
         'storage_spec': (StorageSpec, StorageSpecForm),
         'display_spec': (DisplaySpec, DisplaySpecForm),
+        'refresh_rate': (RefreshRate, RefreshRateForm),
         'port_spec': (PortSpec, PortSpecForm),
         'wireless_connectivity': (WirelessConnectivity, WirelessConnectivityForm),
         'webcam_spec': (WebcamSpec, WebcamSpecForm),

@@ -151,6 +151,7 @@ Dashboard | Tables
                 {% include 'dashboard/table/display.html' %}
             </div>
         </div>
+       
     </div>
     <div class="row">
         <div class="col-md-4">
@@ -192,6 +193,14 @@ Dashboard | Tables
                 <a href="{% url 'dashboard:model_create' model_name='operatingsystem' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
                     Operating System</a>
                 {% include 'dashboard/table/operating_system.html' %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="collapsible">Refresh rate <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='refreshrate' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Display</a>
+                {% include 'dashboard/table/refresh_rate.html' %}
             </div>
         </div>
     </div>

@@ -239,76 +239,79 @@
             <div class="row">
                 <div class="col-md-6 border" style="background:white !important; padding:1rem; border-radius:8px;">
     <h3 style="color:var(--fourth-color);">Specification</h3>
-    <ul class="list-specs">
-        ${details.cpu && details.cpu.cpu_brand ? `
-        <li><strong>CPU:</strong> ${details.cpu.cpu_brand.name || ''} ${details.cpu.model || ''} 
-            ${details.cpu.cores ? `- ${details.cpu.cores} cores` : ''} 
-            ${details.cpu.threads ? `- ${details.cpu.threads} threads` : ''}
-        </li>
-        ` : ''}
-        
-        ${details.memory ? `
-        <li><strong>Memory:</strong> 
-            ${details.memory.capacity ? `${details.memory.capacity}GB` : ''} 
-            ${details.memory.type || ''} 
-            ${details.memory.speed ? `- ${details.memory.speed}MHz` : ''} 
-            ${details.memory.memory_brand ? `- ${details.memory.memory_brand.name}` : ''}
-        </li>
-        ` : ''}
-        
-        ${details.storage ? `
-        <li><strong>Storage:</strong> 
-            ${details.storage.capacity ? `${details.storage.capacity} ${details.storage.capacity_type || ''}` : ''} 
-            ${details.storage.interface ? `- ${details.storage.interface}` : ''} 
-            ${details.storage.read_speed ? `- Read Speed: ${details.storage.read_speed} MB/s` : ''} 
-            ${details.storage.write_speed ? `- Write Speed: ${details.storage.write_speed} MB/s` : ''} 
-            ${details.storage.form_factor ? `- ${details.storage.form_factor}` : ''} 
-            ${details.storage.storage_brand ? `- ${details.storage.storage_brand.name}` : ''}
-        </li>
-        ` : ''}
-        
-        ${details.gpu && details.gpu.length > 0 ? `
-        <li><strong>GPU:</strong>
-            ${details.gpu.map(gpu => `
-                ${gpu.gpu_brand ? gpu.gpu_brand.name : ''} ${gpu.model || ''} 
-                ${gpu.vram ? `- ${gpu.vram} GB VRAM` : ''} 
-                ${gpu.vram_type ? `- ${gpu.vram_type}` : ''}
-            `).join('')}
-        </li>
-        ` : ''}
-        
-        ${details.display && details.display.display ? `
-        <li><strong>Display:</strong> ${details.display.display} inches</li>
-        ` : ''}
-        
-        ${details.port && details.port.length > 0 ? `
-        <li><strong>Ports:</strong>
-            ${details.port.map(port => `<br>${port.port}`).join('')}
-        </li>
-        ` : ''}
-        
-        ${details.wireless_connectivity && details.wireless_connectivity.length > 0 ? `
-        <li><strong>Wireless Connectivity:</strong>
-            ${details.wireless_connectivity.map(wireless => `<br>${wireless.wireless_connectivity}`).join('')}
-        </li>
-        ` : ''}
-        
-        ${details.webcam && details.webcam.webcam ? `
-        <li><strong>Webcam:</strong> ${details.webcam.webcam}</li>
-        ` : ''}
-        
-        ${details.battery && details.battery.battery ? `
-        <li><strong>Battery:</strong> ${details.battery.battery} Kw</li>
-        ` : ''}
-        
-        ${details.operating_system && details.operating_system.operating_system ? `
-        <li><strong>Operating System:</strong> ${details.operating_system.operating_system}</li>
-        ` : ''}
-        
-        ${details.weight ? `
-        <li><strong>Weight:</strong> ${details.weight} kg</li>
-        ` : ''}
-    </ul>
+   <ul class="list-specs">
+    ${details.cpu && details.cpu.cpu_brand ? `
+    <li><strong>CPU:</strong> ${details.cpu.cpu_brand.name || ''} ${details.cpu.model || ''} 
+        ${details.cpu.cores ? `- ${details.cpu.cores} cores` : ''} 
+        ${details.cpu.threads ? `- ${details.cpu.threads} threads` : ''}
+    </li>
+    ` : ''}
+    
+    ${details.memory ? `
+    <li><strong>Memory:</strong> 
+        ${details.memory.capacity ? `${details.memory.capacity}GB` : ''} 
+        ${details.memory.type || ''} 
+        ${details.memory.speed ? `- ${details.memory.speed}MHz` : ''} 
+        ${details.memory.memory_brand ? `- ${details.memory.memory_brand.name}` : ''}
+    </li>
+    ` : ''}
+    
+    ${details.storage ? `
+    <li><strong>Storage:</strong> 
+        ${details.storage.capacity ? `${details.storage.capacity} ${details.storage.capacity_type || ''}` : ''} 
+        ${details.storage.interface ? `- ${details.storage.interface}` : ''} 
+        ${details.storage.read_speed ? `- Read Speed: ${details.storage.read_speed} MB/s` : ''} 
+        ${details.storage.write_speed ? `- Write Speed: ${details.storage.write_speed} MB/s` : ''} 
+        ${details.storage.form_factor ? `- ${details.storage.form_factor}` : ''} 
+        ${details.storage.storage_brand ? `- ${details.storage.storage_brand.name}` : ''}
+    </li>
+    ` : ''}
+    
+    ${details.gpu && details.gpu.length > 0 ? `
+    <li><strong>GPU:</strong>
+        ${details.gpu.map(gpu => `
+            ${gpu.gpu_brand ? gpu.gpu_brand.name : ''} ${gpu.model || ''} 
+            ${gpu.vram ? `- ${gpu.vram} GB VRAM` : ''} 
+            ${gpu.vram_type ? `- ${gpu.vram_type}` : ''}
+        `).join('')}
+    </li>
+    ` : ''}
+    
+    ${details.display && details.display.display ? `
+    <li><strong>Display:</strong> ${details.display.display} inches 
+    ${details.refresh_rate ? ` - ${details.refresh_rate.rate} Hz` : ''}
+    </li>
+    ` : ''}
+    
+    ${details.port && details.port.length > 0 ? `
+    <li><strong>Ports:</strong>
+        ${details.port.map(port => `<br>${port.port}`).join('')}
+    </li>
+    ` : ''}
+    
+    ${details.wireless_connectivity && details.wireless_connectivity.length > 0 ? `
+    <li><strong>Wireless Connectivity:</strong>
+        ${details.wireless_connectivity.map(wireless => `<br>${wireless.wireless_connectivity}`).join('')}
+    </li>
+    ` : ''}
+    
+    ${details.webcam && details.webcam.webcam ? `
+    <li><strong>Webcam:</strong> ${details.webcam.webcam}</li>
+    ` : ''}
+    
+    ${details.battery && details.battery.battery ? `
+    <li><strong>Battery:</strong> ${details.battery.battery} Kw</li>
+    ` : ''}
+    
+    ${details.operating_system && details.operating_system.operating_system ? `
+    <li><strong>Operating System:</strong> ${details.operating_system.operating_system}</li>
+    ` : ''}
+    
+    ${details.weight ? `
+    <li><strong>Weight:</strong> ${details.weight} kg</li>
+    ` : ''}
+</ul>
+
 </div>
                 <div class="col-md-6">
                     <h4 class="card-title">Recommended Products</h4>
