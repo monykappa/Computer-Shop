@@ -131,7 +131,7 @@ from products.models import *
 from orders.models import *
 from datetime import date, timedelta
 from django.views.generic import ListView, DetailView
-from dashboard.mixins import SuperuserRequiredMixin, UserPermission
+from dashboard.mixins import SuperuserRequiredMixin, UserPermission, DeliveryStaffRequiredMixin
 from django.db.models import Sum
 from django.http import HttpResponse
 import io
@@ -184,3 +184,6 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
+from plotly.express import bar
+import plotly.express as px
+import pandas as pd

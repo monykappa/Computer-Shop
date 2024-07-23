@@ -230,43 +230,43 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
         self.end_date = self.clean_param('end_date')
         self.sort_by = self.clean_param('sort_by')
 
-        self.filters_applied = False  # Add this line
+        self.filters_applied = False
 
         if self.status:
             queryset = queryset.filter(status__iexact=self.status)
-            self.filters_applied = True  # Set flag when filter is applied
+            self.filters_applied = True
         if self.search:
             queryset = queryset.filter(
                 Q(user__username__icontains=self.search) |
-                Q(id__icontains(self.search)) |
-                Q(total_price__icontains(self.search)) |
-                Q(order_address__address1__icontains(self.search)) |
-                Q(order_address__address2__icontains(self.search)) |
-                Q(order_address__city__icontains(self.search)) |
-                Q(order_address__province__icontains(self.search)) |
-                Q(order_address__phone__icontains(self.search))
+                Q(id__icontains=str(self.search)) |
+                Q(total_price__icontains=self.search) |
+                Q(order_address__address1__icontains=self.search) |
+                Q(order_address__address2__icontains=self.search) |
+                Q(order_address__city__icontains=self.search) |
+                Q(order_address__province__icontains=self.search) |
+                Q(order_address__phone__icontains=self.search)
             )
-            self.filters_applied = True  # Set flag when filter is applied
+            self.filters_applied = True
 
         if self.start_date:
             try:
                 start_date = datetime.strptime(self.start_date, '%Y-%m-%d').date()
                 queryset = queryset.filter(ordered_date__gte=start_date)
-                self.filters_applied = True  # Set flag when filter is applied
+                self.filters_applied = True
             except ValueError:
                 pass
         if self.end_date:
             try:
                 end_date = datetime.strptime(self.end_date, '%Y-%m-%d')
-                end_date = end_date + timedelta(days=1) - timedelta(seconds=1)  # Adjust to 23:59:59
+                end_date = end_date + timedelta(days=1) - timedelta(seconds=1)
                 queryset = queryset.filter(ordered_date__lte=end_date)
-                self.filters_applied = True  # Set flag when filter is applied
+                self.filters_applied = True
             except ValueError:
                 pass
         
         if self.sort_by:
             queryset = queryset.order_by(self.sort_by)
-            self.filters_applied = True  # Set flag when sorting is applied
+            self.filters_applied = True
         else:
             queryset = queryset.order_by('-id')
         

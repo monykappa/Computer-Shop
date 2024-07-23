@@ -6,7 +6,7 @@ def dashboard(request):
     try:
         delivery_staff = request.user.deliverystaff
     except DeliveryStaff.DoesNotExist:
-        return render(request, 'delivery/not_delivery_staff.html')
+        return render(request, 'dashboard/auth/access_denied.html')
 
     # Total completed deliveries
     total_completed = DeliveryAssignmentHistory.objects.filter(delivery_staff=delivery_staff).count()
@@ -42,7 +42,7 @@ def dashboard(request):
 
 
 
-class DeliveryGuyDashboardView(LoginRequiredMixin, ListView):
+class DeliveryGuyDashboardView(LoginRequiredMixin,DeliveryStaffRequiredMixin, ListView):
     template_name = "delivery/delivery_order.html"
     context_object_name = "assignments"
     login_url = "dashboard:sign_in"
@@ -59,13 +59,21 @@ class DeliveryGuyDashboardView(LoginRequiredMixin, ListView):
 
 
 
-@login_required
-def mark_delivery_complete(request, assignment_id):
-    assignment = get_object_or_404(
-        DeliveryAssignment, id=assignment_id, delivery_staff__user=request.user
-    )   
+class MarkDeliveryCompleteView(LoginRequiredMixin, DeliveryStaffRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        assignment_id = kwargs.get('assignment_id')
+        assignment = get_object_or_404(
+            DeliveryAssignment, id=assignment_id, delivery_staff__user=request.user
+        )
+        return render(
+            request, "delivery/confirm_completion.html", {"assignment": assignment}
+        )
 
-    if request.method == "POST":
+    def post(self, request, *args, **kwargs):
+        assignment_id = kwargs.get('assignment_id')
+        assignment = get_object_or_404(
+            DeliveryAssignment, id=assignment_id, delivery_staff__user=request.user
+        )
         try:
             assignment.mark_completed()
             messages.success(
@@ -75,11 +83,7 @@ def mark_delivery_complete(request, assignment_id):
             messages.error(request, f"An error occurred while marking the delivery as complete: {str(e)}")
         return redirect("delivery:delivery_guy_dashboard")
 
-    return render(
-        request, "delivery/confirm_completion.html", {"assignment": assignment}
-    )
-
-class DeliveryHistoryReportView(LoginRequiredMixin, ListView):
+class DeliveryHistoryReportView(DeliveryStaffRequiredMixin, LoginRequiredMixin, ListView):
     model = DeliveryAssignmentHistory
     template_name = 'delivery/delivery_history_report.html'
     context_object_name = 'delivery_histories'

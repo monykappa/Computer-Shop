@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import AccessMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.shortcuts import render
+from shared_imports import *
 
 class UserPermission(AccessMixin):
     """Verify that the current user is authenticated and either a superuser or staff."""
@@ -23,6 +24,21 @@ class SuperuserRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+class DeliveryStaffRequiredMixin(AccessMixin):
+    """Verify that the current user is authenticated and a delivery staff member."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        
+        try:
+            # Check if the user is a delivery staff member
+            DeliveryStaff.objects.get(user=request.user)
+        except DeliveryStaff.DoesNotExist:
+            return render(request, 'dashboard/auth/access_denied.html')  # Render a custom template for denied access
+        
+        return super().dispatch(request, *args, **kwargs)
+    
 # class StaffRequiredMixin(AccessMixin):
 #     """
 #     Verify that the current user is authenticated and is staff (not necessarily superuser).
