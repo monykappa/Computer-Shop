@@ -66,11 +66,15 @@ async function fetchData() {
                                 </div>
                                 <div class="product-info">
                                     <h4 class="product-title">${spec.product.name} ${spec.product.model} ${spec.product.year}</h4>
-                                    <p class="product-specs">${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB | ${spec.product.color.name}</p>
+                                    <p class="product-specs">${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB | ${spec.display.display} Inches - ${spec.refresh_rate.rate}hz  | ${spec.product.color.name}</p>
                                     <div class="product-footer">
-                                        <h3 class="product-price">$${formatPrice(spec.product.price)}</h3>
-                                        <a href="/products/${spec.slug}/" class="btn see-more-btn" style="background-color: var(--fourth-color);"><i class="fa-solid fa-eye text-light"></i></a>
-                                    </div>
+                                <h3 class="product-price">
+                                    <span class="first-digit">$${formatPrice(spec.product.price).charAt(0)}</span>${formatPrice(spec.product.price).slice(1)}
+                                </h3>
+                                <a href="/products/${spec.slug}/" class="btn see-more-btn" style="background-color: var(--fourth-color);">
+                                    <i class="fa-solid fa-eye text-light"></i>
+                                </a>
+                            </div>
                                 </div>
                             </div>
                         `;
@@ -98,17 +102,14 @@ async function fetchData() {
 }
 
 function formatPrice(price) {
-    // Convert to number if it's a string
-    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
-
-    // Check if it's a valid number
-    if (isNaN(numPrice)) {
-        console.error('Invalid price:', price);
-        return 'N/A';
+    const number = parseFloat(price);
+    // Check if the decimal part is .00
+    if (number % 1 === 0) {
+        return number.toFixed(0); // No decimal places
+    } else {
+        return number.toFixed(2); // Two decimal places
     }
-
-    // Format the price
-    return numPrice.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 }
+
 
 document.addEventListener('DOMContentLoaded', fetchData);
