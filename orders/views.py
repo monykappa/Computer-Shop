@@ -88,16 +88,7 @@ class AddToCartView(View):
                 else:
                     cart_item.quantity += quantity
                     logger.info(f"CartItem updated: {cart_item}")
-
                 cart_item.save()
-
-                # Deduct stock after ensuring the cart item was correctly updated
-                if quantity <= stock.quantity:
-                    stock.quantity -= quantity
-                    stock.save()
-                    logger.info(f"Stock updated: {stock}")
-                else:
-                    return JsonResponse({'error': f'Insufficient stock. Only {stock.quantity} units available.'}, status=400)
 
                 # Recalculate the total price of the order
                 order.calculate_total_price()
@@ -119,7 +110,33 @@ class CartDetailView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['user_authenticated'] = self.request.user.is_authenticated
         return context
+    
+    
 
+
+def get_cart_items(request):
+    user = request.user
+    cart_items = CartItem.objects.filter(order__user=user)
+    data = [
+        {
+            'productId': item.product.id,
+            'productName': item.product.name,
+            'productModel': item.product.model,
+            'quantity': item.quantity
+        }
+        for item in cart_items
+    ]
+    return JsonResponse(data, safe=False)
+
+
+def stock_detail(request, product_id):
+    try:
+        stock = Stock.objects.get(product_id=product_id)
+        return JsonResponse({
+            'quantity': stock.quantity
+        })
+    except Stock.DoesNotExist:
+        return JsonResponse({'quantity': 0})
 
 logger = logging.getLogger(__name__)
 
@@ -418,71 +435,79 @@ def send_order_confirmation_email(user_email, order_id, total_price, order_addre
 
 
     
-
 @method_decorator(login_required, name="dispatch")
 class ClearCartView(View):
     def post(self, request, *args, **kwargs):
-        # Get cart items
-        cart_items = CartItem.objects.filter(order__user=request.user)
-        
-        # Calculate total
-        total = sum(item.subtotal for item in cart_items)
-        
-        # Create OrderHistory
-        order_history = OrderHistory.objects.create(
-            user=request.user,
-            total_price=total
-        )
-        
-        # Save items to OrderHistoryItem
-        for item in cart_items:
-            OrderHistoryItem.objects.create(
-                order_history=order_history,
-                product=item.product,
-                quantity=item.quantity,
-                subtotal=item.subtotal
+        with transaction.atomic():  # Use atomic to ensure all operations succeed or fail together
+            # Get cart items
+            cart_items = CartItem.objects.filter(order__user=request.user)
+            
+            # Calculate total
+            total = sum(item.subtotal for item in cart_items)
+            
+            # Create OrderHistory
+            order_history = OrderHistory.objects.create(
+                user=request.user,
+                total_price=total
             )
-        
-        # Clear cart
-        CartItem.objects.filter(order__user=request.user).delete()
-        
-        # Create or get OrderAddress instance from user's profile
-        user_profile = get_object_or_404(Address, user=request.user)
-        order_address_instance, created = OrderAddress.objects.get_or_create(
-            address1=user_profile.address1,
-            address2=user_profile.address2,
-            city=user_profile.city,
-            province=user_profile.province,
-            phone=user_profile.phone
-        )
-        
-        # Associate OrderAddress with OrderHistory
-        order_history.order_address = order_address_instance
-        order_history.save()
-        
-        # Prepare the email
-        order_items_details = [
-            {
-                'product_name': item.product.name,
-                'product_model': item.product.model,
-                'product_year': item.product.year,
-                'quantity': item.quantity,
-                'subtotal': item.subtotal
-            }
-            for item in cart_items
-        ]
-        
-        send_order_confirmation_email(
-            user_email=request.user.email,
-            order_id=order_history.id,
-            total_price=order_history.total_price,
-            order_address=f"{order_address_instance.address1}, {order_address_instance.city}, {order_address_instance.province}",
-            order_items=order_items_details
-        )
-        
+            
+            # Save items to OrderHistoryItem and update stock
+            for item in cart_items:
+                OrderHistoryItem.objects.create(
+                    order_history=order_history,
+                    product=item.product,
+                    quantity=item.quantity,
+                    subtotal=item.subtotal
+                )
+                
+                # Update stock
+                stock = get_object_or_404(Stock, product=item.product)
+                if stock.quantity >= item.quantity:
+                    stock.quantity -= item.quantity
+                    stock.save()
+                else:
+                    # If there's not enough stock, raise an exception
+                    raise ValueError(f"Not enough stock for {item.product.name}")
+            
+            # Clear cart
+            CartItem.objects.filter(order__user=request.user).delete()
+            
+            # Create or get OrderAddress instance from user's profile
+            user_profile = get_object_or_404(Address, user=request.user)
+            order_address_instance, created = OrderAddress.objects.get_or_create(
+                address1=user_profile.address1,
+                address2=user_profile.address2,
+                city=user_profile.city,
+                province=user_profile.province,
+                phone=user_profile.phone
+            )
+            
+            # Associate OrderAddress with OrderHistory
+            order_history.order_address = order_address_instance
+            order_history.save()
+            
+            # Prepare the email
+            order_items_details = [
+                {
+                    'product_name': item.product.name,
+                    'product_model': item.product.model,
+                    'product_year': item.product.year,
+                    'quantity': item.quantity,
+                    'subtotal': item.subtotal
+                }
+                for item in cart_items
+            ]
+            
+            send_order_confirmation_email(
+                user_email=request.user.email,
+                order_id=order_history.id,
+                total_price=order_history.total_price,
+                order_address=f"{order_address_instance.address1}, {order_address_instance.city}, {order_address_instance.province}",
+                order_items=order_items_details
+            )
+            
         # Redirect to success page
         return redirect("orders:payment_complete")
-
 
 
 

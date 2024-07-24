@@ -20,7 +20,8 @@ urlpatterns = [
     path('payment_complete/', views.PaymentCompleteView.as_view(), name='payment_complete'),
     
     
-    
+    path('api/stock/<int:product_id>/', views.stock_detail, name='stock_detail'),
+    path('api/cart-items/', views.get_cart_items, name='get_cart_items'),
     
     path('order-history-image/<int:order_history_id>/', views.OrderHistoryImageView.as_view(), name='order_history_image'),
 

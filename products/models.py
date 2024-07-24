@@ -301,3 +301,4 @@ class Stock(models.Model):
 
     def is_available(self):
         return self.quantity > 0
+

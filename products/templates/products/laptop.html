@@ -190,6 +190,13 @@
         }
     }
 
+    function getStockStatus(quantity) {
+    if (quantity === undefined || quantity === null) {
+        return '';
+    }
+    return quantity > 0 ? `In Stock (${quantity} available)` : 'Out of Stock';
+}
+
     function renderProductDetails(details) {
         const container = document.getElementById('product-details-container');
         container.innerHTML = `

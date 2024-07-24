@@ -24,7 +24,7 @@ function toggleLoadingScreen(show) {
         `);
     } else {
         // Add a delay before hiding the loading screen
-        setTimeout(function() {
+        setTimeout(function () {
             $('#loading-overlay').remove();
         }, 100); // Delay of 100 milliseconds
     }
@@ -197,6 +197,8 @@ async function fetchCart() {
         $('#cart-message').html('<p class="text-danger">Error loading cart. Please try again later.</p>');
     }
 }
+
+
 function displayCart(cartData, laptopSpecs) {
     let cartItemsHtml = '';
     if (cartData.cart_items.length > 0) {
@@ -247,9 +249,74 @@ function displayCart(cartData, laptopSpecs) {
         $('#cart-items').html('<div class="col-12"><p>Your cart is empty.</p></div>');
         $('#cart-total').hide();
     }
-    
+
     attachEventListeners();
 }
+document.addEventListener('DOMContentLoaded', function() {
+    const checkoutButton = document.getElementById('checkout-button');
+    if (checkoutButton) {
+        checkoutButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            // Fetch cart items from server
+            fetch('/api/cart-items/')
+                .then(response => response.json())
+                .then(cartItems => {
+                    checkStockAvailability(cartItems);
+                });
+        });
+    } else {
+        console.error('Checkout button not found.');
+    }
+});
+
+function checkStockAvailability(cartItems) {
+    let outOfStockItems = [];
+    let checksRemaining = cartItems.length;
+
+    cartItems.forEach(item => {
+        fetch(`/api/stock/${item.productId}/`)
+            .then(response => response.json())
+            .then(stockData => {
+                if (item.quantity > stockData.quantity) {
+                    outOfStockItems.push(item.productName, item.productModel);
+                    // Mark item in red (assumes items are marked with a unique ID)
+                    const itemElement = document.getElementById(`cart-item-${item.productId}`);
+                    if (itemElement) {
+                        itemElement.style.backgroundColor = 'red';
+                        itemElement.style.color = 'white';
+                    }
+                } else {
+                    // Ensure item is not marked red if it's in stock
+                    const itemElement = document.getElementById(`cart-item-${item.productId}`);
+                    if (itemElement) {
+                        itemElement.style.backgroundColor = '';
+                        itemElement.style.color = '';
+                    }
+                }
+
+                checksRemaining--;
+                if (checksRemaining === 0) {
+                    if (outOfStockItems.length > 0) {
+                        showOutOfStockAlert(outOfStockItems);
+                    } else {
+                        // Proceed to checkout if no items are out of stock
+                        window.location.href = checkoutUrl;
+                    }
+                }
+            });
+    });
+}
+
+function showOutOfStockAlert(outOfStockItems) {
+    Swal.fire({
+        title: 'Out of Stock!',
+        text: `The following items are out of stock: ${outOfStockItems.join(', ')}. Please remove them from your cart.`,
+        icon: 'warning',
+        confirmButtonText: 'Okay'
+    });
+}
+
 
 
 $(document).ready(function () {
