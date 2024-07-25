@@ -61,7 +61,7 @@
                     laptop.product.name.toLowerCase().includes(searchQuery) ||
                     laptop.cpu.cpu_brand.name.toLowerCase().includes(searchQuery) ||
                     laptop.gpu.some(g => g.gpu_brand.name.toLowerCase().includes(searchQuery)) ||
-                    laptop.memory.type.toLowerCase().includes(searchQuery) ||
+                    // laptop.memory.type.toLowerCase().includes(searchQuery) ||
                     laptop.storage.type.toLowerCase().includes(searchQuery)
                 );
             });

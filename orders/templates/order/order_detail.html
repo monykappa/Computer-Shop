@@ -22,7 +22,8 @@ Order Detail - {{ order.id }}
     }
 
     .table thead th {
-        background-color: #f8f9fa;
+        background-color: var(--fourth-color);
+        color:#fff;
         position: sticky;
         top: 0;
         z-index: 1;
@@ -49,9 +50,13 @@ Order Detail - {{ order.id }}
     }
 </style>
 
-
-
 <div class="container">
+    <!-- Print Button -->
+    <div class="text-right mb-3">
+        <button class="btn btn-primary print-hidden" onclick="printOrder()">Print Order</button>
+        <button class="btn btn-success" onclick="downloadReceipt()">Download as Image</button>
+    </div>
+
     <div class="row">
         <div class="col-md-6">
             <h1>Order N.O #{{ order.id }}</h1>
@@ -79,10 +84,7 @@ Order Detail - {{ order.id }}
         </div>
     </div>
 
-
-
     <h2>Products Ordered:</h2>
-
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -120,8 +122,22 @@ Order Detail - {{ order.id }}
         </table>
     </div>
 
-
     <h3 class="text-right text-danger"><strong class="text-dark">Total Price:</strong> ${{ order.total_price }}</h3>
-
 </div>
+
+<!-- JavaScript for Print and Download functionalities -->
+<script>
+function printOrder() {
+    window.print();
+}
+
+function downloadReceipt() {
+    html2canvas(document.querySelector(".container")).then(canvas => {
+        let link = document.createElement('a');
+        link.download = 'receipt.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
+</script>
 {% endblock content %}
