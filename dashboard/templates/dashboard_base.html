@@ -26,12 +26,17 @@
   <link rel="stylesheet" href="{% static 'css/bootstrap/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/sweetalert/all.min.css' %}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
   {% block css %}{% endblock css %}
 
 
   <title>{% block title %}Base{% endblock %}</title>
 
   <!--   Core JS Files   -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.6.0/jspdf.umd.min.js"></script>
+
+  
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>

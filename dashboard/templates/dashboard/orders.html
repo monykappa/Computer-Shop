@@ -5,6 +5,13 @@ Dashboard | Order
 {% endblock title %}
 
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Include html2pdf.js from a different CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
 <style>
     .address-cell {
         max-width: 150px;
@@ -125,7 +132,13 @@ Dashboard | Order
                             </a>
                             
                         </div>
+
+                        <button class="btn btn-primary mb-3" onclick="printTable()">Print Table</button>
+                        <button class="btn btn-success mb-3" onclick="exportTableToExcel()">Export to Excel</button>
+                        <button class="btn btn-danger mb-3" onclick="exportTableToPDF()">Export to PDF</button>
+
                         <div class="table-responsive">
+
     <table class="table table-hover">
         <thead>
             <tr>
@@ -136,7 +149,7 @@ Dashboard | Order
                 <th>Address</th>
                 <th>Status</th>
                 {% if pending_orders_count > 0 %}
-                    <th>Action</th>
+                <th class="action-column">Action</th>
                 {% endif %}
             </tr>
         </thead>
@@ -167,7 +180,7 @@ Dashboard | Order
                     </span>
                 </td>
                 {% if order_history.status == "Pending" %}
-                    <td>
+                <td class="action-column">
                         <form method="post" action="{% url 'dashboard:order_status_update' order_history.pk %}" class="d-inline complete-order-form">
                             {% csrf_token %}
                             <input type="hidden" name="status" value="Completed">
@@ -229,6 +242,7 @@ Dashboard | Order
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const rows = document.querySelectorAll('.clickable-row');
@@ -291,6 +305,93 @@ Dashboard | Order
                 });
             });
         });
+
+        function printTable() {
+            // Open a new window
+            var printWindow = window.open('', '', 'height=600,width=800');
+            // Write the HTML content into the new window
+            printWindow.document.write('<html><head><title>Print Table</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write('body { font-family: Arial, sans-serif; }');
+            printWindow.document.write('.table { width: 100%; border-collapse: collapse; }');
+            printWindow.document.write('.table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
+            printWindow.document.write('.table th { background-color: #f2f2f2; }');
+            printWindow.document.write('</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<div style="text-align: center;">');
+            printWindow.document.write(document.querySelector('.table-responsive').innerHTML);
+            printWindow.document.write('</div>');
+            printWindow.document.write('</body></html>');
+            // Close the document to finish writing
+            printWindow.document.close();
+            // Print the document
+            printWindow.print();
+        }
+
+        function exportTableToExcel() {
+            if (typeof XLSX === 'undefined') {
+                console.error('XLSX library is not loaded.');
+                return;
+            }
+        
+            // Create a new workbook and worksheet
+            var wb = XLSX.utils.book_new();
+            var ws = XLSX.utils.table_to_sheet(document.querySelector('.table'));
+        
+            // Define border styles
+            const borderStyle = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            };
+        
+            // Add borders to each cell
+            for (const cellAddress in ws) {
+                if (ws[cellAddress].v) {
+                    ws[cellAddress].s = {
+                        border: borderStyle
+                    };
+                }
+            }
+        
+            // Add the worksheet to the workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+        
+            // Save the workbook
+            XLSX.writeFile(wb, 'orders.xlsx');
+        }
+
+
+        function exportTableToPDF() {
+        var table = document.querySelector('.table');
+        var actionColumns = document.querySelectorAll('.action-column');
+        var originalHtml = table.innerHTML; // Store the original HTML
+
+        // Remove Action column
+        actionColumns.forEach(col => {
+            col.style.display = 'none';
+            col.previousElementSibling.style.display = 'none'; // Hide corresponding header
+        });
+
+        // Define PDF options
+        var opt = {
+            margin: [0.5, 0.5, 0.5, 0.5], // margins in inches
+            filename: 'orders.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 }, // Adjust scale for higher resolution
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } // Landscape orientation
+        };
+
+        // Generate PDF
+        html2pdf().from(table).set(opt).save().then(() => {
+            // Restore the Action column visibility
+            actionColumns.forEach(col => {
+                col.style.display = '';
+                col.previousElementSibling.style.display = ''; // Restore corresponding header
+            });
+        });
+    }
     </script>
 
 

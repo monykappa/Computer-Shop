@@ -295,8 +295,11 @@ class OrderHistoryView(UserPermission, LoginRequiredMixin, ListView):
         if isinstance(value, list):
             value = value[0] if value else ''
         return value.strip()
-    
-    
+
+
+
+
+
 class OrderStatusUpdateView(LoginRequiredMixin, UserPermission, View):
     def post(self, request, pk):
         order_history = get_object_or_404(OrderHistory, pk=pk)
