@@ -280,9 +280,11 @@ class LaptopSpec(SlugMixin):
         return f"Specifications for {self.product.name} {self.product.model}" if self.product else "Unassociated Laptop Specifications"
 
 
+
 class Stock(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.product.name} - {self.product.model} - {self.quantity} units in stock"
@@ -301,4 +303,3 @@ class Stock(models.Model):
 
     def is_available(self):
         return self.quantity > 0
-

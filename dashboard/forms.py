@@ -231,3 +231,11 @@ class StockForm(forms.ModelForm):
             'product': forms.Select(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+class EditStockForm(forms.ModelForm):
+    class Meta:
+        model = Stock
+        fields = ['quantity'] 
+        widgets = {
+            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+        }

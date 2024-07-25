@@ -38,9 +38,8 @@ urlpatterns = [
     
     path('stocks/', views.StockListView.as_view(), name='stock_list'),
     path('stock/add/', views.add_stock, name='add_stock'),
-    path('stock/edit/<int:stock_id>/', views.edit_stock, name='edit_stock'),
-    
-    
+    path('stock/<int:pk>/edit/', views.StockUpdateView.as_view(), name='stock_edit'),
+    path('check-stock-exists/', views.check_stock_exists, name='check_stock_exists'),
     
     path('dashboard/tables/', views.DisplayTablesView.as_view(), name='display_tables'),
     path('dashboard/<str:model_name>/create/', views.GenericModelFormView.as_view(), name='model_create'),

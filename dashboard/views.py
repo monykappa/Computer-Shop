@@ -885,29 +885,65 @@ class StockListView(ListView):
     template_name = 'dashboard/stock.html'
     context_object_name = 'stocks'
     ordering = ['product__name']
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['products'] = Product.objects.all().order_by('name') 
+        context['products'] = Product.objects.all().order_by('name')
+        context['search_query'] = self.request.GET.get('search_query')
         return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get('search_query')
+        if search_query:
+            queryset = queryset.filter(product__name__icontains=search_query)
+        return queryset
+
+def check_stock_exists(request):
+    if request.method == 'GET':
+        product_id = request.GET.get('product_id')
+        try:
+            stock = Stock.objects.get(product_id=product_id)
+            return JsonResponse({
+                'exists': True,
+                'product_name': stock.product.name,
+                'product_model': stock.product.model,
+                'product_year': stock.product.year,
+                'current_quantity': stock.quantity
+            })
+        except Stock.DoesNotExist:
+            return JsonResponse({'exists': False})
 
 def add_stock(request):
     if request.method == 'POST':
         form = StockForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Stock added successfully.')
+            product = form.cleaned_data['product']
+            quantity = form.cleaned_data['quantity']
+            
+            stock, created = Stock.objects.get_or_create(product=product)
+            stock.quantity += quantity
+            stock.save()
+
+            messages.success(request, f'Stock updated for {product.name}. New quantity: {stock.quantity}.')
         else:
             messages.error(request, 'Error adding stock. Please check the form.')
     return redirect(reverse('dashboard:stock_list'))
 
-def edit_stock(request, stock_id):
-    stock = get_object_or_404(Stock, id=stock_id)
-    if request.method == 'POST':
-        form = StockForm(request.POST, instance=stock)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Stock updated successfully.')
-        else:
-            messages.error(request, 'Error updating stock. Please check the form.')
-    return redirect(reverse('dashboard:stock_list'))
+class StockUpdateView(UpdateView):
+    model = Stock
+    form_class = EditStockForm
+    template_name = 'dashboard/edit/edit_stock.html'
+    context_object_name = 'stock'
+    success_url = reverse_lazy('dashboard:stock_list')  # Redirect to the stock list page after successful update
+
+    def get_object(self, queryset=None):
+        stock_id = self.kwargs.get('pk')
+        return get_object_or_404(Stock, pk=stock_id)
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.updated_at = timezone.now()
+        instance.save()
+        return super().form_valid(form)
