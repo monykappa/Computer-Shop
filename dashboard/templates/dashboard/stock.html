@@ -1,0 +1,156 @@
+{% extends 'dashboard_base.html' %}
+{% block title %}
+    Stock
+{% endblock title %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Stock List</h1>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addStockModal">
+        Add Stock
+    </button>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Model</th>
+                <th>Quantity</th>
+                <th>Price per Unit</th>
+                <th>Total Price</th>
+                <th>Availability</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+            <tr>
+                <td>
+                    {% if stock.product.images.exists %}
+                        <img src="{{ stock.product.images.first.image.url }}" alt="{{ stock.product.name }}" style="max-width: 100px; max-height: 100px;">
+                    {% else %}
+                        No Image
+                    {% endif %}
+                </td>
+                <td>{{ stock.product.name }}</td>
+                <td>{{ stock.product.model }}</td>
+                <td>{{ stock.quantity }}</td>
+                <td>{{ stock.price_per_unit_with_dollar }}</td>
+                <td>{{ stock.total_price_with_dollar }}</td>
+                <td>{% if stock.is_available %}In Stock{% else %}Out of Stock{% endif %}</td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-secondary edit-stock" data-bs-toggle="modal" data-bs-target="#editStockModal" data-stock-id="{{ stock.id }}" data-product-id="{{ stock.product.id }}" data-quantity="{{ stock.quantity }}">
+                        Edit
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No stock available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Stock Modal -->
+<div class="modal fade" id="addStockModal" tabindex="-1" aria-labelledby="addStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addStockModalLabel">Add Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addStockForm" method="post" action="{% url 'dashboard:add_stock' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="product" class="form-label">Product</label>
+                        <select class="form-select" id="product" name="product" required>
+                            <option value="">Select a product</option>
+                            {% for product in products %}
+                            <option value="{{ product.id }}">{{ product.name }} - {{ product.model }} ({{ product.year }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" required min="0">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="addStockForm" class="btn btn-primary">Add Stock</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Stock Modal -->
+<div class="modal fade" id="editStockModal" tabindex="-1" aria-labelledby="editStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editStockModalLabel">Edit Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editStockForm" method="post" action="{% url 'dashboard:edit_stock' 0 %}">
+
+                    {% csrf_token %}
+                    <input type="hidden" id="editStockId" name="stock_id">
+                    <div class="mb-3">
+                        <label for="editProduct" class="form-label">Product</label>
+                        <select class="form-select" id="editProduct" name="product" required disabled>
+                            {% for product in products %}
+                            <option value="{{ product.id }}">{{ product.name }} - {{ product.model }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editQuantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="editQuantity" name="quantity" required min="0">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="editStockForm" class="btn btn-primary">Update Stock</button>
+            </div>
+        </div>
+    </div>
+</div>
+<button class="edit-stock" data-stock-id="{{ stock.id }}" data-product-id="{{ stock.product.id }}" data-quantity="{{ stock.quantity }}">Edit</button>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editButtons = document.querySelectorAll('.edit-stock');
+        editButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const stockId = this.dataset.stockId;
+                const productId = this.dataset.productId;
+                const quantity = this.dataset.quantity;
+    
+                document.getElementById('editStockId').value = stockId;
+                document.getElementById('editProduct').value = productId;
+                document.getElementById('editQuantity').value = quantity;
+    
+                // Update the form action URL to include the stockId
+                const form = document.getElementById('editStockForm');
+                form.action = form.action.replace(/\/0$/, `/${stockId}`);
+    
+                console.log(form.action); // Debugging statement to verify the updated URL
+            });
+        });
+    });
+    
+    
+</script>
+{% endblock %}
+
+

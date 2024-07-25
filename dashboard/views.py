@@ -879,3 +879,35 @@ class AddSuperuserView(SuperuserRequiredMixin, LoginRequiredMixin, CreateView):
         user.is_staff = form.cleaned_data['is_staff']
         user.save()
         return super().form_valid(form)
+
+class StockListView(ListView):
+    model = Stock
+    template_name = 'dashboard/stock.html'
+    context_object_name = 'stocks'
+    ordering = ['product__name']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['products'] = Product.objects.all().order_by('name') 
+        return context
+
+def add_stock(request):
+    if request.method == 'POST':
+        form = StockForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Stock added successfully.')
+        else:
+            messages.error(request, 'Error adding stock. Please check the form.')
+    return redirect(reverse('dashboard:stock_list'))
+
+def edit_stock(request, stock_id):
+    stock = get_object_or_404(Stock, id=stock_id)
+    if request.method == 'POST':
+        form = StockForm(request.POST, instance=stock)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Stock updated successfully.')
+        else:
+            messages.error(request, 'Error updating stock. Please check the form.')
+    return redirect(reverse('dashboard:stock_list'))

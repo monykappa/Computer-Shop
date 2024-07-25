@@ -35,6 +35,13 @@ urlpatterns = [
     
     path('dashboard/order/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
     
+    
+    path('stocks/', views.StockListView.as_view(), name='stock_list'),
+    path('stock/add/', views.add_stock, name='add_stock'),
+    path('stock/edit/<int:stock_id>/', views.edit_stock, name='edit_stock'),
+    
+    
+    
     path('dashboard/tables/', views.DisplayTablesView.as_view(), name='display_tables'),
     path('dashboard/<str:model_name>/create/', views.GenericModelFormView.as_view(), name='model_create'),
     path('delete/<str:model_name>/<int:pk>/', views.GenericDeleteView.as_view(), name='model_delete'),

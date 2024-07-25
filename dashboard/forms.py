@@ -221,3 +221,13 @@ class OperatingSystemForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = OperatingSystem
         fields = ['operating_system', 'operating_system_detail']
+
+
+class StockForm(forms.ModelForm):
+    class Meta:
+        model = Stock
+        fields = ['product', 'quantity']
+        widgets = {
+            'product': forms.Select(attrs={'class': 'form-control'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
