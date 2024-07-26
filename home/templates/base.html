@@ -24,7 +24,6 @@
     <title>{% block title %}Home{% endblock %}</title>
     
 
-    <script src="{% static 'js/bootstrap/html2canvas.min.js' %}"></script>
     <script src="{% static 'js/bootstrap/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/bootstrap/popper.min.js' %}"></script>
     <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
@@ -58,6 +57,7 @@
 
     <!-- Footer end -->
     {% block js %}
+    <script src="{% static 'js/bootstrap/html2canvas.min.js' %}"></script>
 
     {% endblock js %}
 
