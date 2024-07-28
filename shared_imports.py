@@ -135,6 +135,7 @@ from dashboard.mixins import SuperuserRequiredMixin, UserPermission, DeliverySta
 from django.db.models import Sum
 from django.http import HttpResponse
 import io
+from django.utils.timezone import now
 from bokeh.plotting import figure # type: ignore
 from bokeh.embed import components # type: ignore
 from plotly.offline import plot # type: ignore
@@ -190,3 +191,4 @@ import pandas as pd
 from django.db.models import Prefetch 
 from django.db import transaction
 from django.db import connection
+import plotly.io as pio

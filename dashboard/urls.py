@@ -63,6 +63,9 @@ urlpatterns = [
     
     path('mark_order_as_read/', views.mark_order_as_read, name='mark_order_as_read'),
     
+    
+    path('dashboard/charts/', views.OrdersByDateChartsView.as_view(), name='orders_by_date_charts'),
+    path('dashboard/users-charts/', views.UsersChartsView.as_view(), name='users_charts'),
 ]
 
 if settings.DEBUG:
