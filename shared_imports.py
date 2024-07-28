@@ -189,3 +189,4 @@ import plotly.express as px
 import pandas as pd
 from django.db.models import Prefetch 
 from django.db import transaction
+from django.db import connection
