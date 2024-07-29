@@ -1,13 +1,41 @@
 {% load static %}
 <style>
-    i.footer-icon{
+    i.footer-icon {
         font-size: 40px;
-        margin:1rem 1rem;
+        margin: 1rem 1rem;
         color: var(--main-color);
         transition: 0.3s ease;
     }
-    i.footer-icon:hover{
+    i.footer-icon:hover {
         color: var(--third-color);
+    }
+    .footer-menu {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center; /* Center the items horizontally */
+    }
+    .footer-menu li {
+        margin: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    .footer-menu a {
+        text-decoration: none;
+        color: var(--main-color);
+        transition: color 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+    .footer-menu a:hover {
+        color: var(--third-color);
+    }
+    .notification-indicator {
+        display: flex;
+        align-items: center;
+        margin-right: 0.5rem;
     }
 </style>
 <!-- Footer start -->
@@ -28,6 +56,20 @@
         {% if footer.phone_number %}
             <p>Contact: {{ footer.phone_number }}</p>
         {% endif %}
+        <ul class="footer-menu">
+            {% for item in menu_items %}
+                <li class="nav-item menu">
+                    <a class="nav-link" href="{{ item.url }}">
+                        {% if item.icon %}
+                            <span class="notification-indicator {% if item.name == 'Notifications' and unread_notification_count > 0 %}has-notifications{% endif %}">
+                                <i class="{{ item.icon }} footer-icon" style="font-size:24px;"></i>
+                            </span>
+                        {% endif %}
+                        {{ item.name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
         <p class="copy-right">{{ footer.copyright_text }}</p>
     </div>
 </footer>
