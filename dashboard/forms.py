@@ -79,7 +79,7 @@ class LaptopSpecForm(forms.ModelForm):
     class Meta:
         model = LaptopSpec
         fields = [
-            'cpu', 'gpu', 'memory', 'storage', 'display', 'refresh_rate', 'webcam',
+            'cpu', 'gpu', 'memory', 'storage', 'display', 'resolution', 'refresh_rate', 'webcam',
             'battery', 'weight', 'operating_system', 'port', 'wireless_connectivity'
         ]
         widgets = {
@@ -88,6 +88,7 @@ class LaptopSpecForm(forms.ModelForm):
             'memory': forms.Select(attrs={'class': 'form-control'}),
             'storage': forms.Select(attrs={'class': 'form-control'}),
             'display': forms.Select(attrs={'class': 'form-control'}),
+            'resolution': forms.Select(attrs={'class': 'form-control'}),
             'refresh_rate': forms.Select(attrs={'class': 'form-control'}),
             'webcam': forms.Select(attrs={'class': 'form-control'}),
             'battery': forms.Select(attrs={'class': 'form-control'}),
@@ -103,7 +104,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        exclude = ['slug', 'cpu', 'gpu', 'memory', 'storage', 'display', 'refresh_rate','port', 'wireless_connectivity', 'webcam', 'battery', 'operating_system']
+        exclude = ['slug', 'cpu', 'gpu', 'memory', 'storage', 'display', 'resolution', 'refresh_rate','port', 'wireless_connectivity', 'webcam', 'battery', 'operating_system']
 
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
@@ -192,6 +193,13 @@ class DisplaySpecForm(BootstrapFormMixin, forms.ModelForm):
         model = DisplaySpec
         fields = ['display', 'display_detail']
 
+
+class ResolutionSpecForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = ResolutionSpec
+        fields = ['resolution']
+        
+        
 class RefreshRateForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = RefreshRate

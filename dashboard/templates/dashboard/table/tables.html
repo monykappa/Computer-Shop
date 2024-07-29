@@ -151,16 +151,30 @@ Dashboard | Tables
                 {% include 'dashboard/table/display.html' %}
             </div>
         </div>
+        
        
     </div>
     <div class="row">
+
         <div class="col-md-4">
-            <button class="collapsible">Port <i class="fa-solid fa-chevron-down"></i></button>
+            <button class="collapsible">Refresh rate <i class="fa-solid fa-chevron-down"></i></button>
             <div class="content">
-                <a href="{% url 'dashboard:model_create' model_name='portspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add Port</a>
-                {% include 'dashboard/table/port.html' %}
+                <a href="{% url 'dashboard:model_create' model_name='refreshrate' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                    Display</a>
+                {% include 'dashboard/table/refresh_rate.html' %}
             </div>
         </div>
+        <div class="col-md-4">
+            <button class="collapsible">Resolution <i class="fa-solid fa-chevron-down"></i></button>
+            <div class="content">
+                <a href="{% url 'dashboard:model_create' model_name='resolution' %}" class="btn btn-primary i mt-3">
+                    <i class="fa-solid fa-plus"></i> Add Resolution
+                </a>
+                
+                {% include 'dashboard/table/resolution.html' %}
+            </div>
+        </div>
+       
         <div class="col-md-4">
             <button class="collapsible">Wireless Connectivity <i class="fa-solid fa-chevron-down"></i></button>
             <div class="content">
@@ -169,14 +183,7 @@ Dashboard | Tables
                 {% include 'dashboard/table/wireless_connectivity.html' %}
             </div>
         </div>
-        <div class="col-md-4">
-            <button class="collapsible">Webcam <i class="fa-solid fa-chevron-down"></i></button>
-            <div class="content">
-                <a href="{% url 'dashboard:model_create' model_name='webcamspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
-                    Webcam</a>
-                {% include 'dashboard/table/webcam.html' %}
-            </div>
-        </div>
+     
     </div>
     <div class="row">
         <div class="col-md-4">
@@ -196,16 +203,25 @@ Dashboard | Tables
             </div>
         </div>
         <div class="col-md-4">
-            <button class="collapsible">Refresh rate <i class="fa-solid fa-chevron-down"></i></button>
+            <button class="collapsible">Port <i class="fa-solid fa-chevron-down"></i></button>
             <div class="content">
-                <a href="{% url 'dashboard:model_create' model_name='refreshrate' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
-                    Display</a>
-                {% include 'dashboard/table/refresh_rate.html' %}
+                <a href="{% url 'dashboard:model_create' model_name='portspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add Port</a>
+                {% include 'dashboard/table/port.html' %}
             </div>
         </div>
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-4">
+        <button class="collapsible">Webcam <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="content">
+            <a href="{% url 'dashboard:model_create' model_name='webcamspec' %}" class="btn btn-primary i mt-3"><i class="fa-solid fa-plus"></i> Add
+                Webcam</a>
+            {% include 'dashboard/table/webcam.html' %}
+        </div>
+    </div>
+</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

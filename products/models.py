@@ -197,6 +197,24 @@ class DisplaySpec(SlugMixin):
     def __str__(self):
         return f"{self.display} inches - {self.display_detail} panel" if self.display else "Unassociated Display Specifications"
 
+
+class ResolutionSpec(SlugMixin):
+    RESOLUTION_CHOICES = [
+        ('HD', 'HD'),
+        ('Full HD', 'Full HD'),
+        ('2K', '2K'),
+        ('4K', '4K'),
+    ]
+    resolution = models.CharField(max_length=100, choices=RESOLUTION_CHOICES, null=True, blank=True)
+    
+    @property
+    def slug_source(self):
+        return self.resolution if self.resolution else "resolution-spec"
+
+    def __str__(self):
+        return f"{self.resolution}"
+    
+    
 class PortSpec(SlugMixin):
     port = models.CharField(max_length=100, null=True, blank=True)
 
@@ -264,6 +282,7 @@ class LaptopSpec(SlugMixin):
     storage = models.ForeignKey(StorageSpec, on_delete=models.CASCADE, null=True, blank=True)
     gpu = models.ManyToManyField(GpuSpec, blank=True) 
     display = models.ForeignKey(DisplaySpec, on_delete=models.CASCADE, null=True, blank=True)
+    resolution = models.ForeignKey(ResolutionSpec, on_delete=models.CASCADE, null=True, blank=True)
     refresh_rate = models.ForeignKey(RefreshRate, on_delete=models.CASCADE, null=True, blank=True)
     port = models.ManyToManyField(PortSpec, blank=True)
     wireless_connectivity = models.ManyToManyField(WirelessConnectivity, blank=True)

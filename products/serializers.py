@@ -3,7 +3,7 @@ from .models import (
     Category, Brand, Color, Product, ProductImage, CpuBrand, GpuBrand, 
     CpuSpec, GpuSpec, MemoryBrand, MemorySpec, StorageBrand, StorageSpec, 
     DisplaySpec, PortSpec, WirelessConnectivity, WebcamSpec, BatterySpec, 
-    OperatingSystem, LaptopSpec, Stock, RefreshRate
+    OperatingSystem, LaptopSpec, Stock, RefreshRate, ResolutionSpec
 )
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -95,6 +95,11 @@ class DisplaySpecSerializer(serializers.ModelSerializer):
         model = DisplaySpec
         fields = ['id', 'display', 'display_detail', 'slug']
 
+class ResolutionSpecSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResolutionSpec
+        fields = ['id', 'resolution']
+
 class RefreshRateSerializer(serializers.ModelSerializer):
     class Meta:
         model = RefreshRate
@@ -132,6 +137,7 @@ class LaptopSpecSerializer(serializers.ModelSerializer):
     storage = StorageSpecSerializer()
     gpu = GpuSpecSerializer(many=True)
     display = DisplaySpecSerializer()
+    resolution = ResolutionSpecSerializer()
     refresh_rate = RefreshRateSerializer()
     port = PortSpecSerializer(many=True)
     wireless_connectivity = WirelessConnectivitySerializer(many=True)
@@ -142,7 +148,7 @@ class LaptopSpecSerializer(serializers.ModelSerializer):
     class Meta:
         model = LaptopSpec
         fields = [
-            'id', 'product', 'cpu', 'memory', 'storage', 'gpu', 'display', 'refresh_rate', 'port',
+            'id', 'product', 'cpu', 'memory', 'storage', 'gpu', 'display', 'resolution', 'refresh_rate', 'port',
             'wireless_connectivity', 'webcam', 'battery', 'weight', 'operating_system', 'slug'
         ]
 

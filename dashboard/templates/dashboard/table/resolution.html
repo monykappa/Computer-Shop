@@ -1,0 +1,20 @@
+<h2>Resolution</h2>
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for resolution_spec in resolution_specs %}
+    <tr>
+        <td>{{ resolution_spec.resolution }}</td>
+        <td>
+            <a href="{% url 'dashboard:edit_model' model='resolution_spec' pk=resolution_spec.pk %}">Edit</a> |
+            <a href="{% url 'dashboard:model_delete' model_name='resolutionspec' pk=resolution_spec.pk %}" class="delete-link">Delete</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="2">No resolutions found.</td>
+    </tr>
+    {% endfor %}
+</table>

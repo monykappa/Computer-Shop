@@ -1,3 +1,4 @@
+    
 from shared_imports import *
 
 class ProductListView(TemplateView):
@@ -28,10 +29,13 @@ class RelatedProductsView(ListView):
         related_products = LaptopSpec.objects.filter(product__brand__name=brand_name).exclude(slug=self.kwargs['slug'])
         return related_products
 
+
+        
 class PublicLaptopSpecListAPIView(generics.ListAPIView):
     queryset = LaptopSpec.objects.all()
     serializer_class = LaptopSpecSerializer
-    permission_classes = []  # No special permissions needed
+    permission_classes = []
+
 
 class PublicBrandListAPIView(generics.ListAPIView):
     queryset = Brand.objects.all()

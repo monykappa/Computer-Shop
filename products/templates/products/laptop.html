@@ -286,7 +286,8 @@
     ` : ''}
     
     ${details.display && details.display.display ? `
-    <li><strong>Display:</strong> ${details.display.display} inches 
+    <li><strong>Display:</strong> ${details.display.display} inches -
+    ${details.resolution ? `- ${details.resolution.resolution}` : ''}
     ${details.refresh_rate ? ` - ${details.refresh_rate.rate} Hz` : ''}
     </li>
     ` : ''}

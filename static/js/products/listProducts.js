@@ -51,33 +51,43 @@ async function fetchData() {
                     let gpuDetails = spec.gpu.map(gpu => `${gpu.gpu_brand.name} ${gpu.model}`).join(', ');
                     let productCard = document.createElement('div');
                     productCard.className = 'col-6 col-md-4 col-lg-3 mb-4';
+
+                    let cpuBrand = spec.cpu ? spec.cpu.cpu_brand.name : 'Unknown CPU Brand';
+                    let cpuModel = spec.cpu ? spec.cpu.model : 'Unknown CPU Model';
+                    let storageCapacity = spec.storage ? spec.storage.capacity : 'Unknown Storage Capacity';
+                    let storageType = spec.storage ? spec.storage.capacity_type : 'Unknown Storage Type';
+                    let displaySize = spec.display ? spec.display.display : 'Unknown Display Size';
+                    let refreshRate = spec.refresh_rate ? spec.refresh_rate.rate : 'Unknown Refresh Rate';
+                    let resolution = spec.resolution ? spec.resolution.resolution : '';
+
                     productCard.innerHTML = `
-                            <div class="product-card">
-                                <div class="warranty-badge">
-                                    ${spec.product.warranty_years > 0
+    <div class="product-card">
+        <div class="warranty-badge">
+            ${spec.product.warranty_years > 0
                             ? `${spec.product.warranty_years} ${spec.product.warranty_years === 1 ? 'year' : 'years'} warranty`
                             : spec.product.warranty_months > 0
                                 ? `${spec.product.warranty_months} ${spec.product.warranty_months === 1 ? 'month' : 'months'} warranty`
                                 : 'No warranty'
                         }
-                                </div>
-                                <div class="product-image-container">
-                                    <img class="product-image" src="${productImage}" alt="${spec.product.name}">
-                                </div>
-                                <div class="product-info">
-                                    <h4 class="product-title">${spec.product.name} ${spec.product.model} ${spec.product.year}</h4>
-                                    <p class="product-specs">${spec.cpu.cpu_brand.name} ${spec.cpu.model} | ${gpuDetails} | ${spec.storage.capacity}${spec.storage.capacity_type} ${spec.memory.capacity}GB | ${spec.display.display} Inches - ${spec.refresh_rate.rate}hz  | ${spec.product.color.name}</p>
-                                    <div class="product-footer">
-                                <h3 class="product-price">
-                                    <span class="first-digit">$${formatPrice(spec.product.price).charAt(0)}</span>${formatPrice(spec.product.price).slice(1)}
-                                </h3>
-                                <a href="/products/${spec.slug}/" class="btn see-more-btn" style="background-color: var(--fourth-color);">
-                                    <i class="fa-solid fa-eye text-light"></i>
-                                </a>
-                            </div>
-                                </div>
-                            </div>
-                        `;
+        </div>
+        <div class="product-image-container">
+            <img class="product-image" src="${productImage}" alt="${spec.product.name}">
+        </div>
+        <div class="product-info">
+            <h4 class="product-title">${spec.product.name} ${spec.product.model} ${spec.product.year}</h4>
+            <p class="product-specs">${cpuBrand} ${cpuModel} | ${gpuDetails} | ${storageCapacity}${storageType} ${spec.memory.capacity}GB | ${displaySize} - ${refreshRate}hz - ${resolution} | ${spec.product.color.name}</p>
+            <div class="product-footer">
+                <h3 class="product-price">
+                    <span class="first-digit">$${formatPrice(spec.product.price).charAt(0)}</span>${formatPrice(spec.product.price).slice(1)}
+                </h3>
+                <a href="/products/${spec.slug}/" class="btn see-more-btn" style="background-color: var(--fourth-color);">
+                    <i class="fa-solid fa-eye text-light"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+`;
+
                     brandProductsContainer.appendChild(productCard);
 
                     // Apply transition with a delay based on the index

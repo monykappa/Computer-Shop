@@ -726,6 +726,7 @@ class GenericModelFormView(SuperuserRequiredMixin, CreateView, UpdateView):
         "storagebrand": (StorageBrand, StorageBrandForm),
         "storagespec": (StorageSpec, StorageSpecForm),
         "displayspec": (DisplaySpec, DisplaySpecForm),
+        "resolution": (ResolutionSpec, ResolutionSpecForm),
         "refreshrate": (RefreshRate, RefreshRateForm),
         "portspec": (PortSpec, PortSpecForm),
         "wirelessconnectivity": (WirelessConnectivity, WirelessConnectivityForm),
@@ -777,6 +778,7 @@ class DisplayTablesView(UserPermission, TemplateView):
         context["storage_brands"] = StorageBrand.objects.all()
         context["storage_specs"] = StorageSpec.objects.all()
         context["display_specs"] = DisplaySpec.objects.all()
+        context["resolution_specs"] = ResolutionSpec.objects.all()
         context["refreshrates"] = RefreshRate.objects.all()
         context["port_specs"] = PortSpec.objects.all()
         context["wireless_connectivities"] = WirelessConnectivity.objects.all()
@@ -800,6 +802,7 @@ class GenericDeleteView(SuperuserRequiredMixin, View):
         "storagebrand": StorageBrand,
         "storagespec": StorageSpec,
         "displayspec": DisplaySpec,
+        "resolutionspec": ResolutionSpec,
         "refreshrate": RefreshRate,
         "portspec": PortSpec,
         "wirelessconnectivity": WirelessConnectivity,
@@ -848,6 +851,7 @@ class EditModelView(SuperuserRequiredMixin, UpdateView):
         "storage_brand": (StorageBrand, StorageBrandForm),
         "storage_spec": (StorageSpec, StorageSpecForm),
         "display_spec": (DisplaySpec, DisplaySpecForm),
+        "resolution_spec": (ResolutionSpec, ResolutionSpecForm),
         "refresh_rate": (RefreshRate, RefreshRateForm),
         "port_spec": (PortSpec, PortSpecForm),
         "wireless_connectivity": (WirelessConnectivity, WirelessConnectivityForm),
