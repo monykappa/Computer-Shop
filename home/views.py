@@ -1,8 +1,50 @@
 from shared_imports import *
 
 
+def compare(request):
+    search_query = request.GET.get('search', '')
 
+    products = Product.objects.filter(name__icontains=search_query).prefetch_related(
+        Prefetch('images', queryset=ProductImage.objects.all().order_by('id')[:1], to_attr='first_image')
+    ) if search_query else Product.objects.none()
 
+    if 'compared_products' not in request.session:
+        request.session['compared_products'] = []
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        product_id = request.POST.get('product_id')
+
+        if action == 'add' and product_id:
+            if product_id not in request.session['compared_products'] and len(request.session['compared_products']) < 3:
+                request.session['compared_products'].append(product_id)
+                request.session.modified = True
+        elif action == 'remove' and product_id:
+            if product_id in request.session['compared_products']:
+                request.session['compared_products'].remove(product_id)
+                request.session.modified = True
+        elif action == 'clear':
+            request.session['compared_products'] = []
+            request.session.modified = True
+
+    compared_products = Product.objects.filter(id__in=request.session['compared_products']).prefetch_related(
+        Prefetch('images', queryset=ProductImage.objects.all().order_by('id')[:1], to_attr='first_image')
+    )
+
+    max_compare_limit_reached = len(request.session['compared_products']) >= 3
+    context = {
+            'search_query': search_query,
+            'products': products,
+            'compared_products': compared_products,
+            'max_compare_limit_reached': max_compare_limit_reached
+        }
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            # If it's an AJAX request, return only the product list
+            html = render_to_string('home/partials/product_list.html', context, request=request)
+            return HttpResponse(html)
+        
+    return render(request, 'home/compare.html', context)
 
     
 class HomeView(TemplateView):

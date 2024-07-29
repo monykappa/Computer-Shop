@@ -28,6 +28,9 @@ urlpatterns = [
     path('mark-all-notifications-as-read/', views.mark_all_notifications_as_read, name='mark_all_notifications_as_read'),
     
     
+    path('compare/', views.compare, name='compare'),
+    
+    
     # path('most-ordered-product/', views.most_ordered_product, name='most_ordered_product'),
     # authentication
 
