@@ -1,13 +1,35 @@
 
-<h1>Orders Line Chart</h1>
-<form method="get" action="{% url 'dashboard:orders_by_date_charts' %}">
-    <button type="submit" name="period" value="all">Show All Time</button>
-    <button type="submit" name="period" value="7_days">Show Last 7 Days</button>
-    <button type="submit" name="period" value="1_month">Show Last Month</button>
-</form>
+    <form class="mt-2" method="get" action="{% url 'dashboard:orders_by_date_charts' %}">
+        <div class="btn-group" role="group" aria-label="Select Period">
+            <button type="submit" name="period" value="all" class="btn btn-primary">Show All Time</button>
+            <button type="submit" name="period" value="7_days" class="btn btn-secondary">Show Last 7 Days</button>
+            <button type="submit" name="period" value="1_month" class="btn btn-info">Show Last Month</button>
+        </div>
+    </form>
 
-<!-- Display the chart -->
-<div>
-    {{ chart_html|safe }}
-</div>
+    <div id="order-chart" class="" style="width: 100%; height: 500px;"></div>
 
+
+<script>
+    function fetchChartData(period) {
+        fetch("{% url 'dashboard:orders_by_date_charts' %}?period=" + period)
+            .then(response => response.json())
+            .then(data => {
+                const chartData = JSON.parse(data.chart);
+                Plotly.newPlot('order-chart', chartData.data, chartData.layout);
+            })
+            .catch(error => console.error('Error fetching chart data:', error));
+    }
+
+    // Initialize chart with default period
+    fetchChartData('{{ request.GET.period|default:"all" }}');
+
+    // Update chart when form button is clicked
+    document.querySelectorAll('form button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            const period = button.value;
+            fetchChartData(period);
+        });
+    });
+</script>

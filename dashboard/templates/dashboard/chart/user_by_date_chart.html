@@ -1,7 +1,38 @@
-{% extends 'dashboard_base.html' %}
-{% block content %}
-<h1>Users Charts Dashboard</h1>
-<div>
-    {{ chart_users_html|safe }}
+
+<div class="btn-group mt-2" role="group" aria-label="Chart Period">
+    <button id="all-time-btn" class="btn btn-primary">Show All Time</button>
+    <button id="1-month-btn" class="btn btn-secondary">Show Last Month</button>
 </div>
-{% endblock content %}
+<div id="user-chart"  style="width: 100%; height: 500px;"></div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function fetchUserChart(period) {
+            fetch(`/dashboard/users-charts/?period=${period}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const chartDiv = document.getElementById('user-chart');
+                Plotly.react(chartDiv, JSON.parse(data.chart), {});
+                document.getElementById('current-period').textContent = period.replace('_', ' ').toUpperCase();
+            })
+            .catch(error => console.error('Error fetching user chart data:', error));
+        }
+
+        document.getElementById('all-time-btn').addEventListener('click', function() {
+            fetchUserChart('all');
+        });
+
+        document.getElementById('1-month-btn').addEventListener('click', function() {
+            fetchUserChart('1_month');
+        });
+
+        // Load default data (all time)
+        fetchUserChart('all');
+    });
+</script>

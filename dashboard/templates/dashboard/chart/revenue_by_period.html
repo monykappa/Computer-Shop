@@ -1,0 +1,48 @@
+<div class="btn-group mb-2 mt-2" role="group" aria-label="Revenue Period">
+    <button id="7-days-btn" class="btn btn-primary">Last 7 Days</button>
+    <button id="1-year-btn" class="btn btn-info">Last Year</button>
+</div>
+<div id="revenue-chart" class="mt-2" style="width: 100%; height: 500px;"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function fetchRevenueChart(period) {
+            fetch(`/dashboard/revenue-chart/?period=${period}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const chartDiv = document.getElementById('revenue-chart');
+                if (data.chart) {
+                    Plotly.react(chartDiv, JSON.parse(data.chart), {});
+                } else {
+                    chartDiv.innerHTML = "<p>No data available for the selected period.</p>";
+                }
+                document.getElementById('current-period').textContent = period.replace('_', ' ').toUpperCase();
+            })
+            .catch(error => console.error('Error fetching revenue chart data:', error));
+        }
+
+        document.getElementById('7-days-btn').addEventListener('click', function() {
+            fetchRevenueChart('7_days');
+        });
+
+        document.getElementById('1-month-btn').addEventListener('click', function() {
+            fetchRevenueChart('1_month');
+            
+        });
+
+        document.getElementById('1-year-btn').addEventListener('click', function() {
+            fetchRevenueChart('1_year');
+
+
+        });
+
+        // Load default data (last 7 days)
+        fetchRevenueChart('7_days');
+    });
+</script>
+

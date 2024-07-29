@@ -1,9 +1,75 @@
 from shared_imports import *
-
-
-class OrdersByDateChartsView(UserPermission ,TemplateView):
+class RevenueByDateChartView(View):
     def get(self, request, *args, **kwargs):
-        # Get the date filter from request
+        period = request.GET.get("period", "7_days")  # Default to '7_days' if not provided
+
+        # Determine the start date based on the period
+        if period == "7_days":
+            start_date = now() - timedelta(days=7)
+        elif period == "1_month":
+            start_date = now() - timedelta(days=30)
+        elif period == "1_year":
+            start_date = now() - timedelta(days=365)
+        else:
+            start_date = None
+
+        # Fetch OrderHistory entries based on the period
+        if start_date:
+            orders = OrderHistory.objects.filter(ordered_date__gte=start_date)
+        else:
+            orders = OrderHistory.objects.all()
+
+        # Convert the queryset to a list of dictionaries
+        data = list(orders.values("ordered_date", "total_price"))
+
+
+        # Create a DataFrame from the data
+        df = pd.DataFrame(data)
+
+        if df.empty:
+            return JsonResponse({'chart': {}}, safe=False)
+
+        # Ensure 'ordered_date' is a datetime column
+        df["ordered_date"] = pd.to_datetime(df["ordered_date"])
+
+        # Extract date only (removing time part) and calculate total revenue per date
+        df["date"] = df["ordered_date"].dt.date
+        df_revenue = df.groupby("date")["total_price"].sum().reset_index()
+
+        # Prepare data for Plotly
+        plot_data = {"Date": df_revenue["date"], "Total Revenue": df_revenue["total_price"]}
+        plot_df = pd.DataFrame(plot_data)
+
+        # Create the line chart with dots and annotations
+        fig = px.line(
+            plot_df,
+            x="Date",
+            y="Total Revenue",
+            title="Total Revenue by Date",
+            markers=True,
+        )
+
+        # Add dots with revenue count annotations and shaded area below the line
+        fig.update_traces(
+            mode="lines+markers+text",
+            text=plot_df["Total Revenue"].apply(lambda x: f"${x:.2f}"),
+            textposition="top center",
+            marker=dict(
+                size=8,
+                color="rgba(0, 128, 0, .8)",
+                line=dict(width=2, color="DarkSlateGrey"),
+            ),
+            fill="tozeroy",  # Fill the area under the line
+            fillcolor="rgba(200, 255, 200, 0.4)",
+        )  # Customize the fill color and opacity
+
+        # Convert the Plotly figure to JSON
+        chart_json = fig.to_json()
+
+        return JsonResponse({'chart': chart_json})
+    
+class OrdersByDateChartsView(View):
+    def get(self, request, *args, **kwargs):
         period = request.GET.get("period", "all")  # 'all', '7_days', or '1_month'
 
         # Fetch OrderHistory entries based on the period
@@ -38,7 +104,7 @@ class OrdersByDateChartsView(UserPermission ,TemplateView):
             plot_df,
             x="Date",
             y="Number of Orders",
-            title="Number of Orders Per Day",
+            title="Number of Orders",
             markers=True,
         )
 
@@ -56,16 +122,13 @@ class OrdersByDateChartsView(UserPermission ,TemplateView):
             fillcolor="rgba(200, 200, 255, 0.4)",
         )  # Customize the fill color and opacity
 
-        # Convert the Plotly figure to HTML
-        chart_html = fig.to_html(full_html=False)
+        # Convert the Plotly figure to JSON
+        chart_json = fig.to_json()
 
-        # Render the template with the chart HTML
-        return render(request, "dashboard/chart/order_by_date_chart.html", {"chart_html": chart_html})
-
-
-class UsersChartsView(UserPermission, TemplateView):
+        return JsonResponse({'chart': chart_json})
+    
+class UsersChartsView(View):
     def get(self, request, *args, **kwargs):
-        # Get the date filter from request
         period = request.GET.get("period", "all")  # 'all', '7_days', or '1_month'
 
         # Fetch User entries based on the period
@@ -118,14 +181,10 @@ class UsersChartsView(UserPermission, TemplateView):
             fillcolor="rgba(200, 200, 255, 0.4)",
         )  # Customize the fill color and opacity
 
-        # Convert the Plotly figure to HTML
-        chart_users_html = fig.to_html(full_html=False)
+        # Convert the Plotly figure to JSON
+        chart_users_json = fig.to_json()
 
-        # Render the template with the user chart HTML
-        return render(
-            request, "dashboard/chart/user_by_date_chart.html", {"chart_users_html": chart_users_html}
-        )
-
+        return JsonResponse({'chart': chart_users_json})
 
 @login_required
 @require_POST
