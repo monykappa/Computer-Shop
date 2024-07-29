@@ -219,6 +219,9 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
         # Retrieve the newest product
         newest_product = Product.objects.latest("id")
         context["newest_product_name"] = newest_product.name
+        context["newest_product_model"] = newest_product.model
+        context["newest_product_year"] = newest_product.year
+        
 
         # Count pending orders
         context["pending_orders"] = OrderHistory.objects.filter(
