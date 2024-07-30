@@ -629,6 +629,17 @@ class ProductListView(UserPermission, ListView):
 
         return context
 
+class AllProductsAPI(LoginRequiredMixin, View):
+    """
+    API endpoint to get all products in JSON format.
+    Requires user to be logged in.
+    """
+    def get(self, request, *args, **kwargs):
+        products = Product.objects.all().values(
+            'id', 'name', 'model', 'brand__name', 'color__name', 'price', 'year', 'warranty_years', 'warranty_months'
+        )
+        return JsonResponse(list(products), safe=False)
+
 
 class ProductCreateView(SuperuserRequiredMixin, CreateView):
     model = Product

@@ -1,13 +1,30 @@
-<!-- home/partials/product_list.html -->
- {% load static %}
+{% load static %}
 
- <div class="row">
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .card-img-top {
+        object-fit: contain; /* Ensures the image covers the card without distortion */
+        height: 200px; /* Adjust height as needed */
+    }
+    .card-body {
+        flex: 1; /* Ensures the card body takes up remaining space */
+    }
+    .btn-primary {
+        width: 100%; /* Makes the button full-width */
+    }
+</style>
+
+<div class="row">
     {% for product in products %}
     <div class="col-md-4 mb-4">
         <div class="card">
             {% if product.first_image %}
                 {% with product.first_image|first as image %}
-                    <img src="{{ image.image.url }}" class="card-img-top img-responsive" alt="{{ product.name }}" width="120">
+                    <img src="{{ image.image.url }}" class="card-img-top img-responsive" alt="{{ product.name }}">
                 {% endwith %}
             {% else %}
                 <img src="{% static 'default_image.jpg' %}" class="card-img-top img-responsive" alt="Default Image">
@@ -35,5 +52,3 @@
     <p class="col-12">No products found. Try a different search term.</p>
     {% endfor %}
 </div>
-
-

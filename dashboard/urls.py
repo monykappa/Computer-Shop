@@ -69,6 +69,8 @@ urlpatterns = [
     path('dashboard/revenue-chart/', views.RevenueByDateChartView.as_view(), name='revenue_by_period'),
 
 
+    path('api/products/all', views.AllProductsAPI.as_view(), name='all_products_api'),
+
 ]
 
 if settings.DEBUG:

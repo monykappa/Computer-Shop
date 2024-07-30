@@ -50,13 +50,13 @@ Order Detail - {{ order.id }}
     }
 </style>
 <div class="text-right mb-3">
-    <button class="btn btn-success" onclick="downloadReceipt()">Download as Image</button>
+    <button class="btn btn-success mr-5" onclick="downloadReceipt()"><i class="fa-solid fa-download"></i> Download as Image</button>
 </div>
 
 <div class="container">
     <div class="row">
         <div class="col-md-6">
-            <h1>Order N.O #{{ order.id }}</h1>
+            <h1>Order No. #{{ order.id }}</h1>
             <p><strong>Ordered Date:</strong> {{ order.ordered_date }}</p>
             {% if order.status == 'Pending' %}
             <p><strong>Status:</strong> <span style="color: orange;">{{ order.status }}</span></p>

@@ -18,7 +18,7 @@ Order History
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Order Number</th>
+                    <th>Order No</th>
                     <th>Order Date</th>
                     <th>Total</th>
                     <th>Status</th>
@@ -28,7 +28,7 @@ Order History
             <tbody>
                 {% for order in pending_orders %}
                 <tr>
-                    <td>{{ order.id }}</td>
+                    <td>#{{ order.id }}</td>
                     <td>{{ order.ordered_date }}</td>
                     <td>${{ order.total_price }}</td>
                     <td><span style="color: orange;">{{ order.status }}</span></td>
@@ -48,7 +48,7 @@ Order History
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Order Number</th>
+                    <th>Order No</th>
                     <th>Order Date</th>
                     <th>Total Price</th>
                     <th>Status</th>
@@ -58,7 +58,7 @@ Order History
             <tbody>
                 {% for order in completed_orders %}
                 <tr>
-                    <td>{{ order.id }}</td>
+                    <td>#{{ order.id }}</td>
                     <td>{{ order.ordered_date }}</td>
                     <td>${{ order.total_price }}</td>
                     <td><span style="color: green;">{{ order.status }}</span></td>
@@ -78,7 +78,7 @@ Order History
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Order Number</th>
+                    <th>Order No</th>
                     <th>Order Date</th>
                     <th>Total Price</th>
                     <th>Status</th>
@@ -88,7 +88,7 @@ Order History
             <tbody>
                 {% for order in cancelled_orders %}
                 <tr>
-                    <td>{{ order.id }}</td>
+                    <td>#{{ order.id }}</td>
                     <td>{{ order.ordered_date }}</td>
                     <td>${{ order.total_price }}</td>
                     <td><span style="color: red;">{{ order.status }}</span></td>
