@@ -49,14 +49,11 @@ Order Detail - {{ order.id }}
         }
     }
 </style>
+<div class="text-right mb-3">
+    <button class="btn btn-success" onclick="downloadReceipt()">Download as Image</button>
+</div>
 
 <div class="container">
-    <!-- Print Button -->
-    <div class="text-right mb-3">
-        <button class="btn btn-primary print-hidden" onclick="printOrder()">Print Order</button>
-        <button class="btn btn-success" onclick="downloadReceipt()">Download as Image</button>
-    </div>
-
     <div class="row">
         <div class="col-md-6">
             <h1>Order N.O #{{ order.id }}</h1>
@@ -125,19 +122,38 @@ Order Detail - {{ order.id }}
     <h3 class="text-right text-danger"><strong class="text-dark">Total Price:</strong> ${{ order.total_price }}</h3>
 </div>
 
-<!-- JavaScript for Print and Download functionalities -->
-<script>
-function printOrder() {
-    window.print();
-}
 
-function downloadReceipt() {
-    html2canvas(document.querySelector(".container")).then(canvas => {
-        let link = document.createElement('a');
-        link.download = 'receipt.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    });
-}
-</script>
+<script>
+    function downloadReceipt() {
+        // Temporarily set viewport size to a desktop resolution
+        let originalWidth = document.documentElement.clientWidth;
+        let originalHeight = document.documentElement.clientHeight;
+    
+        // Define the desktop size you want to capture
+        const desktopWidth = 1200; // You can adjust this value
+        const desktopHeight = 800; // You can adjust this value
+    
+        // Set the viewport size to desktop size
+        document.documentElement.style.width = `${desktopWidth}px`;
+        document.documentElement.style.height = `${desktopHeight}px`;
+    
+        html2canvas(document.querySelector(".container"), {
+            width: desktopWidth,
+            height: desktopHeight,
+            scrollX: 0,
+            scrollY: 0
+        }).then(canvas => {
+            // Reset viewport size
+            document.documentElement.style.width = `${originalWidth}px`;
+            document.documentElement.style.height = `${originalHeight}px`;
+    
+            let link = document.createElement('a');
+            link.download = 'receipt.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+    </script>
+    
+
 {% endblock content %}
