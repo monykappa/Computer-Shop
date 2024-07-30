@@ -32,11 +32,6 @@
     .footer-menu a:hover {
         color: var(--third-color);
     }
-    .notification-indicator {
-        display: flex;
-        align-items: center;
-        margin-right: 0.5rem;
-    }
 </style>
 <!-- Footer start -->
 {% if footer %}
@@ -58,7 +53,7 @@
         {% endif %}
         <ul class="footer-menu">
             {% for item in menu_items %}
-                <li class="nav-item menu">
+                <li class="nav-item">
                     <a class="nav-link" href="{{ item.url }}">
                         {% if item.icon %}
                             <span class="notification-indicator {% if item.name == 'Notifications' and unread_notification_count > 0 %}has-notifications{% endif %}">

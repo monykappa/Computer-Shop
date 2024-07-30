@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-
 <div class="container mt-4">
     <h1>Compare Laptops</h1>
 
@@ -23,21 +22,23 @@
 
     <h2 class="mt-5">Comparison</h2>
 
-{% if compared_products %}
+    {% if compared_products %}
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th class="bg-white text-dark">Attribute</th>
                 {% for product in compared_products %}
-                <th class="image-cell bg-white">
+                <th class="image-cell bg-white text-center">
                     <img src="{% if product.first_image %}{% with product.first_image|first as image %}{{ image.image.url }}{% endwith %}{% else %}{% static 'default_image.jpg' %}{% endif %}"
-                         alt="{{ product.name }}" width="120">
-                    <br>{{ product.name }}
+                        alt="{{ product.name }}" width="200" height="150" class="img-center"
+                        style="object-fit: contain;">
+
                 </th>
                 {% endfor %}
             </tr>
+
         </thead>
-        
+
         <tbody>
             <tr>
                 <td>Product Name</td>
@@ -58,7 +59,7 @@
                 {% endfor %}
             </tr>
             <tr>
-                <td>Year</td>
+                <td>Released date</td>
                 {% for product in compared_products %}
                 <td>{{ product.year }}</td>
                 {% endfor %}
@@ -83,11 +84,26 @@
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.cpu %}
-                        {{ product.laptop_spec.cpu.model }} ({{ product.laptop_spec.cpu.cores }} cores, {{ product.laptop_spec.cpu.threads }} threads)
-                        <br>
-                        {{ product.laptop_spec.cpu.cpu_detail }}
+                    {% with cpu=product.laptop_spec.cpu %}
+                    {% if cpu.model or cpu.cores or cpu.threads or cpu.cpu_detail %}
+                    {% if cpu.model %}
+                    {{ cpu.model }}
+                    {% endif %}
+                    {% if cpu.cores %}
+                    {% if cpu.model %} - {% endif %}{{ cpu.cores }} cores
+                    {% endif %}
+                    {% if cpu.threads %}
+                    {% if cpu.cores %} - {% endif %}{{ cpu.threads }} threads
+                    {% endif %}
+                    {% if cpu.cpu_detail %}
+                    <br>{{ cpu.cpu_detail }}
+                    {% endif %}
                     {% else %}
-                        Not Available
+                    —
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    —
                     {% endif %}
                 </td>
                 {% endfor %}
@@ -97,11 +113,11 @@
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.memory %}
-                        {{ product.laptop_spec.memory.capacity }} GB {{ product.laptop_spec.memory.type }}
-                        <br>
-                        {{ product.laptop_spec.memory.speed }} MHz
+                    {{ product.laptop_spec.memory.capacity }} GB {{ product.laptop_spec.memory.type }}
+                    <br>
+                    {{ product.laptop_spec.memory.speed }} MHz
                     {% else %}
-                        Not Available
+                    Not Available
                     {% endif %}
                 </td>
                 {% endfor %}
@@ -111,17 +127,17 @@
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.storage %}
-                        {{ product.laptop_spec.storage.capacity }} {{ product.laptop_spec.storage.capacity_type }}
-                        <br>
-                        {{ product.laptop_spec.storage.type }} - {{ product.laptop_spec.storage.interface }}
-                        <br>
-                        Read Speed: {{ product.laptop_spec.storage.read_speed }} MB/s
-                        <br>
-                        Write Speed: {{ product.laptop_spec.storage.write_speed }} MB/s
-                        <br>
-                        Form Factor: {{ product.laptop_spec.storage.form_factor }}
+                    {{ product.laptop_spec.storage.capacity }} {{ product.laptop_spec.storage.capacity_type }}
+                    <br>
+                    {{ product.laptop_spec.storage.type }} - {{ product.laptop_spec.storage.interface }}
+                    <br>
+                    Read Speed: {{ product.laptop_spec.storage.read_speed }} MB/s
+                    <br>
+                    Write Speed: {{ product.laptop_spec.storage.write_speed }} MB/s
+                    <br>
+                    Form Factor: {{ product.laptop_spec.storage.form_factor }}
                     {% else %}
-                        Not Available
+                    Not Available
                     {% endif %}
                 </td>
                 {% endfor %}
@@ -131,13 +147,31 @@
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.gpu.all %}
-                        {% for gpu in product.laptop_spec.gpu.all %}
-                            {{ gpu.model }} - {{ gpu.vram }} GB VRAM - {{ gpu.vram_type }}
-                            <br>
-                            {{ gpu.gpu_detail }}
-                        {% endfor %}
+                    {% with gpu_list=product.laptop_spec.gpu.all %}
+                    {% if gpu_list %}
+                    {% for gpu in gpu_list %}
+                    {% if gpu.model or gpu.vram or gpu.vram_type or gpu.gpu_detail %}
+                    {% if gpu.model %}
+                    {{ gpu.model }}
+                    {% endif %}
+                    {% if gpu.vram %}
+                    - {{ gpu.vram }} GB VRAM
+                    {% endif %}
+                    {% if gpu.vram_type %}
+                    - {{ gpu.vram_type }}
+                    {% endif %}
+                    {% if gpu.gpu_detail %}
+                    <br>{{ gpu.gpu_detail }}
+                    {% endif %}
+                    <br>
+                    {% endif %}
+                    {% endfor %}
                     {% else %}
-                        Not Available
+                    —
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    —
                     {% endif %}
                 </td>
                 {% endfor %}
@@ -147,23 +181,33 @@
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.display %}
-                        {{ product.laptop_spec.display.display }} inches
-                        <br>
-                        {{ product.laptop_spec.display.display_detail }}
+                    {% with display=product.laptop_spec.display %}
+                    {% if display.display or display.display_detail %}
+                    {% if display.display %}
+                    {{ display.display }} inches
+                    {% endif %}
+                    {% if display.display_detail %}
+                    <br>{{ display.display_detail }}
+                    {% endif %}
                     {% else %}
-                        Not Available
+                    —
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    —
                     {% endif %}
                 </td>
                 {% endfor %}
             </tr>
+
             <tr>
                 <td>Resolution</td>
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.resolution %}
-                        {{ product.laptop_spec.resolution.resolution }}
+                    {{ product.laptop_spec.resolution.resolution }}
                     {% else %}
-                        Not Available
+                    Not Available
                     {% endif %}
                 </td>
                 {% endfor %}
@@ -173,9 +217,9 @@
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.refresh_rate %}
-                        {{ product.laptop_spec.refresh_rate.rate }}
+                    {{ product.laptop_spec.refresh_rate.rate }}hz
                     {% else %}
-                        Not Available
+                    Not Available
                     {% endif %}
                 </td>
                 {% endfor %}
@@ -185,12 +229,12 @@
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.port.all %}
-                        {% for port in product.laptop_spec.port.all %}
-                            {{ port.port }}
-                            <br>
-                        {% endfor %}
+                    {% for port in product.laptop_spec.port.all %}
+                    {{ port.port }}
+                    <br>
+                    {% endfor %}
                     {% else %}
-                        Not Available
+                    Not Available
                     {% endif %}
                 </td>
                 {% endfor %}
@@ -200,12 +244,12 @@
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.wireless_connectivity.all %}
-                        {% for connectivity in product.laptop_spec.wireless_connectivity.all %}
-                            {{ connectivity.wireless_connectivity }}
-                            <br>
-                        {% endfor %}
+                    {% for connectivity in product.laptop_spec.wireless_connectivity.all %}
+                    {{ connectivity.wireless_connectivity }}
+                    <br>
+                    {% endfor %}
                     {% else %}
-                        Not Available
+                    Not Available
                     {% endif %}
                 </td>
                 {% endfor %}
@@ -215,63 +259,97 @@
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.webcam %}
-                        {{ product.laptop_spec.webcam.webcam }} - {{ product.laptop_spec.webcam.webcam_detail }}
+                    {% with webcam=product.laptop_spec.webcam %}
+                    {% if webcam.webcam or webcam.webcam_detail %}
+                    {% if webcam.webcam %}
+                    {{ webcam.webcam }}
+                    {% endif %}
+                    {% if webcam.webcam_detail %}
+                    - {{ webcam.webcam_detail }}
+                    {% endif %}
                     {% else %}
-                        Not Available
+                    —
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    —
                     {% endif %}
                 </td>
                 {% endfor %}
             </tr>
+
             <tr>
                 <td>Battery</td>
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.battery %}
-                        {{ product.laptop_spec.battery.battery }} Kw
-                        <br>
-                        {{ product.laptop_spec.battery.battery_detail }}
+                    {% with battery=product.laptop_spec.battery %}
+                    {% if battery.battery or battery.battery_detail %}
+                    {% if battery.battery %}
+                    {{ battery.battery }} Wh
+                    {% endif %}
+                    {% if battery.battery_detail %}
+                    <br>{{ battery.battery_detail }}
+                    {% endif %}
                     {% else %}
-                        Not Available
+                    —
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    —
                     {% endif %}
                 </td>
                 {% endfor %}
             </tr>
+
             <tr>
                 <td>Weight</td>
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.weight %}
-                        {{ product.laptop_spec.weight }} Kg
+                    {{ product.laptop_spec.weight }} Kg
                     {% else %}
-                        Not Available
+                    Not Available
                     {% endif %}
                 </td>
                 {% endfor %}
             </tr>
             <tr>
+            <tr>
                 <td>Operating System</td>
                 {% for product in compared_products %}
                 <td>
                     {% if product.laptop_spec and product.laptop_spec.operating_system %}
-                        {{ product.laptop_spec.operating_system.operating_system }} - {{ product.laptop_spec.operating_system.operating_system_detail }}
+                    {% with os=product.laptop_spec.operating_system %}
+                    {% if os.operating_system or os.operating_system_detail %}
+                    {% if os.operating_system %}
+                    {{ os.operating_system }}
+                    {% endif %}
+                    {% if os.operating_system_detail %}
+                    - {{ os.operating_system_detail }}
+                    {% endif %}
                     {% else %}
-                        Not Available
+                    —
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    —
                     {% endif %}
                 </td>
                 {% endfor %}
             </tr>
         </tbody>
     </table>
-{% endif %}
+    {% endif %}
 
     {% if compared_products %}
-        <form method="post" action="{% url 'home:compare' %}" class="mt-3">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="clear">
-            <button type="submit" class="btn btn-warning">Clear Comparison</button>
-        </form>
+    <form method="post" action="{% url 'home:compare' %}" class="mt-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="clear">
+        <button type="submit" class="btn btn-warning">Clear Comparison</button>
+    </form>
     {% endif %}
-    
+
 </div>
 
 <script>
