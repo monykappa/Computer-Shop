@@ -1176,20 +1176,43 @@ class StockListView(ListView):
     model = Stock
     template_name = "dashboard/stock.html"
     context_object_name = "stocks"
-    ordering = ["product__name"]
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["products"] = Product.objects.all().order_by("name")
         context["search_query"] = self.request.GET.get("search_query")
+        context["stock_filter"] = self.request.GET.get("stock_filter")
+        context["sort_by"] = self.request.GET.get("sort_by")
         return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.GET.get("search_query")
+        stock_filter = self.request.GET.get("stock_filter")
+        sort_by = self.request.GET.get("sort_by")
+
         if search_query:
-            queryset = queryset.filter(product__name__icontains=search_query)
+            queryset = queryset.filter(Q(product__name__icontains=search_query) | Q(product__model__icontains=search_query))
+
+        if stock_filter:
+            if stock_filter == "in_stock":
+                queryset = queryset.filter(quantity__gt=0)
+            elif stock_filter == "out_of_stock":
+                queryset = queryset.filter(quantity=0)
+
+        if sort_by:
+            if sort_by == "updated_asc":
+                queryset = queryset.order_by("updated_at")
+            elif sort_by == "updated_desc":
+                queryset = queryset.order_by("-updated_at")
+            elif sort_by == "name_asc":
+                queryset = queryset.order_by("product__name")
+            elif sort_by == "name_desc":
+                queryset = queryset.order_by("-product__name")
+        else:
+            queryset = queryset.order_by("product__name")
+
         return queryset
 
 

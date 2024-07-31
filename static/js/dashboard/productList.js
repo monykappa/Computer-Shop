@@ -39,9 +39,9 @@ function exportToPdf(exportOption) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    doc.setFontSize(16);
-    doc.text("Product List", 14, 15);
-
+    doc.setFontSize(24);
+    doc.text("Product List", 80, 15);
+    
     if (exportOption === 'current') {
         exportCurrentPage(doc);
     } else {
@@ -66,12 +66,9 @@ function exportCurrentPage(doc) {
 
     doc.save('product-list-current-page.pdf');
 }
-
 function exportAllData(doc) {
-    // We need to make an AJAX call to get all the data
-    fetch('/api/products/all')  // Ensure this endpoint is correct and returns valid JSON
+    fetch('/api/products/all')
         .then(response => {
-            // Check if the response is OK and if the content type is JSON
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -82,9 +79,20 @@ function exportAllData(doc) {
             return response.json();
         })
         .then(data => {
-            const headers = ['ID', 'Product Name', 'Model', 'Brand', 'Color', 'Price', 'Year', 'Warranty'];
-            const rows = data.map(product => {
-                // Format warranty information
+            const headers = ['ID', 'Product Name', 'Model', 'Color', 'Price', 'Year', 'Warranty'];
+
+            // Group products by brand
+            const brandGroups = data.reduce((acc, product) => {
+                const brand = product['brand__name'] || 'Unknown Brand';
+                if (!acc[brand]) {
+                    acc[brand] = [];
+                }
+                acc[brand].push(product);
+                return acc;
+            }, {});
+
+            // Function to format warranty information
+            function formatWarranty(product) {
                 let warranty = '';
                 if (product.warranty_years > 0) {
                     warranty += `${product.warranty_years} year${product.warranty_years > 1 ? 's' : ''}`;
@@ -95,94 +103,58 @@ function exportAllData(doc) {
                     }
                     warranty += `${product.warranty_months} month${product.warranty_months > 1 ? 's' : ''}`;
                 }
+                return warranty || 'N/A';
+            }
 
-                // Format price with dollar sign and thousands separators
-                const price = parseFloat(product.price);
-                let formattedPrice = 'N/A';
-                if (!isNaN(price)) {
-                    const numberFormatter = new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                        minimumFractionDigits: 0, // Do not show decimal places
-                    });
-                    formattedPrice = numberFormatter.format(price);
-                }
+            // Function to format price
+            function formatPrice(price) {
+                const numberFormatter = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                });
+                return numberFormatter.format(parseFloat(price)) || 'N/A';
+            }
 
-                // Return formatted row
-                return [
+            // Initialize Y position for the first table
+            let yPosition = 20;
+
+            // Generate a separate table for each brand
+            Object.keys(brandGroups).forEach(brand => {
+                // Add brand name as a header
+                doc.setFontSize(14);
+                doc.text(brand, 14, yPosition);
+                yPosition += 10; // Add space after the brand name
+
+                // Create rows for the table
+                const rows = brandGroups[brand].map(product => [
                     product.id,
                     product.name,
                     product.model,
-                    product['brand__name'] || 'N/A',
                     product['color__name'] || 'N/A',
-                    formattedPrice,
+                    formatPrice(product.price),
                     product.year || 'N/A',
-                    warranty || 'N/A'  // Show 'N/A' if warranty is empty
-                ];
+                    formatWarranty(product)
+                ]);
+
+                // Add the table for the current brand
+                doc.autoTable({
+                    head: [headers],
+                    body: rows,
+                    startY: yPosition,
+                    styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+                    columnStyles: { 3: { cellWidth: 30 } }
+                });
+
+                // Update Y position for the next brand section
+                yPosition = doc.autoTable.previous.finalY + 20; // Add space after the table
             });
 
-            doc.autoTable({
-                head: [headers],
-                body: rows,
-                startY: 20,
-                styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
-                columnStyles: { 3: { cellWidth: 30 } }
-            });
-
-            doc.save('product-list-all-data.pdf');
+            // Save the PDF
+            doc.save('All-products.pdf');
         })
         .catch(error => {
-            console.error('Error fetching all products:', error);
+            // console.error('Error fetching all products:', error);
             alert('Failed to fetch all products. Please try again.');
         });
-}
-
-
-
-function confirmDelete(url) {
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'You will not be able to recover this product!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Perform AJAX request to delete the product
-            fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json',
-                },
-            }).then(response => {
-                if (response.ok) {
-                    Swal.fire(
-                        'Deleted!',
-                        'The product has been deleted.',
-                        'success'
-                    ).then(() => {
-                        // Remove the row from the table
-                        const row = document.querySelector(`button[onclick="confirmDelete('${url}')"]`).closest('tr');
-                        row.remove();
-                    });
-                } else {
-                    Swal.fire(
-                        'Error!',
-                        'There was an issue deleting the product.',
-                        'error'
-                    );
-                }
-            }).catch(error => {
-                Swal.fire(
-                    'Error!',
-                    'There was an issue deleting the product.',
-                    'error'
-                );
-            });
-        }
-    });
 }
