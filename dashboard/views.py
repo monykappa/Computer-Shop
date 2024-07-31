@@ -1,4 +1,5 @@
 from shared_imports import *
+
 class RevenueByDateChartView(View):
     def get(self, request, *args, **kwargs):
         period = request.GET.get("period", "7_days")  # Default to '7_days' if not provided
@@ -22,7 +23,6 @@ class RevenueByDateChartView(View):
         # Convert the queryset to a list of dictionaries
         data = list(orders.values("ordered_date", "total_price"))
 
-
         # Create a DataFrame from the data
         df = pd.DataFrame(data)
 
@@ -40,7 +40,7 @@ class RevenueByDateChartView(View):
         plot_data = {"Date": df_revenue["date"], "Total Revenue": df_revenue["total_price"]}
         plot_df = pd.DataFrame(plot_data)
 
-        # Create the line chart with dots and annotations
+        # Create the line chart with smooth curves and dots
         fig = px.line(
             plot_df,
             x="Date",
@@ -49,25 +49,29 @@ class RevenueByDateChartView(View):
             markers=True,
         )
 
-        # Add dots with revenue count annotations and shaded area below the line
+        # Update traces to add smooth curve and dots
         fig.update_traces(
-            mode="lines+markers+text",
-            text=plot_df["Total Revenue"].apply(lambda x: f"${x:.2f}"),
-            textposition="top center",
+            mode="lines+markers",  # Show both lines and markers (dots)
             marker=dict(
                 size=8,
                 color="rgba(0, 128, 0, .8)",
                 line=dict(width=2, color="DarkSlateGrey"),
             ),
+            line=dict(
+                shape='spline',  # Smooth line
+                color="rgba(0, 0, 255, 0.8)",  # Line color
+                width=2  # Line width
+            ),
             fill="tozeroy",  # Fill the area under the line
             fillcolor="rgba(200, 255, 200, 0.4)",
-        )  # Customize the fill color and opacity
+        )
 
         # Convert the Plotly figure to JSON
         chart_json = fig.to_json()
 
         return JsonResponse({'chart': chart_json})
-    
+
+
 class OrdersByDateChartsView(View):
     def get(self, request, *args, **kwargs):
         period = request.GET.get("period", "all")  # 'all', '7_days', or '1_month'
@@ -99,7 +103,7 @@ class OrdersByDateChartsView(View):
         plot_data = {"Date": df_counts.index, "Number of Orders": df_counts.values}
         plot_df = pd.DataFrame(plot_data)
 
-        # Create the line chart with dots and annotations
+        # Create the line chart with a curved line
         fig = px.line(
             plot_df,
             x="Date",
@@ -115,11 +119,15 @@ class OrdersByDateChartsView(View):
             textposition="top center",
             marker=dict(
                 size=8,
-                color="rgba(255, 0, 0, .8)",
+                color="rgba(255, 0, 5, 1)",
                 line=dict(width=2, color="DarkSlateGrey"),
             ),
+            line=dict(
+                shape="spline",  # Make the line curved
+                width=2
+            ),
             fill="tozeroy",  # Fill the area under the line
-            fillcolor="rgba(200, 200, 255, 0.4)",
+            fillcolor="rgba(255, 133, 0, 0.43)",
         )  # Customize the fill color and opacity
 
         # Convert the Plotly figure to JSON
@@ -180,7 +188,7 @@ class TopProductsChartView(View):
         # Create Plotly figure
         fig = go.Figure()
 
-        # Add lines for top 5 products
+        # Add lines for top 5 products with dots
         for product in df_pivot.columns:
             fig.add_trace(
                 go.Scatter(
@@ -188,6 +196,7 @@ class TopProductsChartView(View):
                     y=df_pivot[product],
                     mode='lines+markers',
                     line=dict(shape='spline', width=4),  # Curved lines
+                    marker=dict(size=8, symbol='circle'),  # Adjust size and symbol for markers
                     name=product
                 )
             )
@@ -222,8 +231,9 @@ class TopProductsChartView(View):
         chart_json = fig.to_json()
 
         return JsonResponse({'chart': chart_json})
+
     
-    
+
 class UsersChartsView(View):
     def get(self, request, *args, **kwargs):
         period = request.GET.get("period", "all")  # 'all', '7_days', or '1_month'
@@ -255,7 +265,7 @@ class UsersChartsView(View):
         plot_data = {"Date": df_counts.index, "Number of Users": df_counts.values}
         plot_df = pd.DataFrame(plot_data)
 
-        # Create the line chart with dots and annotations
+        # Create the line chart with a curved line
         fig = px.line(
             plot_df,
             x="Date",
@@ -271,11 +281,16 @@ class UsersChartsView(View):
             textposition="top center",
             marker=dict(
                 size=8,
-                color="rgba(255, 0, 0, .8)",
+                color="rgba(0, 0, 255, .8)",  # Change marker color to blue
                 line=dict(width=2, color="DarkSlateGrey"),
             ),
+            line=dict(
+                shape="spline",  # Make the line curved
+                width=2,
+                color="blue"  # Change line color to blue
+            ),
             fill="tozeroy",  # Fill the area under the line
-            fillcolor="rgba(200, 200, 255, 0.4)",
+            fillcolor="rgba(0, 0, 255, 0.2)",  # Change fill color to light blue
         )  # Customize the fill color and opacity
 
         # Convert the Plotly figure to JSON
@@ -295,7 +310,6 @@ def mark_order_as_read(request):
         return JsonResponse({"success": True})
     except OrderHistory.DoesNotExist:
         return JsonResponse({"success": False}, status=404)
-
 
 class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
     template_name = "dashboard/dashboard.html"
@@ -319,190 +333,6 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
         context["newest_product_model"] = newest_product.model
         context["newest_product_year"] = newest_product.year
         
-
-        # Count pending orders
-        context["pending_orders"] = OrderHistory.objects.filter(
-            status=OrderStatus.PENDING
-        ).count()
-
-        # Count orders assigned to delivery (exclude completed deliveries)
-        context["assigned_to_delivery"] = DeliveryAssignment.objects.filter(
-            completed_at__isnull=True
-        ).count()
-
-        # Get top 5 most ordered products with their models, year, and count
-        top_products = (
-            OrderHistoryItem.objects.values(
-                "product__name",
-                "product__model",
-                "product__description",
-                "product__year",
-            )
-            .annotate(total_ordered=Sum("quantity"))
-            .order_by("-total_ordered")[:5]
-        )
-
-        # Reverse the order for displaying top 1 at the top
-        top_products = list(top_products)[::-1]
-
-        product_info = [
-            f"{item['product__name']} - {item['product__model']} - {item['product__description']} ({item['product__year']})"
-            for item in top_products
-        ]
-        quantities = [item["total_ordered"] for item in top_products]
-
-        # Create Plotly bar chart for top products with different colors
-        colors = [
-            "#1F77B4",
-            "#FF7F0E",
-            "#2CA02C",
-            "#D62728",
-            "#9467BD",
-        ]  # Example colors
-        data = [
-            go.Bar(
-                x=quantities,  # Use quantities as x-axis (count)
-                y=[f"Top {i+1}" for i in range(len(top_products))][
-                    ::-1
-                ],  # Reverse order for y-axis labels
-                marker=dict(color=colors),
-                orientation="h",  # Horizontal bar chart
-                hoverinfo="x+text",  # Show count and text (product details) on hover
-                text=product_info,  # Display product details (name, model, description, year)
-                textposition="inside",  # Display text inside the bar
-                textfont=dict(color="white"),  # Text color
-            )
-        ]
-
-        layout = go.Layout(
-            title="Top 5 Most Ordered Products",
-            xaxis=dict(title="Quantity Ordered"),
-            yaxis=dict(title="Top Products", automargin=True),
-            margin=dict(
-                l=150
-            ),  # Adjust left margin to accommodate longer product names
-        )
-
-        chart = plot(
-            {"data": data, "layout": layout}, output_type="div", include_plotlyjs=False
-        )
-
-        # Indent text under the chart due to its length
-        text_under_chart = """
-            This bar chart displays the top 5 most ordered products with their models, years, and the quantity ordered for each product.
-            """
-
-        context["chart"] = chart
-        context["text_under_chart"] = text_under_chart
-
-        # Bar chart for user distribution
-        user_counts = User.objects.aggregate(
-            super_admin_count=Count("id", filter=Q(is_superuser=True)),
-            customer_user_count=Count(
-                "id", filter=Q(is_superuser=False, deliverystaff__isnull=True)
-            ),
-            delivery_staff_count=Count("id", filter=Q(deliverystaff__isnull=False)),
-            staff_user_count=Count(
-                "id",
-                filter=Q(is_staff=True, is_superuser=False, deliverystaff__isnull=True),
-            ),
-        )
-
-        user_data = [
-            go.Bar(
-                x=["Super Admin", "Customer", "Delivery", "Staff"],
-                y=[
-                    user_counts["super_admin_count"],
-                    user_counts["customer_user_count"],
-                    user_counts["delivery_staff_count"],
-                    user_counts["staff_user_count"],
-                ],
-                marker=dict(color=["#FF9999", "#66B2FF", "#99FF99", "#FFCC99"]),
-            )
-        ]
-
-        user_layout = go.Layout(
-            title="User Distribution", yaxis=dict(title="Number of Users")
-        )
-
-        user_chart = plot(
-            {"data": user_data, "layout": user_layout},
-            output_type="div",
-            include_plotlyjs=False,
-        )
-
-        context["user_chart"] = user_chart
-
-        top_provinces = (
-            OrderHistory.objects.values("order_address__province")
-            .annotate(order_count=Count("id"))
-            .order_by("-order_count")[:6]
-        )
-
-        provinces = [item["order_address__province"] for item in top_provinces]
-        order_counts = [item["order_count"] for item in top_provinces]
-
-        # Create Plotly line chart for top 5 provinces
-        province_data = [
-            go.Scatter(
-                x=provinces,
-                y=order_counts,
-                mode="lines+markers",
-                name="Order Count",
-                line=dict(color="#17BECF", width=2),
-                marker=dict(color="#17BECF", size=8),
-            )
-        ]
-
-        province_layout = go.Layout(
-            title="Top 5 Provinces by Order Count",
-            xaxis=dict(title="Province"),
-            yaxis=dict(title="Number of Orders"),
-            margin=dict(l=50, r=50, b=100, t=100, pad=4),
-        )
-
-        province_chart = plot(
-            {"data": province_data, "layout": province_layout},
-            output_type="div",
-            include_plotlyjs=False,
-        )
-
-        context["province_chart"] = province_chart
-
-        return context
-    
-    
-class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
-    template_name = "dashboard/dashboard.html"
-    login_url = reverse_lazy("dashboard:sign_in")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Total number of products
-        context["total_products"] = Product.objects.count()
-
-        # Total number of orders
-        context["total_orders"] = OrderHistory.objects.count()
-
-        # Total number of users
-        context["total_users"] = User.objects.count()
-
-        # Calculate total stock
-        total_stock = Stock.objects.aggregate(total_quantity=Sum('quantity'))['total_quantity']
-        context["total_stock"] = total_stock if total_stock is not None else 0
-
-        # Calculate total orders for today
-        today = timezone.now().date()
-        total_orders_today = OrderHistory.objects.filter(ordered_date__date=today).count()
-        context["total_orders_today"] = total_orders_today
-
-        # Retrieve the newest product
-        newest_product = Product.objects.latest("id")
-        context["newest_product_name"] = newest_product.name
-        context["newest_product_model"] = newest_product.model
-        context["newest_product_year"] = newest_product.year
-
         # Count pending orders
         context["pending_orders"] = OrderHistory.objects.filter(
             status=OrderStatus.PENDING
@@ -559,19 +389,15 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
             title="Top 5 Most Ordered Products",
             xaxis=dict(title="Quantity Ordered"),
             yaxis=dict(title="Top Products", automargin=True),
-            margin=dict(
-                l=150
-            ),  # Adjust left margin to accommodate longer product names
+            margin=dict(l=150),  # Adjust left margin to accommodate longer product names
         )
 
-        chart = plot(
-            {"data": data, "layout": layout}, output_type="div", include_plotlyjs=False
-        )
+        chart = plot({"data": data, "layout": layout}, output_type="div", include_plotlyjs=False)
 
         # Indent text under the chart due to its length
         text_under_chart = """
             This bar chart displays the top 5 most ordered products with their models, years, and the quantity ordered for each product.
-            """
+        """
 
         context["chart"] = chart
         context["text_under_chart"] = text_under_chart
@@ -606,11 +432,7 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
             title="User Distribution", yaxis=dict(title="Number of Users")
         )
 
-        user_chart = plot(
-            {"data": user_data, "layout": user_layout},
-            output_type="div",
-            include_plotlyjs=False,
-        )
+        user_chart = plot({"data": user_data, "layout": user_layout}, output_type="div", include_plotlyjs=False)
 
         context["user_chart"] = user_chart
 
@@ -642,13 +464,34 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
             margin=dict(l=50, r=50, b=100, t=100, pad=4),
         )
 
-        province_chart = plot(
-            {"data": province_data, "layout": province_layout},
-            output_type="div",
-            include_plotlyjs=False,
-        )
+        province_chart = plot({"data": province_data, "layout": province_layout}, output_type="div", include_plotlyjs=False)
 
         context["province_chart"] = province_chart
+
+        # Calculate revenue for this week using DataFrame
+        start_of_week = now() - timedelta(days=now().weekday())
+        end_of_week = start_of_week + timedelta(days=7)
+
+        # Fetch relevant orders
+        orders = OrderHistory.objects.filter(
+            ordered_date__gte=start_of_week,
+            ordered_date__lt=end_of_week
+        ).values('total_price', 'ordered_date')
+
+        # Convert to DataFrame
+        df = pd.DataFrame(list(orders))
+
+        if not df.empty:
+            # Sum up the total revenue for this week
+            revenue_this_week = df['total_price'].sum()
+        else:
+            revenue_this_week = 0
+
+        context["revenue_this_week"] = revenue_this_week
+
+        # Calculate total stock
+        total_stock = Product.objects.aggregate(total_stock=Sum('stock'))['total_stock'] or 0
+        context["total_stock"] = total_stock
 
         return context
 
