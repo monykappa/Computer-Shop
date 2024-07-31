@@ -192,3 +192,4 @@ from django.db.models import Prefetch
 from django.db import transaction
 from django.db import connection
 import plotly.io as pio
+from django.db.models.functions import TruncMonth

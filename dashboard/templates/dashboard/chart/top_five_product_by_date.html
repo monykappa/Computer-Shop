@@ -1,0 +1,43 @@
+
+<form class="mt-2" method="get" action="{% url 'dashboard:top_products_chart' %}">
+    <div class="btn-group" role="group" aria-label="Select Period">
+        <button type="submit" name="period" value="all" class="btn btn-primary">Show All Time</button>
+        <button type="submit" name="period" value="7_days" class="btn btn-secondary">Show Last 7 Days</button>
+        <button type="submit" name="period" value="1_month" class="btn btn-info">Show Last Month</button>
+        <button type="submit" name="period" value="this_year" class="btn btn-success">Show This Year</button>
+    </div>
+</form>
+
+<div id="top-product-chart" style="width: 100%; height: 500px;"></div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    function fetchChartData(period) {
+        fetch("{% url 'dashboard:top_products_chart' %}?period=" + period)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('top-product-chart').innerHTML = '<p class="text-center">' + data.error + '</p>';
+                } else {
+                    const chartData = JSON.parse(data.chart);
+                    Plotly.newPlot('top-product-chart', chartData.data, chartData.layout);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching chart data:', error);
+                document.getElementById('top-product-chart').innerHTML = '<p class="text-center">Error loading chart data.</p>';
+            });
+    }
+
+    // Initialize chart with default period
+    fetchChartData('{{ request.GET.period|default:"all" }}');
+
+    // Update chart when form button is clicked
+    document.querySelectorAll('form button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            const period = button.value;
+            fetchChartData(period);
+        });
+    });
+</script>

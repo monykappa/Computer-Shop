@@ -126,6 +126,103 @@ class OrdersByDateChartsView(View):
         chart_json = fig.to_json()
 
         return JsonResponse({'chart': chart_json})
+
+class TopProductsChartView(View):
+    def get(self, request, *args, **kwargs):
+        period = request.GET.get("period", "all")  # 'all', '7_days', '1_month', or 'this_year'
+        
+        # Fetch OrderHistoryItem entries based on the period
+        if period == "7_days":
+            start_date = now() - timedelta(days=7)
+            items = OrderHistoryItem.objects.filter(order_history__ordered_date__gte=start_date)
+        elif period == "1_month":
+            start_date = now() - timedelta(days=30)
+            items = OrderHistoryItem.objects.filter(order_history__ordered_date__gte=start_date)
+        elif period == "this_year":
+            start_date = now().replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+            items = OrderHistoryItem.objects.filter(order_history__ordered_date__gte=start_date)
+        else:
+            items = OrderHistoryItem.objects.all()
+
+        # Aggregate and count products by date
+        product_counts = (
+            items.values('order_history__ordered_date', 'product__name')
+            .annotate(count=Count('product'))
+            .order_by('order_history__ordered_date', 'product__name')
+        )
+
+        # Convert to DataFrame
+        df = pd.DataFrame(list(product_counts))
+        
+        if df.empty:
+            return JsonResponse({'error': 'No data available for the selected period'})
+        
+        # Get the top 5 products based on total counts
+        top_products = (
+            df.groupby('product__name')['count']
+            .sum()
+            .nlargest(5)
+            .index
+        )
+        
+        # Filter data to include only the top 5 products
+        df_top_products = df[df['product__name'].isin(top_products)]
+        
+        # Convert date to week for grouping
+        df_top_products['week'] = pd.to_datetime(df_top_products['order_history__ordered_date']).dt.to_period('W').apply(lambda r: r.start_time)
+        
+        # Group by week and product, sum the counts
+        df_weekly = df_top_products.groupby(['week', 'product__name'])['count'].sum().reset_index()
+        
+        # Pivot DataFrame to have weeks as index and products as columns
+        df_pivot = df_weekly.pivot_table(index='week', columns='product__name', values='count', fill_value=0)
+        
+        # Create Plotly figure
+        fig = go.Figure()
+
+        # Add lines for top 5 products
+        for product in df_pivot.columns:
+            fig.add_trace(
+                go.Scatter(
+                    x=df_pivot.index,
+                    y=df_pivot[product],
+                    mode='lines+markers',
+                    line=dict(shape='spline', width=4),  # Curved lines
+                    name=product
+                )
+            )
+
+        # Customize chart appearance
+        fig.update_layout(
+            xaxis_title='Week',
+            yaxis_title='Number of Orders',
+            title=dict(text='Top 5 Products Order Count by Week', x=0.5, xanchor='center'),
+            legend_title='Products',
+            hovermode='x unified'
+        )
+
+        # Adjust x-axis tick labels to show exactly 4 weeks
+        week_dates = df_pivot.index
+        if len(week_dates) >= 4:
+            # If there are 4 or more weeks, show ticks for exactly 4 weeks
+            tick_vals = week_dates[::len(week_dates)//4]
+        else:
+            # If there are fewer than 4 weeks, show all weeks
+            tick_vals = week_dates
+        
+        tick_text = [date.strftime('%Y-%m-%d') for date in tick_vals]
+        
+        fig.update_xaxes(
+            tickmode='array',
+            tickvals=tick_vals,
+            ticktext=tick_text
+        )
+
+        # Convert the Plotly figure to JSON
+        chart_json = fig.to_json()
+
+        return JsonResponse({'chart': chart_json})
+    
     
 class UsersChartsView(View):
     def get(self, request, *args, **kwargs):
@@ -373,7 +470,187 @@ class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
         context["province_chart"] = province_chart
 
         return context
+    
+    
+class DashboardView(UserPermission, LoginRequiredMixin, TemplateView):
+    template_name = "dashboard/dashboard.html"
+    login_url = reverse_lazy("dashboard:sign_in")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Total number of products
+        context["total_products"] = Product.objects.count()
+
+        # Total number of orders
+        context["total_orders"] = OrderHistory.objects.count()
+
+        # Total number of users
+        context["total_users"] = User.objects.count()
+
+        # Calculate total stock
+        total_stock = Stock.objects.aggregate(total_quantity=Sum('quantity'))['total_quantity']
+        context["total_stock"] = total_stock if total_stock is not None else 0
+
+        # Calculate total orders for today
+        today = timezone.now().date()
+        total_orders_today = OrderHistory.objects.filter(ordered_date__date=today).count()
+        context["total_orders_today"] = total_orders_today
+
+        # Retrieve the newest product
+        newest_product = Product.objects.latest("id")
+        context["newest_product_name"] = newest_product.name
+        context["newest_product_model"] = newest_product.model
+        context["newest_product_year"] = newest_product.year
+
+        # Count pending orders
+        context["pending_orders"] = OrderHistory.objects.filter(
+            status=OrderStatus.PENDING
+        ).count()
+
+        # Count orders assigned to delivery (exclude completed deliveries)
+        context["assigned_to_delivery"] = DeliveryAssignment.objects.filter(
+            completed_at__isnull=True
+        ).count()
+
+        # Get top 5 most ordered products with their models, year, and count
+        top_products = (
+            OrderHistoryItem.objects.values(
+                "product__name",
+                "product__model",
+                "product__description",
+                "product__year",
+            )
+            .annotate(total_ordered=Sum("quantity"))
+            .order_by("-total_ordered")[:5]
+        )
+
+        # Reverse the order for displaying top 1 at the top
+        top_products = list(top_products)[::-1]
+
+        product_info = [
+            f"{item['product__name']} - {item['product__model']} - {item['product__description']} ({item['product__year']})"
+            for item in top_products
+        ]
+        quantities = [item["total_ordered"] for item in top_products]
+
+        # Create Plotly bar chart for top products with different colors
+        colors = [
+            "#1F77B4",
+            "#FF7F0E",
+            "#2CA02C",
+            "#D62728",
+            "#9467BD",
+        ]  # Example colors
+        data = [
+            go.Bar(
+                x=quantities,  # Use quantities as x-axis (count)
+                y=[f"Top {i+1}" for i in range(len(top_products))][::-1],  # Reverse order for y-axis labels
+                marker=dict(color=colors),
+                orientation="h",  # Horizontal bar chart
+                hoverinfo="x+text",  # Show count and text (product details) on hover
+                text=product_info,  # Display product details (name, model, description, year)
+                textposition="inside",  # Display text inside the bar
+                textfont=dict(color="white"),  # Text color
+            )
+        ]
+
+        layout = go.Layout(
+            title="Top 5 Most Ordered Products",
+            xaxis=dict(title="Quantity Ordered"),
+            yaxis=dict(title="Top Products", automargin=True),
+            margin=dict(
+                l=150
+            ),  # Adjust left margin to accommodate longer product names
+        )
+
+        chart = plot(
+            {"data": data, "layout": layout}, output_type="div", include_plotlyjs=False
+        )
+
+        # Indent text under the chart due to its length
+        text_under_chart = """
+            This bar chart displays the top 5 most ordered products with their models, years, and the quantity ordered for each product.
+            """
+
+        context["chart"] = chart
+        context["text_under_chart"] = text_under_chart
+
+        # Bar chart for user distribution
+        user_counts = User.objects.aggregate(
+            super_admin_count=Count("id", filter=Q(is_superuser=True)),
+            customer_user_count=Count(
+                "id", filter=Q(is_superuser=False, deliverystaff__isnull=True)
+            ),
+            delivery_staff_count=Count("id", filter=Q(deliverystaff__isnull=False)),
+            staff_user_count=Count(
+                "id",
+                filter=Q(is_staff=True, is_superuser=False, deliverystaff__isnull=True),
+            ),
+        )
+
+        user_data = [
+            go.Bar(
+                x=["Super Admin", "Customer", "Delivery", "Staff"],
+                y=[
+                    user_counts["super_admin_count"],
+                    user_counts["customer_user_count"],
+                    user_counts["delivery_staff_count"],
+                    user_counts["staff_user_count"],
+                ],
+                marker=dict(color=["#FF9999", "#66B2FF", "#99FF99", "#FFCC99"]),
+            )
+        ]
+
+        user_layout = go.Layout(
+            title="User Distribution", yaxis=dict(title="Number of Users")
+        )
+
+        user_chart = plot(
+            {"data": user_data, "layout": user_layout},
+            output_type="div",
+            include_plotlyjs=False,
+        )
+
+        context["user_chart"] = user_chart
+
+        top_provinces = (
+            OrderHistory.objects.values("order_address__province")
+            .annotate(order_count=Count("id"))
+            .order_by("-order_count")[:6]
+        )
+
+        provinces = [item["order_address__province"] for item in top_provinces]
+        order_counts = [item["order_count"] for item in top_provinces]
+
+        # Create Plotly line chart for top 5 provinces
+        province_data = [
+            go.Scatter(
+                x=provinces,
+                y=order_counts,
+                mode="lines+markers",
+                name="Order Count",
+                line=dict(color="#17BECF", width=2),
+                marker=dict(color="#17BECF", size=8),
+            )
+        ]
+
+        province_layout = go.Layout(
+            title="Top 5 Provinces by Order Count",
+            xaxis=dict(title="Province"),
+            yaxis=dict(title="Number of Orders"),
+            margin=dict(l=50, r=50, b=100, t=100, pad=4),
+        )
+
+        province_chart = plot(
+            {"data": province_data, "layout": province_layout},
+            output_type="div",
+            include_plotlyjs=False,
+        )
+
+        context["province_chart"] = province_chart
+
+        return context
 
 class DashboardSignInView(LoginView):
     template_name = "dashboard/sign_in.html"
@@ -1184,6 +1461,8 @@ class StockListView(ListView):
         context["search_query"] = self.request.GET.get("search_query")
         context["stock_filter"] = self.request.GET.get("stock_filter")
         context["sort_by"] = self.request.GET.get("sort_by")
+        # Determine if filters are applied
+        context["filters_applied"] = bool(context["search_query"] or context["stock_filter"] or context["sort_by"])
         return context
 
     def get_queryset(self):
@@ -1214,6 +1493,7 @@ class StockListView(ListView):
             queryset = queryset.order_by("product__name")
 
         return queryset
+
 
 
 def check_stock_exists(request):

@@ -67,6 +67,7 @@ urlpatterns = [
     path('dashboard/charts/', views.OrdersByDateChartsView.as_view(), name='orders_by_date_charts'),
     path('dashboard/users-charts/', views.UsersChartsView.as_view(), name='users_charts'),
     path('dashboard/revenue-chart/', views.RevenueByDateChartView.as_view(), name='revenue_by_period'),
+    path('top-products-by-date/', views.TopProductsChartView.as_view(), name='top_products_chart'),
 
 
     path('api/products/all', views.AllProductsAPI.as_view(), name='all_products_api'),
