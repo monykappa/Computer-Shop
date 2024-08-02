@@ -1,5 +1,6 @@
 from shared_imports import *
 
+
 class RevenueByDateChartView(View):
     def get(self, request, *args, **kwargs):
         period = request.GET.get("period", "7_days")  # Default to '7_days' if not provided
@@ -64,6 +65,17 @@ class RevenueByDateChartView(View):
             ),
             fill="tozeroy",  # Fill the area under the line
             fillcolor="rgba(200, 255, 200, 0.4)",
+        )
+
+        # Calculate max revenue and set y-axis range with a buffer
+        max_revenue = df_revenue["total_price"].max()
+        y_max = max_revenue + 500  # Buffer of 500
+
+        fig.update_layout(
+            yaxis=dict(
+                range=[0, y_max]  # Set the y-axis range with buffer
+            ),
+            title_x=0.5  # Center the title
         )
 
         # Convert the Plotly figure to JSON

@@ -31,6 +31,7 @@ Stock
             </div>
             <div class="col-md-3">
                 <button type="button" class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+
             </div>
         </div>
     </form>
@@ -120,7 +121,8 @@ Stock
             {% endif %}
         </ul>
     </nav>
-    {% endif %}
+{% endif %}
+
 
 
 <div class="modal fade" id="addStockModal" tabindex="-1" aria-labelledby="addStockModalLabel" aria-hidden="true">
@@ -181,10 +183,8 @@ Stock
         });
     }
     function clearFilters() {
-        document.querySelector('input[name="search_query"]').value = '';
-        document.querySelector('select[name="stock_filter"]').value = '';
-        document.querySelector('select[name="sort_by"]').value = 'name_asc';
-        document.getElementById('filterForm').submit();
+        // Redirect to the base URL to clear filters and avoid query parameters
+        window.location.href = '/stocks/';
     }
 </script>
 
