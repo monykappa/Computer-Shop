@@ -1,45 +1,7 @@
+<!-- products/list_laptop.html -->
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'css/products/list_laptop.css' %}">
 <style>
-    .brand-filter {
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
-
-    .brand-checkboxes {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-    #apply-filter {
-        display: block;
-        width: 100%;
-    }
-    .product-price {
-        font-size: 18px; /* Adjust this to your desired base size */
-    }
-    
-    .first-digit {
-        font-size:1.5em; /* Adjust this multiplier as needed */
-    }
-    
   
 </style>
-<div id="products-container">
-    <!-- Products will be dynamically added here -->
-</div>
 
-<div id="loading-animation" class="text-center">
-    <div class="spinner-border text-primary" role="status">
-        <span class="sr-only">Loading...</span>
-    </div>
-    <p>Loading products...</p>
-</div>
-    
-<script src="{% static 'js/price/formatPrice.js' %}"></script>
-<script src="{% static 'js/products/listProducts.js' %}"></script>

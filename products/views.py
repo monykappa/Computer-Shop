@@ -1,8 +1,35 @@
     
 from shared_imports import *
 
-class ProductListView(TemplateView):
+
+class ProductListView(ListView):
     template_name = 'products/products.html'
+    context_object_name = 'laptop_specs'
+    paginate_by = 12  # Adjust pagination if needed
+
+    def get_queryset(self):
+        search_query = self.request.GET.get('q', '')
+        queryset = LaptopSpec.objects.all()
+
+        if search_query:
+            queryset = queryset.filter(
+                Q(product__name__icontains=search_query) |
+                Q(cpu__cpu_brand__name__icontains=search_query) |
+                Q(gpu__gpu_brand__name__icontains=search_query) |
+                Q(storage__type__icontains=search_query) |
+                Q(memory__type__icontains=search_query)
+            ).distinct()
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['brands'] = Brand.objects.all()
+        context['all_laptop_specs'] = self.get_queryset()  # Use the filtered queryset
+        return context
+
+
+
 
 class ProductDetailView(DetailView):
     model = LaptopSpec

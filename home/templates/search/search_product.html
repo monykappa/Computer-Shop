@@ -1,132 +1,32 @@
-{% load static %}
-
-{% block css %}
-    <link rel="stylesheet" href="{% static 'css/products/search_products.css' %}">
-{% endblock css %}
-
-<!-- Search Input -->
-<div class="mt-3 w-100">
-    <form id="search-form" class="form-inline my-2 my-lg-0">
-        <div class="search-container">
-            <input type="text" id="search-input" class="form-control" placeholder="Search products...">
-            <button type="submit" class="btn btn-outline-success"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </div>
-    </form>
-</div>
-
-<!-- Search Modal -->
-<div id="search-modal" class="modal modal-search">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Search Results</h2>
-        <div id="modal-content" class="border rounded"></div>
-    </div>
-</div>
-
 <script>
     const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('search-input');
     const modal = document.getElementById('search-modal');
-    const modalContent = document.getElementById('modal-content');
     const closeButton = document.querySelector('.modal-content .close');
 
-    // Function to handle form submission and fetch products
-    searchForm.addEventListener('submit', async (event) => {
+    // Open the modal when the form is submitted
+    searchForm.addEventListener('submit', (event) => {
         event.preventDefault();
-        const searchQuery = searchInput.value.trim();
-        if (searchQuery) {
-            const response = await fetch(`/api/public-laptop-specs/?q=${encodeURIComponent(searchQuery)}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const laptops = await response.json();
-            displaySearchResults(laptops);
-        }
-    });
-
-    // Function to display search results in modal
-    function displaySearchResults(laptops) {
-        modalContent.innerHTML = '';
-
-        const searchQuery = searchInput.value.trim().toLowerCase();
-
-        if (laptops.length === 0) {
-            modalContent.innerHTML = '<p>No laptops found.</p>';
-        } else {
-            const filteredLaptops = laptops.filter(laptop => {
-                // Customize the filter logic based on your specific search requirements
-                return (
-                    laptop.product.name.toLowerCase().includes(searchQuery) ||
-                    laptop.cpu.cpu_brand.name.toLowerCase().includes(searchQuery) ||
-                    laptop.gpu.some(g => g.gpu_brand.name.toLowerCase().includes(searchQuery)) ||
-                    // laptop.memory.type.toLowerCase().includes(searchQuery) ||
-                    laptop.storage.type.toLowerCase().includes(searchQuery)
-                );
-            });
-
-            if (filteredLaptops.length === 0) {
-                modalContent.innerHTML = `<p>No products found for "${searchQuery}".</p>`;
-            } else {
-                filteredLaptops.forEach(laptop => {
-                    const laptopElement = document.createElement('div');
-                    laptopElement.className = 'product-item';
-                    laptopElement.innerHTML = `
-                        <div class="product-image">
-                            <img src="${laptop.product.images[0].image}" alt="${laptop.product.name}">
-                        </div>
-                        <div class="product-details">
-                            <h3>${laptop.product.name} ${laptop.product.model} ${laptop.product.year}</h3>
-                            <p class="warranty">
-                                ${laptop.product.warranty_years > 0
-                            ? `${laptop.product.warranty_years} ${laptop.product.warranty_years === 1 ? 'year' : 'years'} warranty`
-                            : laptop.product.warranty_months > 0
-                                ? `${laptop.product.warranty_months} ${laptop.product.warranty_months === 1 ? 'month' : 'months'} warranty`
-                                : 'No warranty'
-                        }
-                                    
-                            </p>
-                            <p>${laptop.cpu.cpu_brand.name} ${laptop.cpu.model}, ${laptop.gpu.map(g => `${g.gpu_brand.name} ${g.model}`).join(', ')}, ${laptop.memory.capacity}GB ${laptop.memory.type}, ${laptop.storage.capacity} ${laptop.storage.capacity_type} ${laptop.storage.type}</p>
-                            <div class="custom-row">
-                                <h4 class="text-danger">$${laptop.product.price}</h4>
-                                <a href="/products/${laptop.slug}/"><i class="fa-solid fa-eye"></i></a>
-                            </div>
-                        </div>
-                    `;
-
-                    modalContent.appendChild(laptopElement);
-                });
-            }
-        }
-
-        openModal();
-    }
-
-
-    // Function to open modal
-    function openModal() {
         modal.style.display = 'block';
         setTimeout(() => {
             modal.classList.add('show');
         }, 10);
-    }
+    });
 
-    // Function to close modal
-    function closeModal() {
+    // Close the modal when clicking on the close button
+    closeButton.addEventListener('click', () => {
         modal.classList.remove('show');
         setTimeout(() => {
             modal.style.display = 'none';
         }, 300);
-    }
-
-    // Close the modal when clicking on the close button
-    closeButton.addEventListener('click', closeModal);
+    });
 
     // Close the modal when clicking outside of it
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
-            closeModal();
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
         }
     });
 </script>
