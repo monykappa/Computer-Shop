@@ -46,7 +46,7 @@ modal.onclick = function (event) {
     }
 }
 
-// Add to cart functionality
+// Ensure this script is included after the above script
 document.getElementById('add-to-cart-form').addEventListener('submit', function (event) {
     event.preventDefault();
 
@@ -84,9 +84,7 @@ document.getElementById('add-to-cart-form').addEventListener('submit', function 
         type: 'GET',
         url: '/check-login-status/',
         success: function (response) {
-            console.log('Login status checked', response);
             if (response.logged_in) {
-                // User is logged in, proceed to add to cart
                 $.ajax({
                     type: 'POST',
                     url: url,
@@ -94,7 +92,6 @@ document.getElementById('add-to-cart-form').addEventListener('submit', function 
                     processData: false,
                     contentType: false,
                     success: function (response) {
-                        console.log('Add to cart success', response);
                         Swal.fire({
                             title: 'Success',
                             text: 'Product added to cart successfully!',
@@ -103,7 +100,6 @@ document.getElementById('add-to-cart-form').addEventListener('submit', function 
                         });
                     },
                     error: function (xhr) {
-                        console.log('Add to cart error', xhr.responseText);
                         let errorMsg = 'There was a problem adding the product to the cart.';
                         if (xhr.status === 400) {
                             const response = JSON.parse(xhr.responseText);
@@ -118,7 +114,6 @@ document.getElementById('add-to-cart-form').addEventListener('submit', function 
                     }
                 });
             } else {
-                console.log('User not logged in');
                 Swal.fire({
                     title: 'Error',
                     text: 'You need to log in to add items to the cart.',
@@ -128,13 +123,12 @@ document.getElementById('add-to-cart-form').addEventListener('submit', function 
                     cancelButtonText: 'OK'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = "{% url 'userprofile:sign_in' %}";
+                        window.location.href = signInUrl;   
                     }
                 });
             }
         },
         error: function () {
-            console.log('Login status check failed');
             Swal.fire({
                 title: 'Error',
                 text: 'Unable to check login status. Please try again later.',

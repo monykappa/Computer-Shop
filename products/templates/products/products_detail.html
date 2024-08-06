@@ -197,5 +197,9 @@
 {% endblock content %}
 
 {% block js %}
+<script>
+    const signInUrl = "{% url 'userprofile:sign_in' %}";
+</script>
+
 <script src="{% static 'js/products/productDetail.js' %}"></script>
 {% endblock js %}
