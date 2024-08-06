@@ -142,17 +142,15 @@
             </ul>
         </div>
         <div class="col-md-6">
-            <h4 class="card-title">Recommended Products</h4>
+            <h4 class="card-title mb-4">Recommended Products</h4>
             {% if related_products %}
                 <div class="list-group">
                     {% for product in related_products %}
-                        <a href="{% url 'products:product_detail' slug=product.slug %}" class="list-group-item list-group-item-action flex-column align-items-start mb-3">
-                            <div class="d-flex w-100 justify-content-between">
-                                <img src="{{ product.product.images.first.image.url }}" class="img-fluid mr-3" alt="{{ product.product.name }}" style="max-width: 150px; height: auto;">
-                                <div>
-                                    <h5 class="mb-1">{{ product.product.name }} {{ product.product.model }}</h5>
-                                    <p class="mb-1">${{ product.product.price }}</p>
-                                </div>
+                        <a href="{% url 'products:product_detail' slug=product.slug %}" class="list-group-item list-group-item-action d-flex align-items-center mb-3">
+                            <img src="{{ product.product.images.first.image.url }}" class="img-fluid mr-3" alt="{{ product.product.name }}" style="max-width: 150px; height: auto;">
+                            <div>
+                                <h5 class="mb-1">{{ product.product.name }} {{ product.product.model }}</h5>
+                                <p class="mb-1 text-danger">${{ product.product.price }}</p>
                             </div>
                         </a>
                     {% endfor %}
@@ -161,10 +159,11 @@
                 <p>No related products found.</p>
             {% endif %}
         </div>
+        
     </div>
     <div class="row">
         <div class="col-md-12">
-            <h4 class="card-title">Top Selling Products</h4>
+            <h1 class="mt-5">Top Selling Products</h1>
             <div class="top-selling-container">
                 <button class="scroll-btn scroll-left">&lt;</button>
                 <div class="top-selling-items">
@@ -172,10 +171,10 @@
                         {% for product in top_selling_products %}
                             <div class="top-selling-item card">
                                 <a href="{% url 'products:product_detail' slug=product.slug %}" class="text-decoration-none">
-                                    <img src="{{ product.product.images.first.image.url }}" class="card-img-top" alt="{{ product.product.name }}">
+                                    <img src="{{ product.product.images.first.image.url }}" class="card-img-top mt-2" alt="{{ product.product.name }}">
                                     <div class="card-body">
-                                        <h5 class="card-title">{{ product.product.name }} {{ product.product.model }}</h5>
-                                        <p class="card-text">${{ product.product.price }}</p>
+                                        <h5 class="card-text text-dark">{{ product.product.name }} {{ product.product.model }} {{ product.product.year }}</h5>
+                                        <p class="card-text text-danger">${{ product.product.price }}</p>
                                     </div>
                                 </a>
                             </div>
@@ -184,7 +183,7 @@
                         <p>No top-selling products found.</p>
                     {% endif %}
                 </div>
-                <button class="scroll-btn scroll-right">&gt;</button>
+                <button class="scroll-btn scroll-right btn btn-fourth">&gt;</button>
             </div>
         </div>
     </div>
