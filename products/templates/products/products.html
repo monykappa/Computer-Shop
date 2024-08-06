@@ -45,72 +45,9 @@ Products
 
 {% include 'products/ads.html' %}
 
-<!-- Search Input -->
-<div class="mt-3 w-100">
-    <form id="search-form" method="get" action="{% url 'products:product_list' %}" class="form-inline my-2 my-lg-0">
-        <div class="search-container">
-            <input type="text" name="q" class="form-control" placeholder="Search products..." value="{{ request.GET.q }}">
-            <button type="submit" class="btn btn-outline-success"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </div>
-    </form>
-</div>
+{% include 'search/search_product.html' %}
 
-<!-- Search Modal -->
-<div id="search-modal" class="modal modal-search" style="display: none;">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Search Results</h2>
-        <div id="modal-content" class="border rounded">
-            {% if laptop_specs %}
-                <div class="row">
-                    {% for laptop in laptop_specs %}
-                    <div class="col-6 col-md-4 col-lg-3 mb-4">
-                        <div class="product-card">
-                            <div class="warranty-badge">
-                                {% if laptop.product.warranty_years > 0 %}
-                                {{ laptop.product.warranty_years }} {% if laptop.product.warranty_years == 1 %}year{% else %}years{% endif %} warranty
-                                {% elif laptop.product.warranty_months > 0 %}
-                                {{ laptop.product.warranty_months }} {% if laptop.product.warranty_months == 1 %}month{% else %}months{% endif %} warranty
-                                {% else %}
-                                No warranty
-                                {% endif %}
-                            </div>
-                            <div class="product-image-container">
-                                {% if laptop.product.images.count > 0 %}
-                                <img class="product-image" src="{{ laptop.product.images.first.image.url }}" alt="{{ laptop.product.name }}">
-                                {% else %}
-                                <img class="product-image" src="{% static 'placeholder_image.jpg' %}" alt="{{ laptop.product.name }}">
-                                {% endif %}
-                            </div>
-                            <div class="product-info">
-                                <h4 class="product-title">{{ laptop.product.name }} {{ laptop.product.model }} {{ laptop.product.year }}</h4>
-                                <p class="product-specs">
-                                    {{ laptop.cpu.cpu_brand.name }} {{ laptop.cpu.model }} |
-                                    {% for gpu in laptop.gpu.all %}
-                                    {% if not forloop.first %}, {% endif %}
-                                    {{ gpu.gpu_brand.name }} {{ gpu.model }}
-                                    {% endfor %} |
-                                    {{ laptop.storage.capacity }}{{ laptop.storage.capacity_type }} |
-                                    {{ laptop.memory.capacity }}GB |
-                                    {{ laptop.product.color.name }}
-                                </p>
-                                <div class="product-footer">
-                                    <h3 class="product-price">${{ laptop.product.price|floatformat:2 }}</h3>
-                                    <a href="{% url 'products:product_detail' laptop.product.slug %}" class="btn btn-primary see-more-btn">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p>No products found.</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
+
 
 <!-- Brand List -->
 <div style="width:80%; margin:0 auto;">
@@ -139,7 +76,7 @@ Products
             <img src="{{ brand.logo.url }}" width="120" class="img-fluid" alt="{{ brand.name }} logo" />
         </div>
         <div class="row" id="{{ brand.slug }}-products" data-brand-id="{{ brand.id }}">
-            {% for spec in all_laptop_specs %}
+            {% for spec in laptop_specs  %}
             {% if spec.product.brand.id == brand.id %}
             <div class="col-6 col-md-4 col-lg-3 mb-4">
                 <div class="product-card">

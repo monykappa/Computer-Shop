@@ -22,6 +22,8 @@ urlpatterns = [
     path('api/recommended-products/<slug:slug>/', views.RecommendedProductsAPIView.as_view(), name='recommended-products'),
     path('api/public-recommended-products/<slug:slug>/', views.PublicRecommendedProductsAPIView.as_view(), name='public-recommended-products'),
     
+    path('search/', views.search_products, name='search_products'),
+    
 ]
 
 if settings.DEBUG:

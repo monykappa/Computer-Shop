@@ -1,32 +1,155 @@
-<script>
-    const searchForm = document.getElementById('search-form');
-    const modal = document.getElementById('search-modal');
-    const closeButton = document.querySelector('.modal-content .close');
+{% load static %}
+<style>
+    /* Make modal larger and responsive */
+    .modal-lg {
+        max-width: 90%;
+    }
+    
+    .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        min-height: calc(100% - 1rem);
+    }
 
-    // Open the modal when the form is submitted
-    searchForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        modal.style.display = 'block';
-        setTimeout(() => {
-            modal.classList.add('show');
-        }, 10);
-    });
+    /* Grid container for search results */
+    .search-results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjust the minimum width to your desired value */
+        gap: 1rem;
+    }
 
-    // Close the modal when clicking on the close button
-    closeButton.addEventListener('click', () => {
-        modal.classList.remove('show');
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300);
-    });
+    /* Style each product item */
+    .search-results-grid .grid-item {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%; /* Ensure items take full height for alignment */
+    }
+    
+    .search-results-grid .grid-item img {
+        width: 100%;
+        height: 150px; /* Adjust the height to your desired value */
+        object-fit: contain; /* Adjust the object-fit property to your desired value */
+        margin-bottom: 0.5rem;
+    }
 
-    // Close the modal when clicking outside of it
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.classList.remove('show');
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
+    .search-results-grid .grid-item h5 {
+        font-size: 1rem;
+        margin: 0.5rem 0;
+    }
+    
+    .search-results-grid .grid-item p {
+        margin: 0.5rem 0;
+    }
+    
+    .see-more-btn {
+        margin-top: 1rem;
+    }
+    
+    /* Responsive design for different screen sizes */
+    @media (max-width: 768px) {
+        .search-results-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust the minimum width to your desired value */
         }
+    }
+    
+    @media (max-width: 576px) {
+        .search-results-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjust the minimum width to your desired value */
+        }
+    }
+</style>
+
+<div class="container mt-5">
+    <h2>Search Products</h2>
+    <form id="search-form">
+        <div class="input-group mb-3">
+            <input type="text" id="search-input" class="form-control" placeholder="Search for products...">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Search Results Modal -->
+<div class="modal fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header fixed">
+                <h5 class="modal-title" id="searchModalLabel">Search Results</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="search-results" class="search-results-grid">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#search-form').submit(function(e) {
+            e.preventDefault();
+            var query = $('#search-input').val().trim();
+            if (query) {
+                $.ajax({
+                    url: `/search/?q=${encodeURIComponent(query)}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#search-results').empty();
+                        if (data.length > 0) {
+                            data.forEach(function(product) {
+                                var price = product.price ? parseFloat(product.price).toFixed(2) : 'N/A';
+                                var imageUrl = product.images && product.images.length > 0 ? product.images[0].image : '{% static "default_image.jpg" %}';
+
+                                if (!product.slug) {
+                                    console.error('Product slug is missing:', product);
+                                    return; // Skip this product if slug is missing
+                                }
+
+                                var productDetailUrl = `/products/${product.slug}/`; // Construct the URL dynamically
+
+                                var productItem = $('<div>').addClass('grid-item').html(`
+                                    <div class="card">
+                                        <img src="${imageUrl}" alt="${product.name || 'Unknown'} Image" class="card-img-top">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${product.name || 'Unknown'} ${product.model || ''} ${product.year || ''}</h5>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <p class="text-danger mb-0">$${price}</p>
+                                                <a href="${productDetailUrl}" class="btn btn-primary see-more-btn"><i class="fa-solid fa-eye"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
+                                $('#search-results').append(productItem);
+                            });
+                        } else {
+                            $('#search-results').html('<p>No results found.</p>');
+                        }
+                        var searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
+                        searchModal.show();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        $('#search-results').html(`<p>An error occurred while searching: ${xhr.responseJSON.error || 'Unknown error'}</p>`);
+                        var searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
+                        searchModal.show();
+                    }
+                });
+            }
+        });
     });
 </script>

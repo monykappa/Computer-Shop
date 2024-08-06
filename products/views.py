@@ -3,30 +3,50 @@ from shared_imports import *
 
 
 class ProductListView(ListView):
+    model = LaptopSpec
     template_name = 'products/products.html'
     context_object_name = 'laptop_specs'
-    paginate_by = 12  # Adjust pagination if needed
-
-    def get_queryset(self):
-        search_query = self.request.GET.get('q', '')
-        queryset = LaptopSpec.objects.all()
-
-        if search_query:
-            queryset = queryset.filter(
-                Q(product__name__icontains=search_query) |
-                Q(cpu__cpu_brand__name__icontains=search_query) |
-                Q(gpu__gpu_brand__name__icontains=search_query) |
-                Q(storage__type__icontains=search_query) |
-                Q(memory__type__icontains=search_query)
-            ).distinct()
-
-        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['brands'] = Brand.objects.all()
-        context['all_laptop_specs'] = self.get_queryset()  # Use the filtered queryset
+        laptop_specs = self.get_queryset()
+        context['laptop_specs'] = laptop_specs
         return context
+
+def search_products(request):
+    query = request.GET.get('q', '')
+    if query:
+        try:
+            # Filter products
+            products = Product.objects.filter(
+                Q(name__icontains=query) |
+                Q(model__icontains=query) |
+                Q(brand__name__icontains=query)
+            ).prefetch_related('images').values(
+                'id', 'name', 'model', 'brand__name', 'price', 'year'
+            )
+
+            # Convert queryset to list and add image URLs and LaptopSpec slugs
+            product_list = list(products)
+            base_url = settings.MEDIA_URL
+
+            for product in product_list:
+                product_instance = Product.objects.get(id=product['id'])
+                product['images'] = [
+                    {'image': image.image.url} for image in product_instance.images.all()
+                ]
+
+                # Get the corresponding LaptopSpec slug
+                laptop_spec = LaptopSpec.objects.filter(product=product_instance).first()
+                if laptop_spec:
+                    product['slug'] = laptop_spec.slug
+
+            return JsonResponse(product_list, safe=False)
+        except Exception as e:
+            logger.error(f"Error in search_products: {str(e)}", exc_info=True)
+            return JsonResponse({'error': 'Internal server error'}, status=500)
+    return JsonResponse([], safe=False)
 
 
 

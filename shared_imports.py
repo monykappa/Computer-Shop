@@ -193,3 +193,5 @@ from django.db import transaction
 from django.db import connection
 import plotly.io as pio
 from django.db.models.functions import TruncMonth
+from django.db.models import Subquery, OuterRef, Value
+from django.db.models.functions import Coalesce
