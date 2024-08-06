@@ -30,7 +30,6 @@ class ProductListView(ListView):
 
 
 
-
 class ProductDetailView(DetailView):
     model = LaptopSpec
     template_name = 'products/products_detail.html'
@@ -40,21 +39,20 @@ class ProductDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['laptop_slug'] = self.kwargs['slug']
+        current_laptop = self.object
+        brand_name = current_laptop.product.brand.name
+        
+        # Get related products
+        related_products = LaptopSpec.objects.filter(product__brand__name=brand_name).exclude(slug=self.kwargs['slug'])[:10]
+        context['related_products'] = related_products
+        
+        # Get top-selling products
+        most_ordered_items = OrderHistoryItem.objects.values('product_id').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity')[:8]
+        most_ordered_ids = [item['product_id'] for item in most_ordered_items]
+        top_selling_products = LaptopSpec.objects.filter(id__in=most_ordered_ids)
+        context['top_selling_products'] = top_selling_products
+        
         return context
-
-class RelatedProductsView(ListView):
-    model = LaptopSpec
-    template_name = 'products/related_products.html'
-    context_object_name = 'related_products'
-    paginate_by = 10  # Number of products per page
-
-    def get_queryset(self):
-        current_laptop = LaptopSpec.objects.get(slug=self.kwargs['slug'])
-        brand_name = current_laptop.product.brand.name  # Assuming 'brand' is a related field in your LaptopSpec model
-
-        related_products = LaptopSpec.objects.filter(product__brand__name=brand_name).exclude(slug=self.kwargs['slug'])
-        return related_products
 
 
         

@@ -1,153 +1,15 @@
 {% load static %}
-<style>
-    ul.list-specs li {
-        margin-top: 1rem;
-        text-align: left;
-        margin-left: 1rem;
-    }
 
-    .zoom-wrapper {
-        overflow: hidden;
-        position: relative;
-        display: inline-block;
-    }
-
-    .zoom-wrapper img {
-        transition: transform 0.3s ease-out;
-        display: block;
-        width: 100%;
-    }
-
-    .zoom-wrapper:hover img {
-        transform: scale(2);
-    }
-
-    .product-image {
-        cursor: pointer;
-    }
-
-    /* Styles for the full-screen modal */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.9);
-    }
-
-    .modal-content {
-        margin: auto;
-        display: block;
-        width: 80%;
-        max-width: 700px;
-        position: relative;
-        /* Add this */
-        top: 50%;
-        /* Add this */
-        transform: translateY(-50%);
-        /* Add this */
-    }
-
-    .close {
-        position: absolute;
-        top: 6rem;
-        right: 20px;
-        color: #f1f1f1;
-        font-size: 40px;
-        font-weight: bold;
-        transition: 0.3s;
-        z-index: 1001;
-        /* Ensure it's above other elements */
-        background-color: rgba(0, 0, 0, 0.5);
-        /* Add a semi-transparent background */
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: #bbb;
-        text-decoration: none;
-    }
-
-    .warranty-badge {
-        display: inline-block;
-        background-color: #4CAF50;
-        /* Green background */
-        color: white;
-        padding: 5px 10px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        z-index: 2;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        border-radius: 3px;
-        position: relative;
-    }
-
-    .warranty-badge::before,
-    .warranty-badge::after {
-        content: '';
-        position: absolute;
-        bottom: -5px;
-        width: 10px;
-        height: 5px;
-        background-color: #45a049;
-        /* Slightly darker green for the "fold" */
-    }
-
-    .warranty-badge::before {
-        left: 0;
-        transform: skew(45deg);
-    }
-
-    .warranty-badge::after {
-        right: 0;
-        transform: skew(-45deg);
-    }
-
-    .recommend-product {
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-    }
-
-    .recommend-product.show {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    #loading-animation {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1000;
-    }
-
-    .spinner-border {
-        width: 3rem;
-        height: 3rem;
-    }
-</style>
-<div id="product-details-container"></div>
+<!-- <div id="product-details-container"></div>
 
 <div id="loading-animation" class="text-center">
     <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Loading...</span>
     </div>
     <p>Loading product details...</p>
-</div>
+</div> -->
 
-<script>
+<!-- <script>
     async function fetchProductDetails() {
         const loadingAnimation = document.getElementById('loading-animation');
         const productContainer = document.getElementById('product-details-container');
@@ -517,4 +379,4 @@
 
     document.addEventListener('DOMContentLoaded', fetchProductDetails);
 
-</script>
+</script> -->

@@ -1,0 +1,215 @@
+ul.list-specs li {
+    margin-top: 1rem;
+    text-align: left;
+    margin-left: 1rem;
+}
+
+.zoom-wrapper {
+    overflow: hidden;
+    position: relative;
+    display: inline-block;
+}
+
+.zoom-wrapper img {
+    transition: transform 0.3s ease-out;
+    display: block;
+    width: 100%;
+}
+
+.zoom-wrapper:hover img {
+    transform: scale(2);
+}
+
+.product-image {
+    cursor: pointer;
+}
+
+/* Styles for the full-screen modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    position: relative;
+    /* Add this */
+    top: 50%;
+    /* Add this */
+    transform: translateY(-50%);
+    /* Add this */
+}
+
+.close {
+    position: absolute;
+    top: 6rem;
+    right: 20px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    z-index: 1001;
+    /* Ensure it's above other elements */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Add a semi-transparent background */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+}
+
+.warranty-badge {
+    display: inline-block;
+    background-color: #4CAF50;
+    /* Green background */
+    color: white;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    position: relative;
+}
+
+.warranty-badge::before,
+.warranty-badge::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    width: 10px;
+    height: 5px;
+    background-color: #45a049;
+    /* Slightly darker green for the "fold" */
+}
+
+.warranty-badge::before {
+    left: 0;
+    transform: skew(45deg);
+}
+
+.warranty-badge::after {
+    right: 0;
+    transform: skew(-45deg);
+}
+
+.recommend-product {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.recommend-product.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#loading-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.top-selling-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.top-selling-items {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    scroll-behavior: smooth;
+    flex: 1;
+}
+
+.top-selling-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 1rem;
+    text-align: center;
+    flex-shrink: 0;
+    width: 18rem; /* Adjust width to fit your design */
+    max-width: 100%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.card-img-top {
+    height: 180px; /* Adjust based on image size */
+    object-fit: contain;
+    width: 100%;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-text {
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.scroll-btn {
+    background: #ddd;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.scroll-left {
+    left: 0;
+}
+
+.scroll-right {
+    right: 0;
+}
+
+.scroll-btn:hover {
+    background: #ccc;
+}

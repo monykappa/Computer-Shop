@@ -5,15 +5,197 @@
 {{ laptop_spec.product.name }} - Khmer Empire Shop
 {% endblock title %}
 
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/products/product_detail.css' %}">
+{% endblock css %}
+
 {% block content %}
-<div class="container">
-    {% include 'products/laptop.html' %}
-    <!-- related product -->
-    <!-- 'products/related_products.html'  -->
-</div>
-<div class="mt-5">
-    {% include 'products/ads.html' %}
+{% include 'products/laptop.html' %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="text-center zoom-wrapper">
+                {% if laptop_spec.product.images.all %}
+                    <img src="{{ laptop_spec.product.images.first.image.url }}" alt="{{ laptop_spec.product.name }}" class="img-fluid big-image mb-3">
+                {% else %}
+                    <img src="{% static 'placeholder_image.jpg' %}" alt="{{ laptop_spec.product.name }}" class="img-fluid big-image mb-3">
+                {% endif %}
+            </div>
+            <div class="row">
+                {% for image in laptop_spec.product.images.all|slice:"1:" %}
+                    <div class="col-3 border rounded mr-1 mb-2">
+                        <img src="{{ image.image.url }}" alt="{{ laptop_spec.product.name }}" class="img-fluid small-image mb-2 product-image">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            {% if laptop_spec.gpu.all %}
+                <h3>{{ laptop_spec.product.name }} {{ laptop_spec.product.model }} ({{ laptop_spec.cpu.cpu_brand.name }} {{ laptop_spec.cpu.model }} / {{ laptop_spec.gpu.all|join:", " }} / {{ laptop_spec.memory.capacity }}GB / {{ laptop_spec.storage.capacity }} {{ laptop_spec.storage.capacity_type }} / {{ laptop_spec.display.display }} inches)</h3>
+            {% else %}
+                <h3>{{ laptop_spec.product.name }} {{ laptop_spec.product.model }} ({{ laptop_spec.cpu.cpu_brand.name }} / {{ laptop_spec.cpu.model }} / {{ laptop_spec.memory.capacity }}GB / {{ laptop_spec.storage.capacity }} {{ laptop_spec.storage.capacity_type }} / {{ laptop_spec.display.display }} inches)</h3>
+            {% endif %}
+            <h3>{{ laptop_spec.product.year }}</h3>
+            <p>Brand: {{ laptop_spec.product.brand.name }}</p>
+            <p>
+                <span class="warranty-badge">
+                    {% if laptop_spec.product.warranty_years > 0 %}
+                        {{ laptop_spec.product.warranty_years }} {% if laptop_spec.product.warranty_years == 1 %}year{% else %}years{% endif %}
+                    {% elif laptop_spec.product.warranty_months > 0 %}
+                        {{ laptop_spec.product.warranty_months }} {% if laptop_spec.product.warranty_months == 1 %}month{% else %}months{% endif %}
+                    {% else %}
+                        No warranty information available
+                    {% endif %} warranty
+                </span>
+            </p>
+            <h1 class="text-danger">${{ laptop_spec.product.price }}</h1>
+            <form id="add-to-cart-form" action="{% url 'orders:add_to_cart' slug=laptop_spec.product.slug %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control" required>
+                </div>
+                <button type="submit" class="btn add-to-cart text-white" style="background:var(--fourth-color);"><i class="fa-solid fa-cart-plus text-white"></i> Add to cart</button>
+            </form>
+            <p id="cart-message"></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 border" style="background:white !important; padding:1rem; border-radius:8px;">
+            <h3 style="color:var(--fourth-color);">Specification</h3>
+            <ul class="list-specs">
+                {% if laptop_spec.cpu and laptop_spec.cpu.cpu_brand %}
+                    <li><strong>CPU:</strong> {{ laptop_spec.cpu.cpu_brand.name }} {{ laptop_spec.cpu.model }}
+                        {% if laptop_spec.cpu.cores %} - {{ laptop_spec.cpu.cores }} cores{% endif %}
+                        {% if laptop_spec.cpu.threads %} - {{ laptop_spec.cpu.threads }} threads{% endif %}
+                    </li>
+                {% endif %}
 
+                {% if laptop_spec.memory %}
+                    <li><strong>Memory:</strong>
+                        {% if laptop_spec.memory.capacity %}{{ laptop_spec.memory.capacity }}GB{% endif %}
+                        {{ laptop_spec.memory.type }}
+                        {% if laptop_spec.memory.speed %} - {{ laptop_spec.memory.speed }}MHz{% endif %}
+                        {% if laptop_spec.memory.memory_brand %} - {{ laptop_spec.memory.memory_brand.name }}{% endif %}
+                    </li>
+                {% endif %}
+
+                {% if laptop_spec.storage %}
+                    <li><strong>Storage:</strong>
+                        {% if laptop_spec.storage.capacity %}{{ laptop_spec.storage.capacity }} {{ laptop_spec.storage.capacity_type }}{% endif %}
+                        {% if laptop_spec.storage.interface %} - {{ laptop_spec.storage.interface }}{% endif %}
+                        {% if laptop_spec.storage.read_speed %} - Read Speed: {{ laptop_spec.storage.read_speed }} MB/s{% endif %}
+                        {% if laptop_spec.storage.write_speed %} - Write Speed: {{ laptop_spec.storage.write_speed }} MB/s{% endif %}
+                        {% if laptop_spec.storage.form_factor %} - {{ laptop_spec.storage.form_factor }}{% endif %}
+                        {% if laptop_spec.storage.storage_brand %} - {{ laptop_spec.storage.storage_brand.name }}{% endif %}
+                    </li>
+                {% endif %}
+
+                {% if laptop_spec.gpu.all %}
+                    <li><strong>GPU:</strong>
+                        {% for gpu in laptop_spec.gpu.all %}
+                            {{ gpu.gpu_brand.name }} {{ gpu.model }}
+                            {% if gpu.vram %} - {{ gpu.vram }} GB VRAM{% endif %}
+                            {% if gpu.vram_type %} - {{ gpu.vram_type }}{% endif %}
+                        {% endfor %}
+                    </li>
+                {% endif %}
+
+                {% if laptop_spec.display and laptop_spec.display.display %}
+                    <li><strong>Display:</strong> {{ laptop_spec.display.display }} inches
+                        {% if laptop_spec.resolution %} - {{ laptop_spec.resolution.resolution }}{% endif %}
+                        {% if laptop_spec.refresh_rate %} - {{ laptop_spec.refresh_rate.rate }} Hz{% endif %}
+                    </li>
+                {% endif %}
+
+                {% if laptop_spec.port.all %}
+                    <li><strong>Ports:</strong>
+                        {% for port in laptop_spec.port.all %}
+                            <br>{{ port.port }}
+                        {% endfor %}
+                    </li>
+                {% endif %}
+
+                {% if laptop_spec.wireless_connectivity.all %}
+                    <li><strong>Wireless Connectivity:</strong>
+                        {% for wireless in laptop_spec.wireless_connectivity.all %}
+                            <br>{{ wireless.wireless_connectivity }}
+                        {% endfor %}
+                    </li>
+                {% endif %}
+
+                {% if laptop_spec.webcam and laptop_spec.webcam.webcam %}
+                    <li><strong>Webcam:</strong> {{ laptop_spec.webcam.webcam }}</li>
+                {% endif %}
+
+                {% if laptop_spec.battery and laptop_spec.battery.battery %}
+                    <li><strong>Battery:</strong> {{ laptop_spec.battery.battery }} Kw</li>
+                {% endif %}
+
+                {% if laptop_spec.operating_system and laptop_spec.operating_system.operating_system %}
+                    <li><strong>Operating System:</strong> {{ laptop_spec.operating_system.operating_system }}</li>
+                {% endif %}
+
+                {% if laptop_spec.weight %}
+                    <li><strong>Weight:</strong> {{ laptop_spec.weight }} kg</li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h4 class="card-title">Recommended Products</h4>
+            {% if related_products %}
+                <div class="list-group">
+                    {% for product in related_products %}
+                        <a href="{% url 'products:product_detail' slug=product.slug %}" class="list-group-item list-group-item-action flex-column align-items-start mb-3">
+                            <div class="d-flex w-100 justify-content-between">
+                                <img src="{{ product.product.images.first.image.url }}" class="img-fluid mr-3" alt="{{ product.product.name }}" style="max-width: 150px; height: auto;">
+                                <div>
+                                    <h5 class="mb-1">{{ product.product.name }} {{ product.product.model }}</h5>
+                                    <p class="mb-1">${{ product.product.price }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No related products found.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="card-title">Top Selling Products</h4>
+            <div class="top-selling-container">
+                <button class="scroll-btn scroll-left">&lt;</button>
+                <div class="top-selling-items">
+                    {% if top_selling_products %}
+                        {% for product in top_selling_products %}
+                            <div class="top-selling-item card">
+                                <a href="{% url 'products:product_detail' slug=product.slug %}" class="text-decoration-none">
+                                    <img src="{{ product.product.images.first.image.url }}" class="card-img-top" alt="{{ product.product.name }}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ product.product.name }} {{ product.product.model }}</h5>
+                                        <p class="card-text">${{ product.product.price }}</p>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No top-selling products found.</p>
+                    {% endif %}
+                </div>
+                <button class="scroll-btn scroll-right">&gt;</button>
+            </div>
+        </div>
+    </div>
 </div>
 
+<div id="imageModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImage">
+</div>
 {% endblock content %}
+
+{% block js %}
+<script src="{% static 'js/products/productDetail.js' %}"></script>
+{% endblock js %}
