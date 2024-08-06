@@ -1,7 +1,6 @@
     
 from shared_imports import *
 
-
 class ProductListView(ListView):
     model = LaptopSpec
     template_name = 'products/products.html'
@@ -9,9 +8,30 @@ class ProductListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Fetch all brands for the filter dropdown
         context['brands'] = Brand.objects.all()
-        laptop_specs = self.get_queryset()
-        context['laptop_specs'] = laptop_specs
+        context['cpus'] = CpuSpec.objects.all()
+        context['gpus'] = GpuSpec.objects.all()
+        context['years'] = LaptopSpec.objects.values_list('product__year', flat=True).distinct()
+
+        # Apply filters to laptop_specs queryset
+        brand_id = self.request.GET.get('brand')
+        cpu_id = self.request.GET.get('cpu')
+        gpu_id = self.request.GET.get('gpu')
+        year = self.request.GET.get('year')
+
+        queryset = self.get_queryset()
+        if brand_id:
+            queryset = queryset.filter(product__brand_id=brand_id)
+        if cpu_id:
+            queryset = queryset.filter(cpu_id=cpu_id)
+        if gpu_id:
+            queryset = queryset.filter(gpu__id=gpu_id)
+        if year:
+            queryset = queryset.filter(product__year=year)
+
+        context['laptop_specs'] = queryset
+
         return context
 
 def search_products(request):

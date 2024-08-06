@@ -47,7 +47,46 @@ Products
 
 {% include 'search/search_product.html' %}
 
-
+<!-- Filter Form -->
+<div class="container mt-4">
+    <form method="GET" action="{% url 'products:product_list' %}">
+        <div class="row">
+            <div class="col-md-3">
+                <select name="brand" class="form-control">
+                    <option value="">Select Brand</option>
+                    {% for brand in brands %}
+                    <option value="{{ brand.id }}" {% if request.GET.brand == brand.id|stringformat:"s" %}selected{% endif %}>{{ brand.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="cpu" class="form-control">
+                    <option value="">Select CPU</option>
+                    {% for cpu in cpus %}
+                    <option value="{{ cpu.id }}" {% if request.GET.cpu == cpu.id|stringformat:"s" %}selected{% endif %}>{{ cpu.cpu_brand.name }} {{ cpu.model }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="gpu" class="form-control">
+                    <option value="">Select GPU</option>
+                    {% for gpu in gpus %}
+                    <option value="{{ gpu.id }}" {% if request.GET.gpu == gpu.id|stringformat:"s" %}selected{% endif %}>{{ gpu.gpu_brand.name }} {{ gpu.model }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="year" class="form-control">
+                    <option value="">Select Year</option>
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if request.GET.year == year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Apply Filters</button>
+    </form>
+</div>
 
 <!-- Brand List -->
 <div style="width:80%; margin:0 auto;">
@@ -67,17 +106,15 @@ Products
         </div>
     </div>
 </div>
-
 <!-- Products by Brand -->
 <div id="products-container" class="mt-5">
-    {% for brand in brands %}
-    <div id="{{ brand.slug }}" class="brand-section">
+    {% if selected_brand %}
+        <!-- Display products only if a brand is selected -->
         <div class="text-center mt-5 mb-3 bg-light p-3 border rounded brand-ctn">
-            <img src="{{ brand.logo.url }}" width="120" class="img-fluid" alt="{{ brand.name }} logo" />
+            <img src="{{ selected_brand.logo.url }}" width="120" class="img-fluid" alt="{{ selected_brand.name }} logo" />
         </div>
-        <div class="row" id="{{ brand.slug }}-products" data-brand-id="{{ brand.id }}">
-            {% for spec in laptop_specs  %}
-            {% if spec.product.brand.id == brand.id %}
+        <div class="row">
+            {% for spec in laptop_specs %}
             <div class="col-6 col-md-4 col-lg-3 mb-4">
                 <div class="product-card">
                     <div class="warranty-badge">
@@ -111,9 +148,9 @@ Products
                             {% empty %}
                                 Unknown GPU
                             {% endfor %}
-                        {% else %}
-                            Unknown GPU
-                        {% endif %} |
+                            {% else %}
+                                Unknown GPU
+                            {% endif %} |
                             
                             {% if spec.storage %}
                                 {{ spec.storage.capacity }}{{ spec.storage.capacity_type }}
@@ -157,14 +194,104 @@ Products
                     </div>
                 </div>
             </div>
-            {% endif %}
             {% endfor %}
         </div>
-    </div>
-    {% endfor %}
+    {% else %}
+        <!-- Display all brands with their products if no specific brand is selected -->
+        {% for brand in brands %}
+        <div id="{{ brand.slug }}" class="brand-section">
+            <div class="text-center mt-5 mb-3 bg-light p-3 border rounded brand-ctn">
+                <img src="{{ brand.logo.url }}" width="120" class="img-fluid" alt="{{ brand.name }} logo" />
+            </div>
+            <div class="row" id="{{ brand.slug }}-products" data-brand-id="{{ brand.id }}">
+                {% for spec in laptop_specs %}
+                {% if spec.product.brand.id == brand.id %}
+                <div class="col-6 col-md-4 col-lg-3 mb-4">
+                    <div class="product-card">
+                        <div class="warranty-badge">
+                            {% if spec.product.warranty_years > 0 %}
+                                {{ spec.product.warranty_years }} {% if spec.product.warranty_years == 1 %}year{% else %}years{% endif %} warranty
+                            {% elif spec.product.warranty_months > 0 %}
+                                {{ spec.product.warranty_months }} {% if spec.product.warranty_months == 1 %}month{% else %}months{% endif %} warranty
+                            {% else %}
+                                No warranty
+                            {% endif %}
+                        </div>
+                        <div class="product-image-container-show">
+                            {% if spec.product.images.count > 0 %}
+                                <img class="product-image-card" src="{{ spec.product.images.first.image.url }}" alt="{{ spec.product.name }}">
+                            {% else %}
+                                <img class="product-image-card" src="{% static 'placeholder_image.jpg' %}" alt="{{ spec.product.name }}">
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <h4 class="product-title">{{ spec.product.name }} {{ spec.product.model }} {{ spec.product.year }}</h4>
+                            <p class="product-specs">
+                                {% if spec.cpu %}
+                                    {{ spec.cpu.cpu_brand.name }} {{ spec.cpu.model }}
+                                {% else %}
+                                    Unknown CPU
+                                {% endif %} |
+                                
+                                {% if spec.gpu.all %}
+                                {% for gpu in spec.gpu.all %}
+                                    {{ gpu.gpu_brand.name }} {{ gpu.model }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    Unknown GPU
+                                {% endfor %}
+                                {% else %}
+                                    Unknown GPU
+                                {% endif %} |
+                                
+                                {% if spec.storage %}
+                                    {{ spec.storage.capacity }}{{ spec.storage.capacity_type }}
+                                {% else %}
+                                    Unknown Storage
+                                {% endif %} |
+                                
+                                {% if spec.display %}
+                                    {{ spec.display.display }} inches
+                                {% else %}
+                                    Unknown Display
+                                {% endif %} -
+                                
+                                {% if spec.refresh_rate %}
+                                    {{ spec.refresh_rate.rate }}
+                                {% else %}
+                                    Unknown Refresh Rate
+                                {% endif %} |
+                                
+                                {% if spec.resolution %}
+                                    {{ spec.resolution.resolution }} |
+                                {% else %}
+                                    
+                                {% endif %} 
+                                
+                                {% if spec.product.color %}
+                                    {{ spec.product.color.name }}
+                                {% else %}
+                                    Unknown Color
+                                {% endif %}
+                            </p>
+                            
+                            <div class="product-footer">
+                                <h3 class="product-price">
+                                    <span class="first-digit">${{ spec.product.price|floatformat:0|slice:":1" }}</span>{{ spec.product.price|floatformat:2|slice:"1:" }}
+                                </h3>
+                                <a href="{% url 'products:product_detail' spec.product.laptop_spec.slug %}" class="btn btn-primary see-more-btn">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
 </div>
-
-
 
 
 <script>
