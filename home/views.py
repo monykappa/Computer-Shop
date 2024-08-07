@@ -109,6 +109,33 @@ class ContactUsAPIView(APIView):
 def contact(request):
     return render(request, 'home/contact.html')
 
+
+class RateProductView(LoginRequiredMixin, CreateView):
+    model = ProductRating
+    fields = ['rating', 'comment']
+    template_name = 'home/rate_products.html'
+    success_url = reverse_lazy('userprofile:notifications')
+
+    def form_valid(self, form):
+        order_history_item = get_object_or_404(OrderHistoryItem, id=self.kwargs['item_id'])
+        if order_history_item.order_history.user != self.request.user:
+            return self.handle_no_permission()
+        
+        form.instance.user = self.request.user
+        form.instance.product = order_history_item.product
+        form.instance.order_history_item = order_history_item
+        
+        # Mark the notification as read
+        Notification.objects.filter(
+            user=self.request.user,
+            notification_type='RATE_PRODUCT',
+            related_object_id=order_history_item.id
+        ).update(is_read=True)
+        
+        return super().form_valid(form)
+    
+    
+    
 class NotificationView(LoginRequiredMixin, ListView):
     model = Notification
     template_name = 'profile/notifications.html'
@@ -116,6 +143,13 @@ class NotificationView(LoginRequiredMixin, ListView):
     login_url = reverse_lazy('userprofile:sign_in')
     paginate_by = 10
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for notification in context['notifications']:
+            if notification.notification_type == 'RATE_PRODUCT':
+                notification.rate_url = reverse('home:rate_product', kwargs={'item_id': notification.related_object_id})
+        return context
+    
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user).order_by('-created_at')
 

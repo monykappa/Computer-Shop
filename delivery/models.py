@@ -51,7 +51,14 @@ class DeliveryAssignment(models.Model):
 
                 self.delivery_staff.is_available = True
                 self.delivery_staff.save()
-
+                
+                for item in self.order.orderhistoryitem_set.all():
+                    Notification.objects.create(
+                        user=self.order.user,
+                        message=f"Your order #{self.order.id} has been delivered. Please rate the product: {item.product.name}",
+                        notification_type='RATE_PRODUCT',
+                        related_object_id=item.id
+                    )
                 DeliveryAssignmentHistory.objects.create(
                     order=self.order,
                     delivery_staff=self.delivery_staff,

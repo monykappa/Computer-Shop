@@ -30,6 +30,9 @@ urlpatterns = [
     
     path('compare/', views.compare, name='compare'),
     
+    path('rate-product/<int:item_id>/', views.RateProductView.as_view(), name='rate_product'),
+    
+    
     
     # path('most-ordered-product/', views.most_ordered_product, name='most_ordered_product'),
     # authentication

@@ -138,3 +138,21 @@ class OrderHistoryItem(models.Model):
 
     def product_details(self):
         return f"{self.product.brand_name} - {self.product.description}"
+    
+    def has_been_rated(self):
+        return ProductRating.objects.filter(order_history_item=self).exists()
+    
+
+class ProductRating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order_history_item = models.ForeignKey(OrderHistoryItem, on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # 1 to 5 stars
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product', 'order_history_item')
+
+    def __str__(self):
+        return f"{self.user.username}'s {self.rating}-star rating for {self.product.name}"
