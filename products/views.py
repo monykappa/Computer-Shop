@@ -8,13 +8,11 @@ class ProductListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Fetch all brands for the filter dropdown
         context['brands'] = Brand.objects.all()
         context['cpus'] = CpuSpec.objects.all()
         context['gpus'] = GpuSpec.objects.all()
         context['years'] = LaptopSpec.objects.values_list('product__year', flat=True).distinct()
 
-        # Apply filters to laptop_specs queryset
         brand_id = self.request.GET.get('brand')
         cpu_id = self.request.GET.get('cpu')
         gpu_id = self.request.GET.get('gpu')
@@ -23,6 +21,7 @@ class ProductListView(ListView):
         queryset = self.get_queryset()
         if brand_id:
             queryset = queryset.filter(product__brand_id=brand_id)
+            context['selected_brand'] = Brand.objects.get(id=brand_id)
         if cpu_id:
             queryset = queryset.filter(cpu_id=cpu_id)
         if gpu_id:
@@ -31,8 +30,10 @@ class ProductListView(ListView):
             queryset = queryset.filter(product__year=year)
 
         context['laptop_specs'] = queryset
+        context['products_found'] = queryset.exists()  # Flag to indicate if products are found
 
         return context
+
 
 def search_products(request):
     query = request.GET.get('q', '')
@@ -67,6 +68,7 @@ def search_products(request):
             logger.error(f"Error in search_products: {str(e)}", exc_info=True)
             return JsonResponse({'error': 'Internal server error'}, status=500)
     return JsonResponse([], safe=False)
+
 
 
 

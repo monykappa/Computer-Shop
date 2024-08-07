@@ -17,6 +17,10 @@ button{
 a.see-more-btn{
     background: var(--fourth-color);
 }
+.see-more-btn{
+    background: var(--fourth-color);
+    color:#fff;
+}
 
 :root {
     --primary-font:  "Maven Pro", sans-serif;

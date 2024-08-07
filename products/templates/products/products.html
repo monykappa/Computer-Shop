@@ -48,8 +48,8 @@ Products
 {% include 'search/search_product.html' %}
 
 <!-- Filter Form -->
-<div class="container mt-4">
-    <form method="GET" action="{% url 'products:product_list' %}">
+<div class="mt-4" style="width:80%; margin:0 auto;">
+    <form method="GET" action="{% url 'products:product_list' %}" id="filter-form">
         <div class="row">
             <div class="col-md-3">
                 <select name="brand" class="form-control">
@@ -84,12 +84,14 @@ Products
                 </select>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Apply Filters</button>
+        <button type="submit" class="btn see-more-btn mt-3">Apply Filters</button>
+        <button type="button" class="btn btn-secondary mt-3 ms-2" onclick="clearFilters()">Clear Filters</button>
     </form>
 </div>
 
+
 <!-- Brand List -->
-<div style="width:80%; margin:0 auto;">
+<div style="width:80%; margin:0 auto;" class="mt-5">
     <div class="row">
         <div class="col-md-12">
             <div class="border rounded">
@@ -106,6 +108,8 @@ Products
         </div>
     </div>
 </div>
+
+
 <!-- Products by Brand -->
 <div id="products-container" class="mt-5">
     {% if selected_brand %}
@@ -187,7 +191,7 @@ Products
                             <h3 class="product-price">
                                 <span class="first-digit">${{ spec.product.price|floatformat:0|slice:":1" }}</span>{{ spec.product.price|floatformat:2|slice:"1:" }}
                             </h3>
-                            <a href="{% url 'products:product_detail' spec.product.laptop_spec.slug %}" class="btn btn-primary see-more-btn">
+                            <a href="{% url 'products:product_detail' spec.product.laptop_spec.slug %}" class="btn see-more-btn">
                                 <i class="fa-solid fa-eye"></i>
                             </a>
                         </div>
@@ -197,6 +201,7 @@ Products
             {% endfor %}
         </div>
     {% else %}
+    
         <!-- Display all brands with their products if no specific brand is selected -->
         {% for brand in brands %}
         <div id="{{ brand.slug }}" class="brand-section">
@@ -294,6 +299,7 @@ Products
 </div>
 
 
+
 <script>
     const searchForm = document.getElementById('search-form');
     const modal = document.getElementById('search-modal');
@@ -325,6 +331,14 @@ Products
             }, 300);
         }
     });
+
+    function clearFilters() {
+        var form = document.getElementById('filter-form');
+        form.reset(); // Reset all form fields to their default values
+        form.action = "{% url 'products:product_list' %}"; // Set action to the URL to clear query parameters
+        form.submit(); // Submit the form
+    }
+  
 </script>
 
 {% endblock content %}

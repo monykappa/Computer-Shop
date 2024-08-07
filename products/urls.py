@@ -24,6 +24,7 @@ urlpatterns = [
     
     path('search/', views.search_products, name='search_products'),
     
+    
 ]
 
 if settings.DEBUG:
