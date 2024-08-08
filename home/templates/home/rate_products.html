@@ -28,51 +28,49 @@
         content: '★';
     }
 
-    .product-image {
-        max-width: 200px; /* Adjust as needed */
-        margin: 10px;
+    .product-card img {
+        max-width: 50%; /* Ensure the image fits within the card */
+        height: auto;
+        margin:0 auto;
     }
 </style>
 
-<div class="container">
-    <h2>Rate Product</h2>
-    
-    <!-- Display Product Information -->
-    <div class="product-details">
-        <h3>{{ product.name }}</h3>
-        <p>Model: {{ product.model }}</p>
-        <p>Price: {{ product.price }}</p>
-        <p>Description: {{ product.description }}</p>
-        <p>Year: {{ product.year }}</p>
-        
-        <!-- Display the First Product Image -->
-        <div class="product-image">
-            {% if product_images %}
-                <img src="{{ product_images.0.image.url }}" alt="Image for {{ product.name }}" width="120">
-            {% else %}
-                <p>No images available.</p>
-            {% endif %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Rating Form -->
+        <div class="col-md-6">
+            <h2>Rate Product</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5" />
+                    <label for="star5" title="5 stars"></label>
+                    <input type="radio" id="star4" name="rating" value="4" />
+                    <label for="star4" title="4 stars"></label>
+                    <input type="radio" id="star3" name="rating" value="3" />
+                    <label for="star3" title="3 stars"></label>
+                    <input type="radio" id="star2" name="rating" value="2" />
+                    <label for="star2" title="2 stars"></label>
+                    <input type="radio" id="star1" name="rating" value="1" />
+                    <label for="star1" title="1 star"></label>
+                </div>
+                <input type="hidden" id="rating-value" name="rating" />
+                <textarea name="comment" placeholder="Leave a comment (optional)" class="form-control mt-3"></textarea>
+                <button type="submit" class="btn btn-primary mt-3">Submit Rating</button>
+            </form>
+        </div>
+
+        <!-- Product Card -->
+        <div class="col-md-6">
+            <div class="card product-card">
+                <img class="card-img-top" src="{% if product_images %}{{ product_images.0.image.url }}{% else %}/static/images/default.png{% endif %}" alt="Image for {{ product.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }} {{ product.model }} {{ product.year }}</h5>
+                    <p class="card-text text-danger">${{ product.price }}</p>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <form method="post">
-        {% csrf_token %}
-        <div class="star-rating">
-            <input type="radio" id="star5" name="rating" value="5" />
-            <label for="star5" title="5 stars"></label>
-            <input type="radio" id="star4" name="rating" value="4" />
-            <label for="star4" title="4 stars"></label>
-            <input type="radio" id="star3" name="rating" value="3" />
-            <label for="star3" title="3 stars"></label>
-            <input type="radio" id="star2" name="rating" value="2" />
-            <label for="star2" title="2 stars"></label>
-            <input type="radio" id="star1" name="rating" value="1" />
-            <label for="star1" title="1 star"></label>
-        </div>
-        <input type="hidden" id="rating-value" name="rating" />
-        <textarea name="comment" placeholder="Leave a comment (optional)" class="form-control mt-3"></textarea>
-        <button type="submit" class="btn btn-primary mt-3">Submit Rating</button>
-    </form>
 </div>
 
 <script>
