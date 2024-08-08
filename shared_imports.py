@@ -196,3 +196,4 @@ from django.db.models.functions import TruncMonth
 from django.db.models import Subquery, OuterRef, Value
 from django.db.models.functions import Coalesce
 from django.views.decorators.http import require_GET
+from django.db.models import Avg

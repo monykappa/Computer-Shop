@@ -10,6 +10,21 @@
 {% endblock css %}
 
 {% block content %}
+<style>
+    img.star-ic{
+        width:20px;
+    }
+    .review-distribution {
+        text-align: center;
+    }
+    
+    #review-bar-chart {
+        border: 1px solid #ddd;
+        background-color: #f9f9f9;
+    }
+    
+    
+</style>
 {% include 'products/laptop.html' %}
 <div class="container mt-5">
     <div class="row">
@@ -37,6 +52,37 @@
             {% endif %}
             <h3>{{ laptop_spec.product.year }}</h3>
             <p>Brand: {{ laptop_spec.product.brand.name }}</p>
+          <!-- Display average rating -->
+<div class="rating-display">
+    <div class="rating-value">
+        {% if avg_rating %}
+            <div class="stars">
+                {% for i in "12345" %}
+                    {% if avg_rating >= i %}
+                        <span class="star full">
+                            <img src="{% static 'img/icons/icons8-star-50-gold.png' %}" alt="Star" class="star-ic">
+                        </span>
+                    {% elif avg_rating >= i|add:0.5 %}
+                        <span class="star half">
+                            <img src="{% static 'img/icons/icons8-star-50-gold.png' %}" alt="Star" class="star-ic">
+                        </span>
+                    {% else %}
+                        <span class="star empty">
+                            <img src="{% static 'img/icons/icons8-star-50-gray.png' %}" alt="Star" class="star-ic">
+                        </span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="rating-number">
+                {{ avg_rating|floatformat:1 }} ({{ reviews.count }} ratings)
+            </div>
+        {% else %}
+            No ratings yet
+        {% endif %}
+    </div>
+</div>
+
+            
             <p>
                 <span class="warranty-badge">
                     {% if laptop_spec.product.warranty_years > 0 %}
@@ -61,6 +107,7 @@
         </div>
     </div>
     <div class="row">
+        <!-- Product Specifications -->
         <div class="col-md-6 border" style="background:white !important; padding:1rem; border-radius:8px;">
             <h3 style="color:var(--fourth-color);">Specification</h3>
             <ul class="list-specs">
@@ -70,7 +117,7 @@
                         {% if laptop_spec.cpu.threads %} - {{ laptop_spec.cpu.threads }} threads{% endif %}
                     </li>
                 {% endif %}
-
+    
                 {% if laptop_spec.memory %}
                     <li><strong>Memory:</strong>
                         {% if laptop_spec.memory.capacity %}{{ laptop_spec.memory.capacity }}GB{% endif %}
@@ -79,7 +126,7 @@
                         {% if laptop_spec.memory.memory_brand %} - {{ laptop_spec.memory.memory_brand.name }}{% endif %}
                     </li>
                 {% endif %}
-
+    
                 {% if laptop_spec.storage %}
                     <li><strong>Storage:</strong>
                         {% if laptop_spec.storage.capacity %}{{ laptop_spec.storage.capacity }} {{ laptop_spec.storage.capacity_type }}{% endif %}
@@ -90,7 +137,7 @@
                         {% if laptop_spec.storage.storage_brand %} - {{ laptop_spec.storage.storage_brand.name }}{% endif %}
                     </li>
                 {% endif %}
-
+    
                 {% if laptop_spec.gpu.all %}
                     <li><strong>GPU:</strong>
                         {% for gpu in laptop_spec.gpu.all %}
@@ -100,14 +147,14 @@
                         {% endfor %}
                     </li>
                 {% endif %}
-
+    
                 {% if laptop_spec.display and laptop_spec.display.display %}
                     <li><strong>Display:</strong> {{ laptop_spec.display.display }} inches
                         {% if laptop_spec.resolution %} - {{ laptop_spec.resolution.resolution }}{% endif %}
                         {% if laptop_spec.refresh_rate %} - {{ laptop_spec.refresh_rate.rate }} Hz{% endif %}
                     </li>
                 {% endif %}
-
+    
                 {% if laptop_spec.port.all %}
                     <li><strong>Ports:</strong>
                         {% for port in laptop_spec.port.all %}
@@ -115,7 +162,7 @@
                         {% endfor %}
                     </li>
                 {% endif %}
-
+    
                 {% if laptop_spec.wireless_connectivity.all %}
                     <li><strong>Wireless Connectivity:</strong>
                         {% for wireless in laptop_spec.wireless_connectivity.all %}
@@ -123,25 +170,29 @@
                         {% endfor %}
                     </li>
                 {% endif %}
-
+    
                 {% if laptop_spec.webcam and laptop_spec.webcam.webcam %}
                     <li><strong>Webcam:</strong> {{ laptop_spec.webcam.webcam }}</li>
                 {% endif %}
-
+    
                 {% if laptop_spec.battery and laptop_spec.battery.battery %}
                     <li><strong>Battery:</strong> {{ laptop_spec.battery.battery }} Kw</li>
                 {% endif %}
-
+    
                 {% if laptop_spec.operating_system and laptop_spec.operating_system.operating_system %}
                     <li><strong>Operating System:</strong> {{ laptop_spec.operating_system.operating_system }}</li>
                 {% endif %}
-
+    
                 {% if laptop_spec.weight %}
                     <li><strong>Weight:</strong> {{ laptop_spec.weight }} kg</li>
                 {% endif %}
             </ul>
         </div>
-        <div class="col-md-6">
+    
+       <!-- User Reviews Section -->
+    <div class="col-md-6">
+        
+            
             <h4 class="card-title mb-4">Recommended Products</h4>
             {% if related_products %}
                 <div class="list-group">
@@ -159,8 +210,8 @@
                 <p>No related products found.</p>
             {% endif %}
         </div>
-        
     </div>
+    
     <div class="row">
         <div class="col-md-12">
             <h1 class="mt-5">Top Selling Products</h1>
@@ -189,10 +240,134 @@
     </div>
 </div>
 
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">User Reviews</h4>
+        </div>
+        <div class="card-body">
+            {% if reviews %}
+            <div class="list-group">
+                {% for review in reviews %}
+                <div class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-2 text-center">
+                            {% if review.user.socialaccount_set.exists %}
+                            <img src="{{ review.user.socialaccount_set.all.0.get_avatar_url }}" class="rounded-circle img-thumbnail mb-3" alt="Social Account Profile Picture" style="width: 60px; height: 60px;">
+                            <h6>{{ review.user.socialaccount_set.all.0.extra_data.name }}</h6>
+                            {% elif review.user.userprofile.pfp %}
+                            <img src="{{ review.user.userprofile.pfp.url }}" class="rounded-circle img-thumbnail mb-3" alt="User Profile Picture" style="width: 60px; height: 60px;">
+                            <h6>{{ review.user.get_full_name }}</h6>
+                            {% else %}
+                            <img src="https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg" class="rounded-circle img-thumbnail mb-3" alt="Default Avatar" style="width: 60px; height: 60px;">
+                            <h6>{{ review.user.get_full_name }}</h6>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-10">
+                            <div class="stars">
+                                {% for i in "12345" %}
+                                {% if review.rating >= i %}
+                                <img src="{% static 'img/icons/icons8-star-50-gold.png' %}" alt="Star" class="star-ic">
+                                {% elif review.rating >= i|add:0.5 %}
+                                <img src="{% static 'img/icons/icons8-star-50-gold.png' %}" alt="Star" class="star-ic">
+                                {% else %}
+                                <img src="{% static 'img/icons/icons8-star-50-gray.png' %}" alt="Star" class="star-ic">
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="mb-1">{{ review.comment }}</p>
+                            <small class="text-muted">Reviewed on {{ review.created_at|date:"F j, Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No reviews yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="review-distribution">
+                <canvas id="review-bar-chart" width="400" height="300"></canvas>
+                <div class="review-summary mt-2">
+                    {{ avg_rating|floatformat:1 }} out of 5
+                    <span class="text-muted">({{ reviews.count }} reviews)</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <!-- Existing review list content -->
+        </div>
+    </div>
+</div>
+
+
 <div id="imageModal" class="modal">
     <span class="close">&times;</span>
     <img class="modal-content" id="modalImage">
 </div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var canvas = document.getElementById('review-bar-chart');
+        var ctx = canvas.getContext('2d');
+    
+        // Data for the chart
+        var ratings = [{% for item in rating_distribution %}{{ item.rating }},{% endfor %}];
+        var counts = [{% for item in rating_distribution %}{{ item.count }},{% endfor %}];
+    
+        // Chart dimensions
+        var chartWidth = canvas.width;
+        var chartHeight = canvas.height;
+        var barWidth = 50;
+        var barSpacing = 20;
+        var maxBarHeight = chartHeight - 60; // Leave some space for labels and grid lines
+    
+        // Find the maximum count value for scaling
+        var maxCount = Math.max(...counts);
+    
+        // Draw grid lines
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        for (var i = 1; i <= 5; i++) {
+            var y = chartHeight - (i * (maxBarHeight / 5));
+            ctx.moveTo(30, y);
+            ctx.lineTo(chartWidth - 20, y);
+        }
+        ctx.stroke();
+    
+        // Draw bars
+        for (var i = 0; i < ratings.length; i++) {
+            var barHeight = (counts[i] / maxCount) * maxBarHeight;
+            var x = i * (barWidth + barSpacing) + 40;
+            var y = chartHeight - barHeight - 30;
+    
+            // Draw bar
+            ctx.fillStyle = '#ffa500';
+            ctx.fillRect(x, y, barWidth, barHeight);
+    
+            // Draw bar label
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            ctx.fillText(ratings[i] + ' stars', x + barWidth / 2, chartHeight - 10);
+    
+            // Draw count label
+            ctx.fillText(counts[i], x + barWidth / 2, y - 5);
+        }
+    
+        // Draw x-axis labels
+        ctx.fillStyle = '#000';
+        ctx.textAlign = 'center';
+        ctx.fillText('Rating', chartWidth / 2, chartHeight - 20);
+    });
+    
+  </script>
 {% endblock content %}
 
 {% block js %}

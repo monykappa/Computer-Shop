@@ -13,6 +13,9 @@ Products
 {% block content %}
 
 <style>
+    img.star-ic{
+        width: 10px;
+    }
     .brand-filter {
         background-color: #f8f9fa;
         padding: 15px;
@@ -109,7 +112,6 @@ Products
     </div>
 </div>
 
-
 <!-- Products by Brand -->
 <div id="products-container" class="mt-5">
     {% if selected_brand %}
@@ -186,8 +188,36 @@ Products
                                 Unknown Color
                             {% endif %}
                         </p>
+                         <!-- Display rating above price -->
+                                <div class="product-rating">
+                                    {% if spec.avg_rating %}
+                                        <div class="stars">
+                                            {% for i in "12345" %}
+                                                {% if spec.avg_rating >= i %}
+                                                    <span class="star full">
+                                                        <img src="{% static 'img/icons/icons8-star-50-gold.png' %}" alt="Star" class="star-ic">
+                                                    </span>
+                                                {% elif spec.avg_rating >= i|add:0.5 %}
+                                                    <span class="star half">
+                                                        <img src="{% static 'img/icons/icons8-star-50-gold.png' %}" alt="Star" class="star-ic">
+                                                    </span>
+                                                {% else %}
+                                                    <span class="star empty">
+                                                        <img src="{% static 'img/icons/icons8-star-50-gray.png' %}" alt="Star" class="star-ic">
+                                                    </span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <div class="rating-number">
+                                            {{ spec.avg_rating|floatformat:1 }}
+                                        </div>
+                                    {% else %}
+                                        No ratings yet
+                                    {% endif %}
+                                </div>
                         
                         <div class="product-footer">
+                            <!-- Display rating above price -->
                             <h3 class="product-price">
                                 <span class="first-digit">${{ spec.product.price|floatformat:0|slice:":1" }}</span>{{ spec.product.price|floatformat:2|slice:"1:" }}
                             </h3>
@@ -278,8 +308,36 @@ Products
                                     Unknown Color
                                 {% endif %}
                             </p>
+                             <!-- Display rating above price -->
+                             <div class="product-rating">
+                                {% if spec.avg_rating %}
+                                    <div class="stars">
+                                        {% for i in "12345" %}
+                                            {% if spec.avg_rating >= i %}
+                                                <span class="star full">
+                                                    <img src="{% static 'img/icons/icons8-star-50-gold.png' %}" alt="Star" class="star-ic">
+                                                </span>
+                                            {% elif spec.avg_rating >= i|add:0.5 %}
+                                                <span class="star half">
+                                                    <img src="{% static 'img/icons/icons8-star-50-gold.png' %}" alt="Star" class="star-ic">
+                                                </span>
+                                            {% else %}
+                                                <span class="star empty">
+                                                    <img src="{% static 'img/icons/icons8-star-50-gray.png' %}" alt="Star" class="star-ic">
+                                                </span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <div class="rating-number">
+                                        {{ spec.avg_rating|floatformat:1 }}
+                                    </div>
+                                {% else %}
+                                    No ratings yet
+                                {% endif %}
+                            </div>
                             
                             <div class="product-footer">
+                               
                                 <h3 class="product-price">
                                     <span class="first-digit">${{ spec.product.price|floatformat:0|slice:":1" }}</span>{{ spec.product.price|floatformat:2|slice:"1:" }}
                                 </h3>
@@ -297,7 +355,6 @@ Products
         {% endfor %}
     {% endif %}
 </div>
-
 
 
 <script>
