@@ -112,7 +112,18 @@ class ProductDetailView(DetailView):
             .annotate(count=Count('rating'))
             .order_by('rating')
         )
-        context['rating_distribution'] = rating_distribution
+
+        # Ensure all ratings from 1 to 5 are included
+        rating_counts = {rating: 0 for rating in range(1, 6)}
+        for item in rating_distribution:
+            rating_counts[item['rating']] = item['count']
+
+        # Calculate the percentage for each rating
+        total_reviews = reviews.count()
+        rating_percentages = {rating: (count / total_reviews) * 100 if total_reviews > 0 else 0 for rating, count in rating_counts.items()}
+
+        # Convert to JSON to be used in JavaScript
+        context['rating_percentages'] = json.dumps(rating_percentages)
 
         return context
 

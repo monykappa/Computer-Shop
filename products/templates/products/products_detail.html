@@ -291,7 +291,9 @@
     <div class="row mt-4">
         <div class="col-md-3">
             <div class="review-distribution">
-                <canvas id="review-bar-chart" width="400" height="300"></canvas>
+                <canvas id="review-bar-chart" width="800" height="400" style="border:1px solid #000;"></canvas>
+
+
                 <div class="review-summary mt-2">
                     {{ avg_rating|floatformat:1 }} out of 5
                     <span class="text-muted">({{ reviews.count }} reviews)</span>
@@ -316,58 +318,75 @@
     document.addEventListener('DOMContentLoaded', function() {
         var canvas = document.getElementById('review-bar-chart');
         var ctx = canvas.getContext('2d');
-    
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var width = 800;
+        var height = 400;
+
+        canvas.width = width * devicePixelRatio;
+        canvas.height = height * devicePixelRatio;
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        ctx.scale(devicePixelRatio, devicePixelRatio);
+
         // Data for the chart
-        var ratings = [{% for item in rating_distribution %}{{ item.rating }},{% endfor %}];
-        var counts = [{% for item in rating_distribution %}{{ item.count }},{% endfor %}];
-    
+        var ratings = [1, 2, 3, 4, 5];
+        var ratingPercentages = JSON.parse('{{ rating_percentages|escapejs }}');
+        var percentages = ratings.map(rating => ratingPercentages[rating] || 0);
+
         // Chart dimensions
         var chartWidth = canvas.width;
         var chartHeight = canvas.height;
-        var barWidth = 50;
-        var barSpacing = 20;
-        var maxBarHeight = chartHeight - 60; // Leave some space for labels and grid lines
-    
-        // Find the maximum count value for scaling
-        var maxCount = Math.max(...counts);
-    
+        var barHeight = 20;
+        var barSpacing = 30;
+        var maxBarWidth = chartWidth - 100; // Adjusted for labels
+
+        // Find the maximum percentage value for scaling
+        var maxPercentage = Math.max(...percentages);
+
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         // Draw grid lines
         ctx.strokeStyle = '#ccc';
-        ctx.lineWidth = 0.5;
+        ctx.lineWidth = 1;
         ctx.beginPath();
         for (var i = 1; i <= 5; i++) {
-            var y = chartHeight - (i * (maxBarHeight / 5));
-            ctx.moveTo(30, y);
-            ctx.lineTo(chartWidth - 20, y);
+            var x = (i * (maxBarWidth / 5)) + 70;
+            ctx.moveTo(x, 30);
+            ctx.lineTo(x, chartHeight - 30);
         }
         ctx.stroke();
-    
+
         // Draw bars
+        ctx.font = '16px Arial';
         for (var i = 0; i < ratings.length; i++) {
-            var barHeight = (counts[i] / maxCount) * maxBarHeight;
-            var x = i * (barWidth + barSpacing) + 40;
-            var y = chartHeight - barHeight - 30;
-    
+            var barWidth = (percentages[i] / 100) * maxBarWidth;
+            var x = 80; // Adjusted space for labels
+            var y = i * (barHeight + barSpacing) + 40;
+
             // Draw bar
             ctx.fillStyle = '#ffa500';
             ctx.fillRect(x, y, barWidth, barHeight);
-    
+
             // Draw bar label
             ctx.fillStyle = '#000';
-            ctx.textAlign = 'center';
-            ctx.fillText(ratings[i] + ' stars', x + barWidth / 2, chartHeight - 10);
-    
-            // Draw count label
-            ctx.fillText(counts[i], x + barWidth / 2, y - 5);
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(ratings[i] + ' stars', x + barWidth + 10, y + barHeight / 2);
+
+            // Draw percentage label
+            ctx.fillText(Math.round(percentages[i]) + '%', x + barWidth + 10, y + barHeight / 2 - 10);
         }
-    
-        // Draw x-axis labels
+
+        // Draw y-axis label
         ctx.fillStyle = '#000';
         ctx.textAlign = 'center';
-        ctx.fillText('Rating', chartWidth / 2, chartHeight - 20);
+        ctx.fillText('Rating', chartWidth / 2, 20);
     });
-    
-  </script>
+</script>
+
+
+
 {% endblock content %}
 
 {% block js %}
