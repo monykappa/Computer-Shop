@@ -28,6 +28,7 @@
             padding: 0 15px;
         }
     }
+
     .rating-button {
         margin-top: 10px;
     }
@@ -49,6 +50,13 @@
                     <div class="card-body">
                         <p class="notification-message {% if not notification.is_read %}font-weight-bold{% endif %}">
                             {{ notification.message }}
+                            {% if notification.notification_type == 'RATE_PRODUCT' %}
+                                {% if notification.is_rated %}
+                                    <span class="badge badge-secondary">Already Rated</span>
+                                {% else %}
+                                    <span class="badge badge-primary">Pending Rating</span>
+                                {% endif %}
+                            {% endif %}
                         </p>
                         <small class="text-muted">{{ notification.created_at|date:"F d, Y H:i" }}</small>
                         {% if not notification.is_read %}
@@ -57,9 +65,9 @@
                             Mark as Read
                         </button>
                         {% endif %}
-                        {% if notification.notification_type == 'RATE_PRODUCT' %}
+                        {% if notification.notification_type == 'RATE_PRODUCT' and not notification.is_rated %}
                         <div class="rating-button">
-                            <a href="{% url 'home:rate_product' item_id=notification.related_object_id %}" class="btn btn-sm btn-success">
+                            <a href="{{ notification.rate_url }}" class="btn btn-sm btn-success">
                                 Rate Product
                             </a>
                         </div>
@@ -76,96 +84,96 @@
         </div>
     </div>
 </div>
-</div>
 
-<script>
-    $(document).ready(function () {
-        function markAsRead(button) {
-            var notificationId = button.data('notification-id');
-            console.log("Marking notification as read:", notificationId);
-            $.ajax({
-                url: "{% url 'home:mark_notification_as_read' %}",
-                method: 'POST',
-                data: {
-                    notification_id: notificationId,
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                },
-                success: function (response) {
-                    console.log("Success response:", response);
-                    if (response.success) {
-                        button.closest('.notification').removeClass('unread');
-                        button.closest('.notification').find('.notification-message').removeClass('font-weight-bold');
-                        button.fadeOut();
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error marking notification as read:", error);
-                    console.log("Response:", xhr.responseText);
-                }
-            });
-        }
-    
-        $('.mark-as-read').click(function () {
-            markAsRead($(this));
-        });
-    
-        $('#mark-all-read').click(function () {
-            var button = $(this);
-            console.log("Marking all notifications as read");
-            $.ajax({
-                url: "{% url 'home:mark_all_notifications_as_read' %}",
-                method: 'POST',
-                data: {
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                },
-                success: function (response) {
-                    console.log("Success response:", response);
-                    if (response.success) {
-                        $('.notification').removeClass('unread');
-                        $('.notification-message').removeClass('font-weight-bold');
-                        $('.mark-as-read').fadeOut();
-                        button.prop('disabled', true)
-                            .removeClass('btn-primary')
-                            .addClass('btn-secondary')
-                            .html('All Read');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error marking all notifications as read:", error);
-                    console.log("Response:", xhr.responseText);
-                }
-            });
-        });
-    
-        let page = 2;
-        $('#show-more').click(function () {
-            $.ajax({
-                url: '?page=' + page,
-                method: 'GET',
-                success: function (data) {
-                    const notifications = $(data).find('.notifications-list').html();
-                    if (notifications.trim() === "") {
-                        $('#show-more').remove();
-                    } else {
-                        $('.notifications-list').append(notifications);
-                        page += 1;
-                        if (!$(data).find('#show-more').length) {
-                            $('#show-more').remove();
+
+    <script>
+        $(document).ready(function () {
+            function markAsRead(button) {
+                var notificationId = button.data('notification-id');
+                console.log("Marking notification as read:", notificationId);
+                $.ajax({
+                    url: "{% url 'home:mark_notification_as_read' %}",
+                    method: 'POST',
+                    data: {
+                        notification_id: notificationId,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        console.log("Success response:", response);
+                        if (response.success) {
+                            button.closest('.notification').removeClass('unread');
+                            button.closest('.notification').find('.notification-message').removeClass('font-weight-bold');
+                            button.fadeOut();
                         }
-                    }
-                },
-                error: function (xhr, status, error) {
-                    if (xhr.status === 404) {
-                        console.log("No more notifications to load.");
-                        $('#show-more').remove();
-                    } else {
-                        console.error("Error loading more notifications:", error);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error marking notification as read:", error);
                         console.log("Response:", xhr.responseText);
                     }
-                }
+                });
+            }
+
+            $('.mark-as-read').click(function () {
+                markAsRead($(this));
+            });
+
+            $('#mark-all-read').click(function () {
+                var button = $(this);
+                console.log("Marking all notifications as read");
+                $.ajax({
+                    url: "{% url 'home:mark_all_notifications_as_read' %}",
+                    method: 'POST',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        console.log("Success response:", response);
+                        if (response.success) {
+                            $('.notification').removeClass('unread');
+                            $('.notification-message').removeClass('font-weight-bold');
+                            $('.mark-as-read').fadeOut();
+                            button.prop('disabled', true)
+                                .removeClass('btn-primary')
+                                .addClass('btn-secondary')
+                                .html('All Read');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error marking all notifications as read:", error);
+                        console.log("Response:", xhr.responseText);
+                    }
+                });
+            });
+
+            let page = 2;
+            $('#show-more').click(function () {
+                $.ajax({
+                    url: '?page=' + page,
+                    method: 'GET',
+                    success: function (data) {
+                        const notifications = $(data).find('.notifications-list').html();
+                        if (notifications.trim() === "") {
+                            $('#show-more').remove();
+                        } else {
+                            $('.notifications-list').append(notifications);
+                            page += 1;
+                            if (!$(data).find('#show-more').length) {
+                                $('#show-more').remove();
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        if (xhr.status === 404) {
+                            console.log("No more notifications to load.");
+                            $('#show-more').remove();
+                        } else {
+                            console.error("Error loading more notifications:", error);
+                            console.log("Response:", xhr.responseText);
+                        }
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
 
-{% endblock %}
+    {% endblock %}

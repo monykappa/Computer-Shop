@@ -142,6 +142,10 @@ class OrderHistoryItem(models.Model):
     def has_been_rated(self):
         return ProductRating.objects.filter(order_history_item=self).exists()
     
+    def __str__(self):
+        return f"OrderHistoryItem {self.id} - Product: {self.product.name} - Quantity: {self.quantity}"
+
+    
 
 class ProductRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

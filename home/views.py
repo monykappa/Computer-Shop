@@ -114,7 +114,22 @@ class RateProductView(LoginRequiredMixin, CreateView):
     model = ProductRating
     fields = ['rating', 'comment']
     template_name = 'home/rate_products.html'
-    success_url = reverse_lazy('userprofile:notifications')
+    success_url = reverse_lazy('home:notifications')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        item_id = self.kwargs['item_id']
+        context['item_id'] = item_id
+        
+        # Fetch the OrderHistoryItem and Product
+        order_history_item = get_object_or_404(OrderHistoryItem, id=item_id)
+        product = order_history_item.product
+        
+        # Add product details and images to the context
+        context['product'] = product
+        context['product_images'] = ProductImage.objects.filter(product=product)
+        
+        return context
 
     def form_valid(self, form):
         order_history_item = get_object_or_404(OrderHistoryItem, id=self.kwargs['item_id'])
@@ -133,8 +148,9 @@ class RateProductView(LoginRequiredMixin, CreateView):
         ).update(is_read=True)
         
         return super().form_valid(form)
-    
-    
+
+
+
     
 class NotificationView(LoginRequiredMixin, ListView):
     model = Notification
@@ -145,13 +161,24 @@ class NotificationView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        for notification in context['notifications']:
+        notifications = context['notifications']
+
+        for notification in notifications:
             if notification.notification_type == 'RATE_PRODUCT':
                 notification.rate_url = reverse('home:rate_product', kwargs={'item_id': notification.related_object_id})
+                # Check if the user has already rated the product
+                order_history_item = OrderHistoryItem.objects.filter(id=notification.related_object_id).first()
+                if order_history_item:
+                    notification.is_rated = ProductRating.objects.filter(
+                        user=self.request.user,
+                        product=order_history_item.product,
+                        order_history_item=order_history_item
+                    ).exists()
         return context
     
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user).order_by('-created_at')
+
 
 @login_required
 @require_POST
